@@ -3,14 +3,14 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const testimonials = [
   {
-    quote: "LocalPulse helped us reach so many new customers! Posting our daily specials takes seconds and the results are amazing.",
+    quote: "TrustAds helped us reach so many new customers! Posting our daily specials takes seconds and the results are amazing.",
     name: "Maria Garcia",
     title: "Owner, The Corner Cafe",
     avatar: "https://placehold.co/100x100.png",
     hint: "woman portrait"
   },
   {
-    quote: "I love finding new lunch spots and deals on LocalPulse. It's my go-to app for discovering what's happening in my neighborhood.",
+    quote: "I love finding new lunch spots and deals on TrustAds. It's my go-to app for discovering what's happening in my neighborhood.",
     name: "David Chen",
     title: "Local Customer",
     avatar: "https://placehold.co/100x100.png",

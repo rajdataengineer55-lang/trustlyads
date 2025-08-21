@@ -11,7 +11,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Zap className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline">
-              LocalPulse
+              TrustAds
             </span>
           </Link>
         </div>
@@ -23,7 +23,7 @@ export function Header() {
                 <Link href="/" className="flex items-center space-x-2">
                     <Zap className="h-6 w-6 text-primary" />
                     <span className="font-bold sm:inline-block font-headline">
-                    LocalPulse
+                    TrustAds
                     </span>
                 </Link>
             </div>

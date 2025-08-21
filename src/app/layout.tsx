@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'LocalPulse',
+  title: 'TrustAds',
   description: 'Connect with Local Businesses. Find Best Offers Daily.',
 };
 

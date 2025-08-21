@@ -9,7 +9,7 @@ export function CtaBanner() {
             Ready to Boost Your Business?
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg">
-            Join hundreds of local businesses on LocalPulse. Sign up today and post your first ad in minutes!
+            Join hundreds of local businesses on TrustAds. Sign up today and post your first ad in minutes!
           </p>
           <div className="mt-8">
             <Button
