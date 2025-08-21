@@ -6,7 +6,6 @@ import { HowItWorks } from "@/components/landing/how-it-works";
 import { Testimonials } from "@/components/landing/testimonials";
 import { CtaBanner } from "@/components/landing/cta-banner";
 import { Footer } from "@/components/landing/footer";
-import { AdGenerator } from "@/components/ad-generator";
 
 export default function Home() {
   return (
@@ -16,7 +15,6 @@ export default function Home() {
         <Hero />
         <Categories />
         <FeaturedOffers />
-        <AdGenerator />
         <HowItWorks />
         <Testimonials />
         <CtaBanner />
