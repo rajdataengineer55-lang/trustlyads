@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Zap } from "lucide-react"
+import { Menu, Zap, MapPin } from "lucide-react"
 import Link from "next/link"
 
 export function Header() {
@@ -14,6 +14,10 @@ export function Header() {
               TrustAds
             </span>
           </Link>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="h-5 w-5" />
+            <span>Tirupati, Vellore, Chittoor & more</span>
+          </div>
         </div>
         
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
