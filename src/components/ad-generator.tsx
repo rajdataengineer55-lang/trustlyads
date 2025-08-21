@@ -23,8 +23,11 @@ const formSchema = z.object({
   images: z.custom<FileList>().optional(),
   video: z.custom<FileList>().optional(),
   allowCall: z.boolean().default(false).optional(),
+  phoneNumber: z.string().optional(),
   allowChat: z.boolean().default(false).optional(),
+  chatLink: z.string().optional(),
   allowSchedule: z.boolean().default(false).optional(),
+  scheduleLink: z.string().optional(),
 });
 
 const businessTypes = {
@@ -99,10 +102,17 @@ export function AdGenerator() {
       businessName: "",
       offerDetails: "",
       allowCall: true,
+      phoneNumber: "",
       allowChat: false,
+      chatLink: "",
       allowSchedule: false,
+      scheduleLink: "",
     },
   });
+
+  const watchAllowCall = form.watch("allowCall");
+  const watchAllowChat = form.watch("allowChat");
+  const watchAllowSchedule = form.watch("allowSchedule");
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -311,6 +321,54 @@ export function AdGenerator() {
                           </div>
                       </div>
                       
+                      {watchAllowCall && (
+                        <FormField
+                          control={form.control}
+                          name="phoneNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phone Number</FormLabel>
+                              <FormControl>
+                                <Input type="tel" placeholder="Enter phone number" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                      
+                      {watchAllowChat && (
+                        <FormField
+                          control={form.control}
+                          name="chatLink"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Chat Link or ID</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g., your-whatsapp-link or username" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      {watchAllowSchedule && (
+                        <FormField
+                          control={form.control}
+                          name="scheduleLink"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Scheduling URL</FormLabel>
+                              <FormControl>
+                                <Input type="url" placeholder="e.g., https://calendly.com/your-name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
                       <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
                       {isLoading ? (
                           <>
