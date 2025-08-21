@@ -1,9 +1,8 @@
-import { Zap, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Zap, Facebook, Twitter, Linkedin, Phone, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 const footerLinks = [
   { name: "About", href: "/about" },
-  { name: "Contact", href: "mailto:dandurajkumarworld24@gmail.com" },
   { name: "FAQ", href: "#" },
   { name: "Terms of Service", href: "#" },
   { name: "Privacy Policy", href: "#" },
@@ -33,6 +32,26 @@ export function Footer() {
                       </Link>
                     </li>
                   ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-headline font-semibold mb-4">Contact Us</h4>
+                <ul className="space-y-2">
+                    <li>
+                      <a href="mailto:dandurajkumarworld24@gmail.com" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4" /> Email
+                      </a>
+                    </li>
+                    <li>
+                      <a href="tel:+919380002829" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                        <Phone className="h-4 w-4" /> Call
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4" /> WhatsApp
+                      </a>
+                    </li>
                 </ul>
               </div>
               <div>
