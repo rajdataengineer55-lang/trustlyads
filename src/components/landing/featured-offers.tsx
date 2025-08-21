@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle, Calendar } from "lucide-react";
 
 const offers = [
   {
@@ -79,9 +79,17 @@ export function FeaturedOffers() {
                       <div className="p-6 bg-white dark:bg-card">
                         <h3 className="text-xl font-headline font-bold">{offer.title}</h3>
                         <p className="text-muted-foreground mt-1">{offer.business}</p>
-                        <Button className="mt-4 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold w-full">
-                          Connect Now <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
+                        <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold flex-1">
+                            Connect Now <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" className="flex-1">
+                            <MessageCircle className="mr-2 h-4 w-4" /> Chat Now
+                          </Button>
+                          <Button variant="outline" className="flex-1">
+                            <Calendar className="mr-2 h-4 w-4" /> Schedule
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
