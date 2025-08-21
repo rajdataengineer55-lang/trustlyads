@@ -1,79 +1,20 @@
 
+"use client";
+
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle, Calendar, Phone } from "lucide-react";
-
-const offers = [
-  {
-    title: "50% Off on Italian Cuisine",
-    business: "Bella Italia",
-    category: "Food & Restaurants",
-    image: "https://placehold.co/600x400.png",
-    hint: "restaurant food",
-    discount: "50% OFF",
-    tags: ["Today's Offer", "Discounts"],
-    allowCall: true,
-    allowChat: true,
-    allowSchedule: false,
-  },
-  {
-    title: "Summer Collection Sale",
-    business: "Chic Boutique",
-    category: "Textile & Garments",
-    image: "https://placehold.co/600x400.png",
-    hint: "fashion clothing",
-    discount: "30% OFF",
-    tags: ["Sale", "Just Listed"],
-    allowCall: true,
-    allowChat: false,
-    allowSchedule: true,
-  },
-  {
-    title: "Relaxing Spa Day Package",
-    business: "Serenity Spa",
-    category: "Health & Wellness",
-    image: "https://placehold.co/600x400.png",
-    hint: "spa wellness",
-    discount: "2-for-1",
-    tags: ["Discounts"],
-    allowCall: true,
-    allowChat: true,
-    allowSchedule: true,
-  },
-  {
-    title: "Weekend Car Rental Deal",
-    business: "Speedy Rentals",
-    category: "Automobiles",
-    image: "https://placehold.co/600x400.png",
-    hint: "car rental",
-    discount: "$50/day",
-    tags: ["Just Listed"],
-    allowCall: true,
-    allowChat: false,
-    allowSchedule: false,
-  },
-  {
-    title: "Home Cleaning Services",
-    business: "Sparkle Clean",
-    category: "Home & Local Services",
-    image: "https://placehold.co/600x400.png",
-    hint: "home service",
-    discount: "20% OFF",
-    tags: ["Today's Offer"],
-    allowCall: true,
-    allowChat: true,
-    allowSchedule: true,
-  }
-];
+import { useOffers } from "@/contexts/OffersContext";
 
 interface FeaturedOffersProps {
   selectedCategory: string | null;
 }
 
 export function FeaturedOffers({ selectedCategory }: FeaturedOffersProps) {
+  const { offers } = useOffers();
 
   const filteredOffers = selectedCategory
     ? offers.filter(offer => offer.category === selectedCategory)
@@ -134,19 +75,25 @@ export function FeaturedOffers({ selectedCategory }: FeaturedOffersProps) {
                         <p className="text-muted-foreground mt-1">{offer.business}</p>
                         <div className="mt-4 flex flex-wrap gap-2">
                           {offer.allowCall && (
-                            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold flex-1">
-                              <Phone className="mr-2 h-4 w-4" /> Call Now
-                            </Button>
+                             <a href={`tel:${offer.phoneNumber}`}>
+                              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold flex-1">
+                                <Phone className="mr-2 h-4 w-4" /> Call Now
+                              </Button>
+                            </a>
                           )}
                           {offer.allowChat && (
-                            <Button variant="outline" className="flex-1">
-                              <MessageCircle className="mr-2 h-4 w-4" /> Chat Now
-                            </Button>
+                            <a href={offer.chatLink} target="_blank" rel="noopener noreferrer">
+                              <Button variant="outline" className="flex-1">
+                                <MessageCircle className="mr-2 h-4 w-4" /> Chat Now
+                              </Button>
+                            </a>
                           )}
                           {offer.allowSchedule && (
-                            <Button variant="outline" className="flex-1">
-                              <Calendar className="mr-2 h-4 w-4" /> Schedule
-                            </Button>
+                            <a href={offer.scheduleLink} target="_blank" rel="noopener noreferrer">
+                              <Button variant="outline" className="flex-1">
+                                <Calendar className="mr-2 h-4 w-4" /> Schedule
+                              </Button>
+                            </a>
                           )}
                         </div>
                       </div>

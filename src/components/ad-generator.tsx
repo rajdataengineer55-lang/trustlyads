@@ -17,12 +17,15 @@ import { Loader2, Megaphone } from "lucide-react";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { locations } from "@/lib/locations";
+import { useOffers } from "@/contexts/OffersContext";
 
 const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
   businessType: z.string({ required_error: "Please select a business type." }),
   location: z.string({ required_error: "Please select a location." }),
   offerDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
+  discount: z.string().min(1, { message: "Discount details are required." }),
+  tags: z.string().optional(),
   images: z.custom<FileList>().optional(),
   video: z.custom<FileList>().optional(),
   allowCall: z.boolean().default(false).optional(),
@@ -98,12 +101,15 @@ export function AdGenerator() {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
   const { toast } = useToast();
+  const { addOffer } = useOffers();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       businessName: "",
       offerDetails: "",
+      discount: "",
+      tags: "",
       allowCall: true,
       phoneNumber: "",
       allowChat: false,
@@ -119,7 +125,7 @@ export function AdGenerator() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
+    if (files && files.length > 0) {
       const newPreviews = Array.from(files).map(file => URL.createObjectURL(file));
       setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 5)); // Limit to 5 images
       form.setValue('images', files);
@@ -138,20 +144,30 @@ export function AdGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     
-    console.log("Submitting form with values:", values);
-    if (values.images) {
-      console.log("Images to upload:", Array.from(values.images).map(f => f.name));
-    }
-    if (values.video) {
-      console.log("Video to upload:", values.video[0].name);
-    }
-
     // Simulate an API call
     await new Promise(resolve => setTimeout(resolve, 1500));
 
+    const newOffer = {
+        title: values.offerDetails,
+        business: values.businessName,
+        category: values.businessType,
+        image: imagePreviews[0] || 'https://placehold.co/600x400.png',
+        hint: 'new offer',
+        discount: values.discount,
+        tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || ["Just Listed"],
+        allowCall: values.allowCall ?? false,
+        allowChat: values.allowChat ?? false,
+        allowSchedule: values.allowSchedule ?? false,
+        phoneNumber: values.phoneNumber,
+        chatLink: values.chatLink,
+        scheduleLink: values.scheduleLink,
+    };
+
+    addOffer(newOffer);
+
     toast({
       title: "Offer Posted!",
-      description: "Your offer has been successfully posted.",
+      description: "Your offer has been successfully posted and is now live.",
     });
     
     // Reset form and previews
@@ -242,7 +258,7 @@ export function AdGenerator() {
                                     <SelectGroup key={location.name}>
                                       <FormLabel className="px-2 text-xs text-muted-foreground">{location.name}</FormLabel>
                                       {location.subLocations.map((sub) => (
-                                        <SelectItem key={sub} value={sub}>
+                                        <SelectItem key={`${location.name}-${sub}`} value={sub}>
                                           {sub}
                                         </SelectItem>
                                       ))}
@@ -264,13 +280,41 @@ export function AdGenerator() {
                       name="offerDetails"
                       render={({ field }) => (
                           <FormItem>
-                          <FormLabel>Offer Details</FormLabel>
+                          <FormLabel>Offer Title / Details</FormLabel>
                           <FormControl>
-                              <Textarea placeholder="Describe your offer, e.g., 'Get 20% off all coffee and pastries from 8am to 11am on weekdays.'" {...field} />
+                              <Textarea placeholder="Describe your offer, e.g., 'Get 20% off all coffee and pastries...'" {...field} />
                           </FormControl>
                           <FormMessage />
                           </FormItem>
                       )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="discount"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Discount / Price</FormLabel>
+                            <FormControl>
+                                <Input placeholder="e.g., 50% OFF, 2-for-1, $10" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="tags"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Tags</FormLabel>
+                            <FormControl>
+                                <Input placeholder="e.g., Today's Offer, Sale, New" {...field} />
+                            </FormControl>
+                            <FormDescription>Separate tags with a comma.</FormDescription>
+                            <FormMessage />
+                            </FormItem>
+                        )}
                       />
 
                       <FormItem>
@@ -278,7 +322,7 @@ export function AdGenerator() {
                         <FormControl>
                           <Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
                         </FormControl>
-                        <FormDescription>Upload up to 5 images for your offer.</FormDescription>
+                        <FormDescription>Upload up to 5 images for your offer. The first image will be the main one.</FormDescription>
                         {imagePreviews.length > 0 && (
                           <div className="grid grid-cols-3 gap-2 mt-2">
                             {imagePreviews.map((src, i) => <Image key={i} src={src} alt="Preview" width={100} height={100} className="rounded-md object-cover aspect-square"/>)}
