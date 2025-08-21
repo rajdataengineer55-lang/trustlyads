@@ -13,7 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FeaturedOffers } from '@/components/landing/featured-offers';
 
 export default function OfferDetailsPage() {
   const params = useParams();

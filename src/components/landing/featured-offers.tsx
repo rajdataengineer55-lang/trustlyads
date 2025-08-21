@@ -80,10 +80,8 @@ export function FeaturedOffers({ selectedCategory }: FeaturedOffersProps) {
                           ))}
                         </div>
                         <Link href={`/offer/${offer.id}`} passHref>
-                          <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                            <span>
+                          <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
                                View Details <ArrowRight className="ml-2 h-4 w-4" />
-                            </span>
                           </Button>
                         </Link>
                       </div>
