@@ -1,3 +1,4 @@
+
 import { Zap, Facebook, Twitter, Linkedin, Phone, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -6,6 +7,7 @@ const footerLinks = [
   { name: "FAQ", href: "#" },
   { name: "Terms of Service", href: "#" },
   { name: "Privacy Policy", href: "#" },
+  { name: "Admin", href: "/login" },
 ];
 
 export function Footer() {
