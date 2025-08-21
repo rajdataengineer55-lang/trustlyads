@@ -20,7 +20,20 @@ const locations = [
   },
   { name: "Chittoor" },
   { name: "Nagari" },
-  { name: "Palamaner" },
+  { 
+    name: "Palamaner",
+    subLocations: [
+      "Gangavaram",
+      "Peddapanjani",
+      "Somala",
+      "Chowdepalle",
+      "Punganur",
+      "Sodam",
+      "Baireddipalle",
+      "Venkatagirikota",
+      "Bangarupalem",
+    ]
+  },
   { name: "Kuppam" },
   { name: "Punganur" },
   { name: "Madanapalle" },
