@@ -12,12 +12,14 @@ export function CtaBanner() {
             Join hundreds of local businesses on TrustAds. Sign up today and post your first ad in minutes!
           </p>
           <div className="mt-8">
-            <Button
-              size="lg"
-              className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg py-7 px-10 rounded-full"
-            >
-              Sign Up & Post Your Ad
-            </Button>
+            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
+              <Button
+                size="lg"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg py-7 px-10 rounded-full"
+              >
+                Sign Up & Post Your Ad
+              </Button>
+            </a>
           </div>
         </div>
       </div>
