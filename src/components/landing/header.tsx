@@ -48,7 +48,6 @@ const locations = [
       "Sodam",
       "Baireddipalle",
       "Venkatagirikota",
-      "Bangarupalem",
     ]
   },
   { 
