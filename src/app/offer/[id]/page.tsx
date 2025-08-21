@@ -8,14 +8,15 @@ import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { FeaturedOffers } from '@/components/landing/featured-offers';
 
 export default function OfferDetailsPage() {
   const params = useParams();
-  const { getOfferById } = useOffers();
+  const { offers, getOfferById } = useOffers();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -28,6 +29,8 @@ export default function OfferDetailsPage() {
       setIsLoading(false);
     }
   }, [id, getOfferById]);
+  
+  const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id).slice(0, 3);
 
   if (isLoading) {
     return (
@@ -97,8 +100,8 @@ export default function OfferDetailsPage() {
                  <ArrowLeft className="mr-2 h-4 w-4" />
                  Back to all offers
             </Link>
-            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-                <div>
+            <div className="grid md:grid-cols-5 gap-8 lg:gap-12">
+                <div className="md:col-span-3">
                     <div className="relative mb-4">
                         <Image
                             src={offer.image}
@@ -112,15 +115,14 @@ export default function OfferDetailsPage() {
                           {offer.discount}
                         </Badge>
                     </div>
-                    {/* Placeholder for more images */}
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         {[1, 2, 3, 4].map(i => (
                              <Image key={i} src="https://placehold.co/200x200.png" alt="thumbnail" width={200} height={200} className="rounded-md object-cover aspect-square" data-ai-hint="placeholder image" />
                         ))}
                     </div>
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                     <Card>
                         <CardContent className="p-6">
                             <h1 className="text-3xl font-headline font-bold mb-2">{offer.title}</h1>
@@ -129,8 +131,6 @@ export default function OfferDetailsPage() {
                                 <MapPin className="h-5 w-5 mr-2" />
                                 <span>{offer.location}</span>
                             </div>
-                            
-                            <p className="mb-6">This is a placeholder for a more detailed offer description. It can include information about the product, service, terms, and conditions to give customers all the details they need before making a decision.</p>
 
                             <div className="flex flex-wrap gap-2 mb-6">
                             {offer.tags?.map((tag) => (
@@ -165,6 +165,68 @@ export default function OfferDetailsPage() {
                     </Card>
                 </div>
             </div>
+
+            <div className="mt-12">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Offer Description</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    This is a detailed description of the amazing offer from {offer.business}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+            
+            {similarOffers.length > 0 && (
+              <div className="mt-16">
+                 <h2 className="text-3xl font-headline font-bold text-center mb-12">
+                  Similar Offers
+                </h2>
+                 <div className="grid md:grid-cols-3 gap-4">
+                  {similarOffers.map((similarOffer) => (
+                    <Card key={similarOffer.id} className="overflow-hidden group transition-shadow duration-300 hover:shadow-2xl">
+                      <CardContent className="p-0">
+                        <div className="relative">
+                          <Image
+                            src={similarOffer.image}
+                            alt={similarOffer.title}
+                            width={600}
+                            height={400}
+                            className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
+                            data-ai-hint={similarOffer.hint}
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                              <h3 className="text-xl font-headline font-bold text-white">{similarOffer.title}</h3>
+                          </div>
+                          <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
+                            {similarOffer.discount}
+                          </Badge>
+                        </div>
+                        <div className="p-6 bg-white dark:bg-card">
+                          <div className="flex items-center text-sm text-muted-foreground mb-3">
+                              <MapPin className="h-4 w-4 mr-2" />
+                              <span>{similarOffer.location}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {similarOffer.tags?.map((tag) => (
+                              <Badge key={tag} variant="secondary">{tag}</Badge>
+                            ))}
+                          </div>
+                          <Link href={`/offer/${similarOffer.id}`} passHref>
+                            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                                 View Details <ArrowLeft className="ml-2 h-4 w-4 transform rotate-180" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                 </div>
+              </div>
+            )}
+
         </div>
       </main>
       <Footer />
