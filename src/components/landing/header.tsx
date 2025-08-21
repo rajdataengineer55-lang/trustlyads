@@ -52,7 +52,14 @@ const locations = [
       "Bangarupalem",
     ]
   },
-  { name: "Kuppam" },
+  { 
+    name: "Kuppam",
+    subLocations: [
+      "Santhipuram",
+      "Gudupalle",
+      "Ramakuppam",
+    ]
+  },
   { name: "Punganur" },
   { 
     name: "Madanapalle",
