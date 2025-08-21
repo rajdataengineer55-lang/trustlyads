@@ -6,6 +6,7 @@ export interface Offer {
   title: string;
   business: string;
   category: string;
+  location: string;
   image: string;
   hint: string;
   discount: string;
@@ -28,6 +29,7 @@ const initialOffers: Offer[] = [
       title: "50% Off on Italian Cuisine",
       business: "Bella Italia",
       category: "Food & Restaurants",
+      location: "Tirupati Urban",
       image: "https://placehold.co/600x400.png",
       hint: "restaurant food",
       discount: "50% OFF",
@@ -40,6 +42,7 @@ const initialOffers: Offer[] = [
       title: "Summer Collection Sale",
       business: "Chic Boutique",
       category: "Textile & Garments",
+      location: "Vellore",
       image: "https://placehold.co/600x400.png",
       hint: "fashion clothing",
       discount: "30% OFF",
@@ -52,6 +55,7 @@ const initialOffers: Offer[] = [
       title: "Relaxing Spa Day Package",
       business: "Serenity Spa",
       category: "Health & Wellness",
+      location: "Chittoor",
       image: "https://placehold.co/600x400.png",
       hint: "spa wellness",
       discount: "2-for-1",
@@ -64,6 +68,7 @@ const initialOffers: Offer[] = [
       title: "Weekend Car Rental Deal",
       business: "Speedy Rentals",
       category: "Automobiles",
+      location: "Tirupati Rural",
       image: "https://placehold.co/600x400.png",
       hint: "car rental",
       discount: "$50/day",
@@ -76,6 +81,7 @@ const initialOffers: Offer[] = [
       title: "Home Cleaning Services",
       business: "Sparkle Clean",
       category: "Home & Local Services",
+      location: "Puttur",
       image: "https://placehold.co/600x400.png",
       hint: "home service",
       discount: "20% OFF",

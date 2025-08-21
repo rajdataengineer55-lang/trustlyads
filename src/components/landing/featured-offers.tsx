@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MessageCircle, Calendar, Phone } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 
 interface FeaturedOffersProps {
@@ -61,41 +61,26 @@ export function FeaturedOffers({ selectedCategory }: FeaturedOffersProps) {
                           className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
                           data-ai-hint={offer.hint}
                         />
+                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                            <h3 className="text-xl font-headline font-bold text-white">{offer.title}</h3>
+                        </div>
                         <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
                           {offer.discount}
                         </Badge>
                       </div>
                       <div className="p-6 bg-white dark:bg-card">
-                        <div className="flex flex-wrap gap-2 mb-2">
+                         <div className="flex items-center text-sm text-muted-foreground mb-3">
+                            <MapPin className="h-4 w-4 mr-2" />
+                            <span>{offer.location}</span>
+                         </div>
+                        <div className="flex flex-wrap gap-2 mb-4">
                           {offer.tags?.map((tag) => (
                             <Badge key={tag} variant="secondary">{tag}</Badge>
                           ))}
                         </div>
-                        <h3 className="text-xl font-headline font-bold">{offer.title}</h3>
-                        <p className="text-muted-foreground mt-1">{offer.business}</p>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {offer.allowCall && (
-                             <a href={`tel:${offer.phoneNumber}`}>
-                              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold flex-1">
-                                <Phone className="mr-2 h-4 w-4" /> Call Now
-                              </Button>
-                            </a>
-                          )}
-                          {offer.allowChat && (
-                            <a href={offer.chatLink} target="_blank" rel="noopener noreferrer">
-                              <Button variant="outline" className="flex-1">
-                                <MessageCircle className="mr-2 h-4 w-4" /> Chat Now
-                              </Button>
-                            </a>
-                          )}
-                          {offer.allowSchedule && (
-                            <a href={offer.scheduleLink} target="_blank" rel="noopener noreferrer">
-                              <Button variant="outline" className="flex-1">
-                                <Calendar className="mr-2 h-4 w-4" /> Schedule
-                              </Button>
-                            </a>
-                          )}
-                        </div>
+                        <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                           View Details <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

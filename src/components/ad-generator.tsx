@@ -151,6 +151,7 @@ export function AdGenerator() {
         title: values.offerDetails,
         business: values.businessName,
         category: values.businessType,
+        location: values.location,
         image: imagePreviews[0] || 'https://placehold.co/600x400.png',
         hint: 'new offer',
         discount: values.discount,
