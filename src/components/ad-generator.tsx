@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -15,10 +16,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Megaphone } from "lucide-react";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
+import { locations } from "@/lib/locations";
 
 const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
   businessType: z.string({ required_error: "Please select a business type." }),
+  location: z.string({ required_error: "Please select a location." }),
   offerDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   images: z.custom<FileList>().optional(),
   video: z.custom<FileList>().optional(),
@@ -215,6 +218,41 @@ export function AdGenerator() {
                                     ))}
                                   </SelectGroup>
                                 ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Location</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a location" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {locations.map((location) =>
+                                  location.subLocations ? (
+                                    <SelectGroup key={location.name}>
+                                      <FormLabel className="px-2 text-xs text-muted-foreground">{location.name}</FormLabel>
+                                      {location.subLocations.map((sub) => (
+                                        <SelectItem key={sub} value={sub}>
+                                          {sub}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectGroup>
+                                  ) : (
+                                    <SelectItem key={location.name} value={location.name}>
+                                      {location.name}
+                                    </SelectItem>
+                                  )
+                                )}
                               </SelectContent>
                             </Select>
                             <FormMessage />
