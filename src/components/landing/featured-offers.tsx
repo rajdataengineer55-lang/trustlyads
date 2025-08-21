@@ -11,35 +11,50 @@ const offers = [
     business: "Bella Italia",
     image: "https://placehold.co/600x400.png",
     hint: "restaurant food",
-    discount: "50% OFF"
+    discount: "50% OFF",
+    allowCall: true,
+    allowChat: true,
+    allowSchedule: false,
   },
   {
     title: "Summer Collection Sale",
     business: "Chic Boutique",
     image: "https://placehold.co/600x400.png",
     hint: "fashion clothing",
-    discount: "30% OFF"
+    discount: "30% OFF",
+    allowCall: true,
+    allowChat: false,
+    allowSchedule: true,
   },
   {
     title: "Relaxing Spa Day Package",
     business: "Serenity Spa",
     image: "https://placehold.co/600x400.png",
     hint: "spa wellness",
-    discount: "2-for-1"
+    discount: "2-for-1",
+    allowCall: true,
+    allowChat: true,
+    allowSchedule: true,
   },
   {
     title: "Weekend Car Rental Deal",
     business: "Speedy Rentals",
     image: "https://placehold.co/600x400.png",
     hint: "car rental",
-    discount: "$50/day"
+    discount: "$50/day",
+    allowCall: true,
+    allowChat: false,
+    allowSchedule: false,
   },
   {
     title: "Home Cleaning Services",
     business: "Sparkle Clean",
     image: "https://placehold.co/600x400.png",
     hint: "home service",
-    discount: "20% OFF"
+    discount: "20% OFF",
+    allowCall: true,
+    allowChat: true,
+    allowSchedule: true,
   }
 ];
 
@@ -79,16 +94,22 @@ export function FeaturedOffers() {
                       <div className="p-6 bg-white dark:bg-card">
                         <h3 className="text-xl font-headline font-bold">{offer.title}</h3>
                         <p className="text-muted-foreground mt-1">{offer.business}</p>
-                        <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold flex-1">
-                            Connect Now <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" className="flex-1">
-                            <MessageCircle className="mr-2 h-4 w-4" /> Chat Now
-                          </Button>
-                          <Button variant="outline" className="flex-1">
-                            <Calendar className="mr-2 h-4 w-4" /> Schedule
-                          </Button>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {offer.allowCall && (
+                            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold flex-1">
+                              Connect Now <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          )}
+                          {offer.allowChat && (
+                            <Button variant="outline" className="flex-1">
+                              <MessageCircle className="mr-2 h-4 w-4" /> Chat Now
+                            </Button>
+                          )}
+                          {offer.allowSchedule && (
+                            <Button variant="outline" className="flex-1">
+                              <Calendar className="mr-2 h-4 w-4" /> Schedule
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </CardContent>
