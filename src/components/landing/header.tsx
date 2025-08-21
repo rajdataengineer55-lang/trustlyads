@@ -18,7 +18,25 @@ const locations = [
       "Chandragiri",
     ]
   },
-  { name: "Chittoor" },
+  { 
+    name: "Chittoor",
+    subLocations: [
+      "Gudipala",
+      "Yadamarri",
+      "Gangadhara Nellore",
+      "Puthalapattu",
+      "Penumuru",
+      "Bangarupalem",
+      "Thavanampalle",
+      "Irala",
+      "Srirangarajapuram",
+      "Vedurukuppam",
+      "Vadamalapeta",
+      "Palasamudram",
+      "Puttur",
+      "Karvetinagar",
+    ]
+  },
   { name: "Nagari" },
   { 
     name: "Palamaner",
