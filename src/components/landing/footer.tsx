@@ -7,7 +7,7 @@ const footerLinks = [
   { name: "FAQ", href: "#" },
   { name: "Terms of Service", href: "#" },
   { name: "Privacy Policy", href: "#" },
-  { name: "Admin", href: "/login" },
+  { name: "Admin", href: "/admin" },
 ];
 
 export function Footer() {
