@@ -9,17 +9,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Megaphone, Upload, Video, X } from "lucide-react";
+import { Loader2, Megaphone } from "lucide-react";
 import Image from "next/image";
 
 const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
+  businessType: z.string({ required_error: "Please select a business type." }),
   offerDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   images: z.custom<FileList>().optional(),
   video: z.custom<FileList>().optional(),
 });
+
+const businessTypes = [
+  "Restaurants",
+  "Shopping",
+  "Health",
+  "Beauty",
+  "Rentals",
+  "Services",
+];
 
 export function AdGenerator() {
   const [isLoading, setIsLoading] = useState(false);
@@ -116,6 +127,28 @@ export function AdGenerator() {
                           <FormMessage />
                           </FormItem>
                       )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="businessType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Business Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a business type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {businessTypes.map(type => (
+                                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                       <FormField
                       control={form.control}
