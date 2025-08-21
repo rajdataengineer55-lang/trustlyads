@@ -2,7 +2,7 @@ import { Zap, Facebook, Twitter, Linkedin } from "lucide-react";
 import Link from "next/link";
 
 const footerLinks = [
-  { name: "About", href: "#" },
+  { name: "About", href: "/about" },
   { name: "Contact", href: "mailto:dandurajkumarworld24@gmail.com" },
   { name: "FAQ", href: "#" },
   { name: "Terms of Service", href: "#" },
