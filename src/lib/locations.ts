@@ -1,6 +1,6 @@
 
 export const locations = [
-    { 
+    {
       name: "Tirupati",
       subLocations: [
         "Tirupati Urban",
@@ -14,7 +14,7 @@ export const locations = [
         "Chandragiri",
       ]
     },
-    { 
+    {
       name: "Chittoor",
       subLocations: [
         "Gudipala",
@@ -27,13 +27,11 @@ export const locations = [
         "Irala",
         "Srirangarajapuram",
         "Vedurukuppam",
-        "Vadamalapeta",
         "Palasamudram",
-        "Puttur",
         "Karvetinagar",
       ]
     },
-    { 
+    {
       name: "Palamaner",
       subLocations: [
         "Gangavaram",
@@ -45,7 +43,7 @@ export const locations = [
         "Venkatagirikota",
       ]
     },
-    { 
+    {
       name: "Kuppam",
       subLocations: [
         "Santhipuram",
@@ -53,7 +51,7 @@ export const locations = [
         "Ramakuppam",
       ]
     },
-    { 
+    {
       name: "Madanapalle",
       subLocations: [
           "Nimmanapalle",
