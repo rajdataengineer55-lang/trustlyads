@@ -8,12 +8,12 @@ import { handleGenerateAdCopy } from "@/app/actions";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Copy, Sparkles, Wand2 } from "lucide-react";
+import { Loader2, Copy, Sparkles, Wand2, Upload, Video, X } from "lucide-react";
 import Image from "next/image";
 
 const formSchema = z.object({
@@ -21,11 +21,16 @@ const formSchema = z.object({
   offerDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   targetAudience: z.string().optional(),
   tone: z.enum(['Casual', 'Professional', 'Humorous', 'Persuasive']),
+  images: z.custom<FileList>().optional(),
+  video: z.custom<FileList>().optional(),
 });
 
 export function AdGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [adVariations, setAdVariations] = useState<string[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -38,11 +43,45 @@ export function AdGenerator() {
     },
   });
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newPreviews = Array.from(files).map(file => URL.createObjectURL(file));
+      setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 5)); // Limit to 5 images
+      form.setValue('images', files);
+    }
+  };
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setVideoPreview(URL.createObjectURL(file));
+      form.setValue('video', e.target.files);
+    }
+  };
+
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setAdVariations([]);
+    
+    // Here you would typically handle the file uploads to your storage service.
+    // For this example, we'll just log the file names.
+    if (values.images) {
+      console.log("Images to upload:", Array.from(values.images).map(f => f.name));
+    }
+    if (values.video) {
+      console.log("Video to upload:", values.video[0].name);
+    }
+
     try {
-      const result = await handleGenerateAdCopy(values);
+      const result = await handleGenerateAdCopy({
+        businessName: values.businessName,
+        offerDetails: values.offerDetails,
+        targetAudience: values.targetAudience,
+        tone: values.tone,
+      });
+
       if (result && result.adCopyVariations) {
         setAdVariations(result.adCopyVariations);
       } else {
@@ -121,6 +160,35 @@ export function AdGenerator() {
                             </FormItem>
                         )}
                         />
+
+                        <FormItem>
+                          <FormLabel>Offer Images</FormLabel>
+                          <FormControl>
+                            <Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+                          </FormControl>
+                          <FormDescription>Upload up to 5 images for your offer.</FormDescription>
+                          {imagePreviews.length > 0 && (
+                            <div className="grid grid-cols-3 gap-2 mt-2">
+                              {imagePreviews.map((src, i) => <Image key={i} src={src} alt="Preview" width={100} height={100} className="rounded-md object-cover aspect-square"/>)}
+                            </div>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+
+                        <FormItem>
+                          <FormLabel>Offer Video</FormLabel>
+                          <FormControl>
+                            <Input type="file" accept="video/*" onChange={handleVideoChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+                          </FormControl>
+                           <FormDescription>Upload a short video for your offer.</FormDescription>
+                          {videoPreview && (
+                            <div className="mt-2 relative">
+                              <video src={videoPreview} controls className="rounded-md w-full" />
+                            </div>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+
                         <FormField
                         control={form.control}
                         name="targetAudience"
