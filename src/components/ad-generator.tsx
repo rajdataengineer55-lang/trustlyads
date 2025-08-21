@@ -128,8 +128,16 @@ export function AdGenerator() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
+      if ((imagePreviews.length + files.length) > 10) {
+        toast({
+          variant: "destructive",
+          title: "Image Limit Exceeded",
+          description: "You can upload a maximum of 10 images.",
+        });
+        return;
+      }
       const newPreviews = Array.from(files).map(file => URL.createObjectURL(file));
-      setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 5)); // Limit to 5 images
+      setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 10)); // Limit to 10 images
       form.setValue('images', files);
     }
   };
@@ -137,8 +145,25 @@ export function AdGenerator() {
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setVideoPreview(URL.createObjectURL(file));
-      form.setValue('video', e.target.files);
+      const videoElement = document.createElement('video');
+      videoElement.preload = 'metadata';
+      videoElement.onloadedmetadata = function() {
+        window.URL.revokeObjectURL(videoElement.src);
+        if (videoElement.duration > 60) {
+          toast({
+            variant: "destructive",
+            title: "Video Too Long",
+            description: "Please upload a video that is 1 minute or less.",
+          });
+          setVideoPreview(null);
+          form.setValue('video', undefined);
+          if (e.target) e.target.value = ''; // Reset the file input
+        } else {
+          setVideoPreview(URL.createObjectURL(file));
+          form.setValue('video', e.target.files);
+        }
+      }
+      videoElement.src = URL.createObjectURL(file);
     }
   };
 
@@ -339,9 +364,9 @@ export function AdGenerator() {
                         <FormControl>
                           <Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
                         </FormControl>
-                        <FormDescription>Upload up to 5 images for your offer. The first image will be the main one.</FormDescription>
+                        <FormDescription>Upload up to 10 images for your offer. The first image will be the main one.</FormDescription>
                         {imagePreviews.length > 0 && (
-                          <div className="grid grid-cols-3 gap-2 mt-2">
+                          <div className="grid grid-cols-5 gap-2 mt-2">
                             {imagePreviews.map((src, i) => <Image key={i} src={src} alt="Preview" width={100} height={100} className="rounded-md object-cover aspect-square"/>)}
                           </div>
                         )}
@@ -353,10 +378,10 @@ export function AdGenerator() {
                         <FormControl>
                           <Input type="file" accept="video/*" onChange={handleVideoChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
                         </FormControl>
-                         <FormDescription>Upload a short video for your offer.</FormDescription>
+                         <FormDescription>Upload a short video (max 1 minute) for your offer.</FormDescription>
                         {videoPreview && (
                           <div className="mt-2 relative">
-                            <video src={videoPreview} controls className="rounded-md w-full" />
+                            <video src={videoPreview} controls className="rounded-md w-full object-cover" />
                           </div>
                         )}
                         <FormMessage />
@@ -490,3 +515,5 @@ export function AdGenerator() {
     </section>
   );
 }
+
+    

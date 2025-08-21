@@ -214,7 +214,8 @@ export default function OfferDetailsPage() {
                           </div>
                           <Link href={`/offer/${similarOffer.id}`} passHref>
                             <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                                 View Details <ArrowLeft className="ml-2 h-4 w-4 transform rotate-180" />
+                                 View Details
+                                <ArrowLeft className="ml-2 h-4 w-4 transform rotate-180" />
                             </Button>
                           </Link>
                         </div>
@@ -231,3 +232,5 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    
