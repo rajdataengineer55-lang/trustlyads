@@ -37,7 +37,6 @@ const locations = [
       "Karvetinagar",
     ]
   },
-  { name: "Nagari" },
   { 
     name: "Palamaner",
     subLocations: [
@@ -60,7 +59,6 @@ const locations = [
       "Ramakuppam",
     ]
   },
-  { name: "Punganur" },
   { 
     name: "Madanapalle",
     subLocations: [
