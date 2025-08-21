@@ -30,7 +30,7 @@ interface OffersContextType {
 
 const initialOffers: Offer[] = [
     {
-      id: "bella-italia-italian-cuisine",
+      id: "bella-italia-50-off-on-italian-cu",
       title: "50% Off on Italian Cuisine",
       description: "Enjoy a taste of Italy with a 50% discount on our entire menu. Valid for dine-in only.",
       business: "Bella Italia",
@@ -47,7 +47,7 @@ const initialOffers: Offer[] = [
       chatLink: "wa.me/919380002829",
     },
     {
-      id: "chic-boutique-summer-collection",
+      id: "chic-boutique-summer-collection-sal",
       title: "Summer Collection Sale",
       description: "Get ready for summer with 30% off our new collection. Featuring vibrant colors and breezy fabrics.",
       business: "Chic Boutique",
@@ -64,7 +64,7 @@ const initialOffers: Offer[] = [
       scheduleLink: "https://calendly.com/dandurajkumarworld24",
     },
     {
-      id: "serenity-spa-relaxing-package",
+      id: "serenity-spa-relaxing-spa-day-pack",
       title: "Relaxing Spa Day Package",
       description: "Two can relax for the price of one. Book our couple's massage and get a complimentary facial.",
       business: "Serenity Spa",
@@ -82,7 +82,7 @@ const initialOffers: Offer[] = [
       scheduleLink: "https://calendly.com/dandurajkumarworld24",
     },
     {
-      id: "speedy-rentals-weekend-deal",
+      id: "speedy-rentals-weekend-car-rental-d",
       title: "Weekend Car Rental Deal",
       description: "Rent any car for the weekend for just $50 per day. Includes unlimited mileage.",
       business: "Speedy Rentals",
@@ -98,7 +98,7 @@ const initialOffers: Offer[] = [
       phoneNumber: "9380002829",
     },
     {
-      id: "sparkle-clean-home-services",
+      id: "sparkle-clean-home-cleaning-servic",
       title: "Home Cleaning Services",
       description: "Get your home sparkling clean with 20% off our deep cleaning services. Offer valid for a limited time.",
       business: "Sparkle Clean",
@@ -125,7 +125,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const addOffer = (offer: Omit<Offer, 'id'>) => {
     const newOffer: Offer = {
       ...offer,
-      id: `${offer.business.toLowerCase().replace(/\s+/g, '-')}-${offer.title.toLowerCase().replace(/\s+/g, '-').slice(0,20)}`
+      id: `${offer.business.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0,15)}-${offer.title.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0,20)}`
     };
     setOffers(prevOffers => [newOffer, ...prevOffers]);
   };
