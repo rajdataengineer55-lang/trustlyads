@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
+import Link from "next/link";
 
 interface FeaturedOffersProps {
   selectedCategory: string | null;
@@ -47,8 +48,8 @@ export function FeaturedOffers({ selectedCategory }: FeaturedOffersProps) {
           className="w-full"
         >
           <CarouselContent>
-            {filteredOffers.map((offer, index) => (
-              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+            {filteredOffers.map((offer) => (
+              <CarouselItem key={offer.id} className="md:basis-1/2 lg:basis-1/3">
                 <div className="p-1">
                   <Card className="overflow-hidden group transition-shadow duration-300 hover:shadow-2xl">
                     <CardContent className="p-0">
@@ -78,9 +79,13 @@ export function FeaturedOffers({ selectedCategory }: FeaturedOffersProps) {
                             <Badge key={tag} variant="secondary">{tag}</Badge>
                           ))}
                         </div>
-                        <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                           View Details <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
+                        <Link href={`/offer/${offer.id}`} passHref>
+                          <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                            <a>
+                               View Details <ArrowRight className="ml-2 h-4 w-4" />
+                            </a>
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>

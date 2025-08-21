@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface Offer {
+  id: string;
   title: string;
   business: string;
   category: string;
@@ -21,11 +22,13 @@ export interface Offer {
 
 interface OffersContextType {
   offers: Offer[];
-  addOffer: (offer: Offer) => void;
+  addOffer: (offer: Omit<Offer, 'id'>) => void;
+  getOfferById: (id: string) => Offer | undefined;
 }
 
 const initialOffers: Offer[] = [
     {
+      id: "bella-italia-italian-cuisine",
       title: "50% Off on Italian Cuisine",
       business: "Bella Italia",
       category: "Food & Restaurants",
@@ -37,8 +40,11 @@ const initialOffers: Offer[] = [
       allowCall: true,
       allowChat: true,
       allowSchedule: false,
+      phoneNumber: "9380002829",
+      chatLink: "wa.me/919380002829",
     },
     {
+      id: "chic-boutique-summer-collection",
       title: "Summer Collection Sale",
       business: "Chic Boutique",
       category: "Textile & Garments",
@@ -50,8 +56,11 @@ const initialOffers: Offer[] = [
       allowCall: true,
       allowChat: false,
       allowSchedule: true,
+      phoneNumber: "9380002829",
+      scheduleLink: "https://calendly.com/dandurajkumarworld24",
     },
     {
+      id: "serenity-spa-relaxing-package",
       title: "Relaxing Spa Day Package",
       business: "Serenity Spa",
       category: "Health & Wellness",
@@ -63,8 +72,12 @@ const initialOffers: Offer[] = [
       allowCall: true,
       allowChat: true,
       allowSchedule: true,
+      phoneNumber: "9380002829",
+      chatLink: "wa.me/919380002829",
+      scheduleLink: "https://calendly.com/dandurajkumarworld24",
     },
     {
+      id: "speedy-rentals-weekend-deal",
       title: "Weekend Car Rental Deal",
       business: "Speedy Rentals",
       category: "Automobiles",
@@ -76,8 +89,10 @@ const initialOffers: Offer[] = [
       allowCall: true,
       allowChat: false,
       allowSchedule: false,
+      phoneNumber: "9380002829",
     },
     {
+      id: "sparkle-clean-home-services",
       title: "Home Cleaning Services",
       business: "Sparkle Clean",
       category: "Home & Local Services",
@@ -89,6 +104,9 @@ const initialOffers: Offer[] = [
       allowCall: true,
       allowChat: true,
       allowSchedule: true,
+      phoneNumber: "9380002829",
+      chatLink: "wa.me/919380002829",
+      scheduleLink: "https://calendly.com/dandurajkumarworld24",
     }
   ];
 
@@ -97,12 +115,20 @@ const OffersContext = createContext<OffersContextType | undefined>(undefined);
 export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>(initialOffers);
 
-  const addOffer = (offer: Offer) => {
-    setOffers(prevOffers => [offer, ...prevOffers]);
+  const addOffer = (offer: Omit<Offer, 'id'>) => {
+    const newOffer: Offer = {
+      ...offer,
+      id: `${offer.business.toLowerCase().replace(/\s+/g, '-')}-${offer.title.toLowerCase().replace(/\s+/g, '-').slice(0,20)}`
+    };
+    setOffers(prevOffers => [newOffer, ...prevOffers]);
+  };
+
+  const getOfferById = (id: string) => {
+    return offers.find(offer => offer.id === id);
   };
 
   return (
-    <OffersContext.Provider value={{ offers, addOffer }}>
+    <OffersContext.Provider value={{ offers, addOffer, getOfferById }}>
       {children}
     </OffersContext.Provider>
   );
