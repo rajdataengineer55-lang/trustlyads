@@ -130,6 +130,7 @@ export function Header() {
             </div>
           </div>
           <nav className="hidden md:flex gap-2">
+            <Button>Admin</Button>
             <Button>Post Your Business</Button>
             <Button variant="outline">Login</Button>
           </nav>
