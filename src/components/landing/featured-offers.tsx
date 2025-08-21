@@ -12,6 +12,7 @@ const offers = [
     image: "https://placehold.co/600x400.png",
     hint: "restaurant food",
     discount: "50% OFF",
+    tags: ["Today's Offer", "Discounts"],
     allowCall: true,
     allowChat: true,
     allowSchedule: false,
@@ -22,6 +23,7 @@ const offers = [
     image: "https://placehold.co/600x400.png",
     hint: "fashion clothing",
     discount: "30% OFF",
+    tags: ["Sale", "Just Listed"],
     allowCall: true,
     allowChat: false,
     allowSchedule: true,
@@ -32,6 +34,7 @@ const offers = [
     image: "https://placehold.co/600x400.png",
     hint: "spa wellness",
     discount: "2-for-1",
+    tags: ["Discounts"],
     allowCall: true,
     allowChat: true,
     allowSchedule: true,
@@ -42,6 +45,7 @@ const offers = [
     image: "https://placehold.co/600x400.png",
     hint: "car rental",
     discount: "$50/day",
+    tags: ["Just Listed"],
     allowCall: true,
     allowChat: false,
     allowSchedule: false,
@@ -52,6 +56,7 @@ const offers = [
     image: "https://placehold.co/600x400.png",
     hint: "home service",
     discount: "20% OFF",
+    tags: ["Today's Offer"],
     allowCall: true,
     allowChat: true,
     allowSchedule: true,
@@ -92,6 +97,11 @@ export function FeaturedOffers() {
                         </Badge>
                       </div>
                       <div className="p-6 bg-white dark:bg-card">
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {offer.tags?.map((tag) => (
+                            <Badge key={tag} variant="secondary">{tag}</Badge>
+                          ))}
+                        </div>
                         <h3 className="text-xl font-headline font-bold">{offer.title}</h3>
                         <p className="text-muted-foreground mt-1">{offer.business}</p>
                         <div className="mt-4 flex flex-wrap gap-2">
