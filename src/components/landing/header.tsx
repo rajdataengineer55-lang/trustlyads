@@ -64,7 +64,7 @@ export function Header() {
           <nav className="hidden md:flex gap-2 items-center">
             <Button variant="outline" onClick={() => setFollowers(followers + 1)}>
               <Users className="h-4 w-4 mr-2" />
-              Follow
+              Followers
               <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
             </Button>
             <Link href="/admin">
