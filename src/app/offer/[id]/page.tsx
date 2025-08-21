@@ -102,13 +102,12 @@ export default function OfferDetailsPage() {
             </Link>
             <div className="grid md:grid-cols-5 gap-8 lg:gap-12">
                 <div className="md:col-span-3">
-                    <div className="relative mb-4">
+                    <div className="relative mb-4 aspect-[4/3]">
                         <Image
                             src={offer.image}
                             alt={offer.title}
-                            width={800}
-                            height={600}
-                            className="w-full h-auto object-cover rounded-lg shadow-lg"
+                            fill
+                            className="object-cover rounded-lg shadow-lg"
                             data-ai-hint={offer.hint}
                         />
                          <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-2 px-4 text-lg">
@@ -188,13 +187,12 @@ export default function OfferDetailsPage() {
                   {similarOffers.map((similarOffer) => (
                     <Card key={similarOffer.id} className="overflow-hidden group transition-shadow duration-300 hover:shadow-2xl">
                       <CardContent className="p-0">
-                        <div className="relative">
+                        <div className="relative aspect-[4/3]">
                           <Image
                             src={similarOffer.image}
                             alt={similarOffer.title}
-                            width={600}
-                            height={400}
-                            className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint={similarOffer.hint}
                           />
                           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">

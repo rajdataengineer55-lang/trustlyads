@@ -53,13 +53,12 @@ export function FeaturedOffers({ selectedCategory }: FeaturedOffersProps) {
                 <div className="p-1">
                   <Card className="overflow-hidden group transition-shadow duration-300 hover:shadow-2xl">
                     <CardContent className="p-0">
-                      <div className="relative">
+                      <div className="relative aspect-[4/3]">
                         <Image
                           src={offer.image}
                           alt={offer.title}
-                          width={600}
-                          height={400}
-                          className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
                           data-ai-hint={offer.hint}
                         />
                          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
