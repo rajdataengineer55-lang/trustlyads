@@ -134,7 +134,9 @@ export function Header() {
               <Button>Admin</Button>
             </Link>
             <Button>Post Your Business</Button>
-            <Button variant="outline">Login</Button>
+            <Link href="/login">
+              <Button variant="outline">Login</Button>
+            </Link>
           </nav>
         </div>
       </div>
