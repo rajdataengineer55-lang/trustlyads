@@ -54,7 +54,21 @@ const locations = [
   },
   { name: "Kuppam" },
   { name: "Punganur" },
-  { name: "Madanapalle" },
+  { 
+    name: "Madanapalle",
+    subLocations: [
+        "Nimmanapalle",
+        "Ramasamudram",
+        "Thamballapalle",
+        "Mulakalacheruvu",
+        "Peddamandyam",
+        "Peddathippasamudram",
+        "B.Kothakota",
+        "Kalikiri",
+        "Valmikipuram",
+        "Kurabalakota"
+    ]
+  },
   { name: "Vellore" },
   { name: "Katpadi" },
 ];
