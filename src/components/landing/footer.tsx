@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const footerLinks = [
   { name: "About", href: "#" },
-  { name: "Contact", href: "#" },
+  { name: "Contact", href: "mailto:dandurajkumarworld24@gmail.com" },
   { name: "FAQ", href: "#" },
   { name: "Terms of Service", href: "#" },
   { name: "Privacy Policy", href: "#" },
