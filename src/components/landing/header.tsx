@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu"
-import { Zap, MapPin, ChevronDown, Users } from "lucide-react"
+import { Zap, MapPin, ChevronDown, Users, Menu } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export function Header() {
   const [followers, setFollowers] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -51,7 +53,7 @@ export function Header() {
         
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
-            {/* Mobile menu */}
+            {/* Mobile Title */}
             <div className="md:hidden">
                 <Link href="/" className="flex items-center space-x-2">
                     <Zap className="h-6 w-6 text-primary" />
@@ -68,13 +70,35 @@ export function Header() {
               <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
             </Button>
             <Link href="/admin">
-              <Button>Admin</Button>
-            </Link>
-            <Button>Post Your Business</Button>
-            <Link href="/login">
-              <Button variant="outline">Login</Button>
+              <Button>Post Your Business</Button>
             </Link>
           </nav>
+          {/* Mobile Menu */}
+          <div className="md:hidden">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right">
+                 <div className="flex flex-col gap-4 py-6">
+                    <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button className="w-full">Post Your Business</Button>
+                    </Link>
+                    <Button variant="outline" onClick={() => {
+                        setFollowers(followers + 1);
+                        setIsMobileMenuOpen(false);
+                    }}>
+                        <Users className="h-4 w-4 mr-2" />
+                        Followers
+                        <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
+                    </Button>
+                 </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>
