@@ -23,7 +23,8 @@ const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
   businessType: z.string({ required_error: "Please select a business type." }),
   location: z.string({ required_error: "Please select a location." }),
-  offerDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
+  offerTitle: z.string().min(5, { message: "Offer title must be at least 5 characters." }),
+  offerCompleteDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   discount: z.string().min(1, { message: "Discount details are required." }),
   tags: z.string().optional(),
   images: z.custom<FileList>().optional(),
@@ -107,7 +108,8 @@ export function AdGenerator() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       businessName: "",
-      offerDetails: "",
+      offerTitle: "",
+      offerCompleteDetails: "",
       discount: "",
       tags: "",
       allowCall: true,
@@ -148,7 +150,8 @@ export function AdGenerator() {
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     const newOffer = {
-        title: values.offerDetails,
+        title: values.offerTitle,
+        description: values.offerCompleteDetails,
         business: values.businessName,
         category: values.businessType,
         location: values.location,
@@ -277,17 +280,30 @@ export function AdGenerator() {
                         )}
                       />
                       <FormField
-                      control={form.control}
-                      name="offerDetails"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Offer Title / Details</FormLabel>
-                          <FormControl>
-                              <Textarea placeholder="Describe your offer, e.g., 'Get 20% off all coffee and pastries...'" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
+                        control={form.control}
+                        name="offerTitle"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Offer Title</FormLabel>
+                            <FormControl>
+                                <Input placeholder="e.g., Get 20% off all coffee" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="offerCompleteDetails"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Complete Offer Details</FormLabel>
+                            <FormControl>
+                                <Textarea placeholder="Describe your offer in detail..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
                       />
 
                       <FormField

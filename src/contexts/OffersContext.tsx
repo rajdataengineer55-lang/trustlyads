@@ -1,3 +1,4 @@
+
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from 'react';
@@ -5,6 +6,7 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 export interface Offer {
   id: string;
   title: string;
+  description: string;
   business: string;
   category: string;
   location: string;
@@ -30,6 +32,7 @@ const initialOffers: Offer[] = [
     {
       id: "bella-italia-italian-cuisine",
       title: "50% Off on Italian Cuisine",
+      description: "Enjoy a taste of Italy with a 50% discount on our entire menu. Valid for dine-in only.",
       business: "Bella Italia",
       category: "Food & Restaurants",
       location: "Tirupati Urban",
@@ -46,6 +49,7 @@ const initialOffers: Offer[] = [
     {
       id: "chic-boutique-summer-collection",
       title: "Summer Collection Sale",
+      description: "Get ready for summer with 30% off our new collection. Featuring vibrant colors and breezy fabrics.",
       business: "Chic Boutique",
       category: "Textile & Garments",
       location: "Vellore",
@@ -62,6 +66,7 @@ const initialOffers: Offer[] = [
     {
       id: "serenity-spa-relaxing-package",
       title: "Relaxing Spa Day Package",
+      description: "Two can relax for the price of one. Book our couple's massage and get a complimentary facial.",
       business: "Serenity Spa",
       category: "Health & Wellness",
       location: "Chittoor",
@@ -79,6 +84,7 @@ const initialOffers: Offer[] = [
     {
       id: "speedy-rentals-weekend-deal",
       title: "Weekend Car Rental Deal",
+      description: "Rent any car for the weekend for just $50 per day. Includes unlimited mileage.",
       business: "Speedy Rentals",
       category: "Automobiles",
       location: "Tirupati Rural",
@@ -94,6 +100,7 @@ const initialOffers: Offer[] = [
     {
       id: "sparkle-clean-home-services",
       title: "Home Cleaning Services",
+      description: "Get your home sparkling clean with 20% off our deep cleaning services. Offer valid for a limited time.",
       business: "Sparkle Clean",
       category: "Home & Local Services",
       location: "Puttur",
