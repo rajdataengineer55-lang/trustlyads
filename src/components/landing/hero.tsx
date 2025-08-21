@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -25,7 +26,9 @@ export function Hero() {
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button size="lg" className="rounded-full font-semibold">Explore Offers</Button>
-            <Button size="lg" variant="outline" className="rounded-full font-semibold bg-white">Post Your Business</Button>
+            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="outline" className="rounded-full font-semibold bg-white">Post Your Business</Button>
+            </a>
           </div>
         </div>
       </div>

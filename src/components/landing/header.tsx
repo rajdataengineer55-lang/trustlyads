@@ -70,9 +70,9 @@ export function Header() {
               Followers
               <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
             </Button>
-            <Link href="/admin">
+            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
               <Button>Post Your Business</Button>
-            </Link>
+            </a>
           </nav>
           {/* Mobile Menu */}
           <div className="md:hidden">
@@ -85,9 +85,9 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="right">
                  <div className="flex flex-col gap-4 py-6">
-                    <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)}>
+                    <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button className="w-full">Post Your Business</Button>
-                    </Link>
+                    </a>
                     <Button variant="outline" onClick={() => {
                         setFollowers(followers + 1);
                         setIsMobileMenuOpen(false);
