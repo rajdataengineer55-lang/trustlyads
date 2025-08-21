@@ -13,12 +13,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 export default function OfferDetailsPage() {
   const params = useParams();
   const { offers, getOfferById } = useOffers();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mainImage, setMainImage] = useState<string | null>(null);
   
   const id = typeof params.id === 'string' ? params.id : '';
 
@@ -26,6 +28,9 @@ export default function OfferDetailsPage() {
     if (id) {
       const foundOffer = getOfferById(id);
       setOffer(foundOffer || null);
+      if (foundOffer) {
+        setMainImage(foundOffer.image);
+      }
       setIsLoading(false);
     }
   }, [id, getOfferById]);
@@ -91,6 +96,8 @@ export default function OfferDetailsPage() {
     );
   }
 
+  const allImages = [offer.image, ...(offer.otherImages || [])];
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -102,23 +109,33 @@ export default function OfferDetailsPage() {
             </Link>
             <div className="grid md:grid-cols-5 gap-8 lg:gap-12">
                 <div className="md:col-span-3">
-                    <div className="relative mb-4 aspect-[4/3]">
+                    <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
                         <Image
-                            src={offer.image}
+                            src={mainImage || offer.image}
                             alt={offer.title}
                             fill
-                            className="object-cover rounded-lg shadow-lg"
+                            className="object-cover"
                             data-ai-hint={offer.hint}
                         />
                          <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-2 px-4 text-lg">
                           {offer.discount}
                         </Badge>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {[1, 2, 3, 4].map(i => (
-                             <Image key={i} src="https://placehold.co/200x200.png" alt="thumbnail" width={200} height={200} className="rounded-md object-cover aspect-square" data-ai-hint="placeholder image" />
-                        ))}
-                    </div>
+                    {allImages.length > 1 && (
+                      <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
+                          {allImages.map((img, i) => (
+                              <div key={i} className="relative aspect-square cursor-pointer" onClick={() => setMainImage(img)}>
+                                <Image 
+                                  src={img} 
+                                  alt={`thumbnail ${i + 1}`} 
+                                  fill 
+                                  className={cn("rounded-md object-cover transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                  data-ai-hint="placeholder image" 
+                                />
+                              </div>
+                          ))}
+                      </div>
+                    )}
                 </div>
 
                 <div className="md:col-span-2">

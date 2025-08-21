@@ -13,11 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Megaphone } from "lucide-react";
+import { Loader2, Megaphone, Star } from "lucide-react";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { locations } from "@/lib/locations";
 import { useOffers } from "@/contexts/OffersContext";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -99,6 +100,7 @@ const businessTypes = {
 export function AdGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [selectedMainImage, setSelectedMainImage] = useState(0);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
   const { toast } = useToast();
@@ -171,8 +173,10 @@ export function AdGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     
-    // Simulate an API call
     await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const mainImage = imagePreviews[selectedMainImage] || 'https://placehold.co/600x400.png';
+    const otherImages = imagePreviews.filter((_, index) => index !== selectedMainImage);
 
     const newOffer = {
         title: values.offerTitle,
@@ -180,7 +184,8 @@ export function AdGenerator() {
         business: values.businessName,
         category: values.businessType,
         location: values.location,
-        image: imagePreviews[0] || 'https://placehold.co/600x400.png',
+        image: mainImage,
+        otherImages: otherImages,
         hint: 'new offer',
         discount: values.discount,
         tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || ["Just Listed"],
@@ -199,9 +204,9 @@ export function AdGenerator() {
       description: "Your offer has been successfully posted and is now live.",
     });
     
-    // Reset form and previews
     form.reset();
     setImagePreviews([]);
+    setSelectedMainImage(0);
     setVideoPreview(null);
 
     setIsLoading(false);
@@ -364,10 +369,19 @@ export function AdGenerator() {
                         <FormControl>
                           <Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
                         </FormControl>
-                        <FormDescription>Upload up to 10 images for your offer. The first image will be the main one.</FormDescription>
+                        <FormDescription>Upload up to 10 images. Click on an image below to select it as the main cover image.</FormDescription>
                         {imagePreviews.length > 0 && (
-                          <div className="grid grid-cols-5 gap-2 mt-2">
-                            {imagePreviews.map((src, i) => <Image key={i} src={src} alt="Preview" width={100} height={100} className="rounded-md object-cover aspect-square"/>)}
+                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
+                            {imagePreviews.map((src, i) => (
+                              <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImage(i)}>
+                                <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImage === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")}/>
+                                {selectedMainImage === i && (
+                                  <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1">
+                                    <Star className="h-3 w-3" />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         )}
                         <FormMessage />

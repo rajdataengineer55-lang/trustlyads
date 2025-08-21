@@ -11,6 +11,7 @@ export interface Offer {
   category: string;
   location: string;
   image: string;
+  otherImages?: string[];
   hint: string;
   discount: string;
   tags: string[];
@@ -32,11 +33,17 @@ const initialOffers: Offer[] = [
     {
       id: "bella-italia-50-off-on-italian-cu",
       title: "50% Off on Italian Cuisine",
-      description: "Enjoy a taste of Italy with a 50% discount on our entire menu. Valid for dine-in only.",
+      description: "Enjoy a taste of Italy with a 50% discount on our entire menu. Valid for dine-in only. We use the freshest ingredients to bring you authentic flavors that will transport you to the heart of Italy. Our cozy ambiance and friendly staff make for a perfect dining experience.",
       business: "Bella Italia",
       category: "Food & Restaurants",
       location: "Tirupati Urban",
       image: "https://placehold.co/600x400.png",
+      otherImages: [
+        "https://placehold.co/200x200.png",
+        "https://placehold.co/200x200.png",
+        "https://placehold.co/200x200.png",
+        "https://placehold.co/200x200.png",
+      ],
       hint: "restaurant food",
       discount: "50% OFF",
       tags: ["Today's Offer", "Discounts"],
@@ -49,11 +56,16 @@ const initialOffers: Offer[] = [
     {
       id: "chic-boutique-summer-collection-sal",
       title: "Summer Collection Sale",
-      description: "Get ready for summer with 30% off our new collection. Featuring vibrant colors and breezy fabrics.",
+      description: "Get ready for summer with 30% off our new collection. Featuring vibrant colors and breezy fabrics, perfect for the sunny days ahead. Our collection includes dresses, tops, skirts, and accessories to complete your summer look. Limited stock available.",
       business: "Chic Boutique",
       category: "Textile & Garments",
       location: "Vellore",
       image: "https://placehold.co/600x400.png",
+       otherImages: [
+        "https://placehold.co/200x200.png",
+        "https://placehold.co/200x200.png",
+        "https://placehold.co/200x200.png",
+      ],
       hint: "fashion clothing",
       discount: "30% OFF",
       tags: ["Sale", "Just Listed"],
@@ -66,7 +78,7 @@ const initialOffers: Offer[] = [
     {
       id: "serenity-spa-relaxing-spa-day-pack",
       title: "Relaxing Spa Day Package",
-      description: "Two can relax for the price of one. Book our couple's massage and get a complimentary facial.",
+      description: "Two can relax for the price of one. Book our couple's massage and get a complimentary facial. Escape the stress of daily life and indulge in a day of pampering. Our expert therapists will ensure you leave feeling refreshed and rejuvenated.",
       business: "Serenity Spa",
       category: "Health & Wellness",
       location: "Chittoor",
@@ -84,7 +96,7 @@ const initialOffers: Offer[] = [
     {
       id: "speedy-rentals-weekend-car-rental-d",
       title: "Weekend Car Rental Deal",
-      description: "Rent any car for the weekend for just $50 per day. Includes unlimited mileage.",
+      description: "Rent any car for the weekend for just $50 per day. Includes unlimited mileage. Choose from our wide range of vehicles, from compact cars to SUVs. Perfect for a weekend getaway or running errands around town.",
       business: "Speedy Rentals",
       category: "Automobiles",
       location: "Tirupati Rural",
@@ -100,7 +112,7 @@ const initialOffers: Offer[] = [
     {
       id: "sparkle-clean-home-cleaning-servic",
       title: "Home Cleaning Services",
-      description: "Get your home sparkling clean with 20% off our deep cleaning services. Offer valid for a limited time.",
+      description: "Get your home sparkling clean with 20% off our deep cleaning services. Offer valid for a limited time. Our professional team uses eco-friendly products to ensure a safe and thorough clean for your home.",
       business: "Sparkle Clean",
       category: "Home & Local Services",
       location: "Puttur",
@@ -148,3 +160,5 @@ export function useOffers() {
   }
   return context;
 }
+
+    
