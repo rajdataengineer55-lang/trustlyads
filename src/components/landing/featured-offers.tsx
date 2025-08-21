@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MessageCircle, Calendar } from "lucide-react";
+import { ArrowRight, MessageCircle, Calendar, Phone } from "lucide-react";
 
 const offers = [
   {
@@ -106,8 +106,8 @@ export function FeaturedOffers() {
                         <p className="text-muted-foreground mt-1">{offer.business}</p>
                         <div className="mt-4 flex flex-wrap gap-2">
                           {offer.allowCall && (
-                            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold flex-1">
-                              Connect Now <ArrowRight className="ml-2 h-4 w-4" />
+                            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold flex-1">
+                              <Phone className="mr-2 h-4 w-4" /> Call Now
                             </Button>
                           )}
                           {offer.allowChat && (

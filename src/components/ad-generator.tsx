@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Megaphone } from "lucide-react";
 import Image from "next/image";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -21,40 +22,58 @@ const formSchema = z.object({
   offerDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   images: z.custom<FileList>().optional(),
   video: z.custom<FileList>().optional(),
+  allowCall: z.boolean().default(false).optional(),
+  allowChat: z.boolean().default(false).optional(),
+  allowSchedule: z.boolean().default(false).optional(),
 });
 
-const businessTypes = [
+const businessTypes = {
+  "Automobiles & Transport": [
     "Car Rentals",
     "Bike Rentals",
     "Auto / Taxi Services",
     "Bus & Travel Agencies",
+  ],
+  "Shops & Retail": [
     "Kirana & General Stores",
     "Supermarkets",
     "Mobile Shops & Electronics",
     "Clothing & Fashion",
     "Furniture & Home Appliances",
+  ],
+  "Health & Wellness": [
     "Hospitals & Clinics",
     "Medical Shops",
     "Diagnostic Centers",
     "Fitness Centers / Gyms",
     "Beauty Parlors & Salons",
+  ],
+  "Education & Training": [
     "Schools & Colleges",
     "Coaching Centers",
     "Computer Training",
     "Skill Development Institutes",
+  ],
+  "Home & Local Services": [
     "Electricians",
     "Plumbers",
     "Carpenters",
     "House Cleaning Services",
     "Water Supply Services",
+  ],
+  "Real Estate & Construction": [
     "Property Dealers",
     "Rental Houses",
     "Building Materials & Hardware",
     "Interior Designing",
+  ],
+  "Finance & Professional Services": [
     "Banks & ATMs",
     "Chartered Accountants",
     "Insurance Services",
     "Legal Advisors",
+  ],
+  "Food & Restaurants": [
     "Restaurants",
     "Biryani Points",
     "Tiffin Centers",
@@ -64,7 +83,8 @@ const businessTypes = [
     "Coffee & Tea Shops",
     "Fruit & Juice Centers",
     "Catering Services",
-];
+  ],
+};
 
 export function AdGenerator() {
   const [isLoading, setIsLoading] = useState(false);
@@ -78,6 +98,9 @@ export function AdGenerator() {
     defaultValues: {
       businessName: "",
       offerDetails: "",
+      allowCall: true,
+      allowChat: false,
+      allowSchedule: false,
     },
   });
 
@@ -102,7 +125,6 @@ export function AdGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     
-    // Here you would typically handle the file uploads and form data submission.
     console.log("Submitting form with values:", values);
     if (values.images) {
       console.log("Images to upload:", Array.from(values.images).map(f => f.name));
@@ -175,8 +197,13 @@ export function AdGenerator() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {businessTypes.map(type => (
-                                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                                {Object.entries(businessTypes).map(([group, types]) => (
+                                  <SelectGroup key={group}>
+                                    <FormLabel className="px-2 text-xs text-muted-foreground">{group}</FormLabel>
+                                    {types.map(type => (
+                                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                                    ))}
+                                  </SelectGroup>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -225,6 +252,64 @@ export function AdGenerator() {
                         )}
                         <FormMessage />
                       </FormItem>
+
+                      <div className="space-y-4">
+                          <FormLabel>Communication Options</FormLabel>
+                          <FormDescription>Select how customers can connect with you.</FormDescription>
+                          <div className="flex items-center space-x-4 pt-2">
+                              <FormField
+                              control={form.control}
+                              name="allowCall"
+                              render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                  <FormControl>
+                                      <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                      Allow Call
+                                  </FormLabel>
+                                  </FormItem>
+                              )}
+                              />
+                               <FormField
+                              control={form.control}
+                              name="allowChat"
+                              render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                  <FormControl>
+                                      <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                      Allow Chat
+                                  </FormLabel>
+                                  </FormItem>
+                              )}
+                              />
+                               <FormField
+                              control={form.control}
+                              name="allowSchedule"
+                              render={({ field }) => (
+                                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                  <FormControl>
+                                      <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                      Schedule Meeting
+                                  </FormLabel>
+                                  </FormItem>
+                              )}
+                              />
+                          </div>
+                      </div>
                       
                       <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
                       {isLoading ? (
