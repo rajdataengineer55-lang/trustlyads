@@ -5,6 +5,7 @@ import Link from "next/link"
 
 const locations = [
   "Tirupati",
+  "Chittoor",
   "Nagari",
   "Palamaner",
   "Kuppam",
