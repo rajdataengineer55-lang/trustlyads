@@ -15,7 +15,7 @@ const locations = [
       "Ramachandrapuram",
       "Puttur",
       "Vadamalapeta",
-      "Chandragir",
+      "Chandragiri",
     ]
   },
   { name: "Chittoor" },
@@ -89,5 +89,3 @@ export function Header() {
     </header>
   )
 }
-
-    
