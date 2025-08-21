@@ -1,18 +1,31 @@
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu"
 import { Menu, Zap, MapPin, ChevronDown } from "lucide-react"
 import Link from "next/link"
 
 const locations = [
-  "Tirupati",
-  "Chittoor",
-  "Nagari",
-  "Palamaner",
-  "Kuppam",
-  "Punganur",
-  "Madanapalle",
-  "Vellore",
-  "Katpadi",
+  { 
+    name: "Tirupati",
+    subLocations: [
+      "Tirupati Urban",
+      "Pakala",
+      "Tirupati Rural",
+      "Chinnagottigallu",
+      "Yerravaripalem",
+      "Ramachandrapuram",
+      "Puttur",
+      "Vadamalapeta",
+      "Chandragir",
+    ]
+  },
+  { name: "Chittoor" },
+  { name: "Nagari" },
+  { name: "Palamaner" },
+  { name: "Kuppam" },
+  { name: "Punganur" },
+  { name: "Madanapalle" },
+  { name: "Vellore" },
+  { name: "Katpadi" },
 ];
 
 export function Header() {
@@ -36,7 +49,20 @@ export function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {locations.map((location) => (
-                <DropdownMenuItem key={location}>{location}</DropdownMenuItem>
+                location.subLocations ? (
+                  <DropdownMenuSub key={location.name}>
+                    <DropdownMenuSubTrigger>{location.name}</DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        {location.subLocations.map((subLocation) => (
+                          <DropdownMenuItem key={subLocation}>{subLocation}</DropdownMenuItem>
+                        ))}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                ) : (
+                  <DropdownMenuItem key={location.name}>{location.name}</DropdownMenuItem>
+                )
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -63,3 +89,5 @@ export function Header() {
     </header>
   )
 }
+
+    
