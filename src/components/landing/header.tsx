@@ -1,11 +1,15 @@
+"use client";
 
+import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu"
-import { Menu, Zap, MapPin, ChevronDown } from "lucide-react"
+import { Zap, MapPin, ChevronDown, Users } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 
 export function Header() {
+  const [followers, setFollowers] = useState(0);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -57,7 +61,12 @@ export function Header() {
                 </Link>
             </div>
           </div>
-          <nav className="hidden md:flex gap-2">
+          <nav className="hidden md:flex gap-2 items-center">
+            <Button variant="outline" onClick={() => setFollowers(followers + 1)}>
+              <Users className="h-4 w-4 mr-2" />
+              Follow
+              <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
+            </Button>
             <Link href="/admin">
               <Button>Admin</Button>
             </Link>
