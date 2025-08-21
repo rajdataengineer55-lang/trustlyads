@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -10,8 +11,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function AdminPage() {
     const router = useRouter();
     const [isVerified, setIsVerified] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        // This code runs only on the client-side
         if (typeof window !== 'undefined') {
             const isLoggedIn = localStorage.getItem('isAdminLoggedIn');
             if (isLoggedIn !== 'true') {
@@ -19,10 +22,11 @@ export default function AdminPage() {
             } else {
                 setIsVerified(true);
             }
+            setIsLoading(false);
         }
     }, [router]);
 
-    if (!isVerified) {
+    if (isLoading || !isVerified) {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
