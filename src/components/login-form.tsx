@@ -32,6 +32,11 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // For development purposes, we'll just check against the hardcoded credentials.
     if (values.email === "dandurajkumarworld24@gmail.com" && values.password === "Dandu@24") {
+      // Set a flag in localStorage to indicate "logged in" status
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('isAdminLoggedIn', 'true');
+      }
+
       toast({
         title: "Login Successful",
         description: "Redirecting to the admin dashboard...",
