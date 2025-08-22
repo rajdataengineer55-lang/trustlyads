@@ -2,12 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export function Hero() {
   return (
-    <section id="hero" className="relative w-full py-12 md:py-20 lg:py-24 bg-background/50">
+    <section id="hero" className="relative w-full py-12 md:py-20 lg:py-24 bg-background/50 overflow-hidden">
       <div className="container mx-auto px-4 md:px-6 text-center">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto animate-in fade-in-up duration-1000">
           <h1 className="text-3xl font-headline font-bold tracking-tighter sm:text-4xl text-foreground">
             Connect with Local Businesses. Find Best Offers Daily.
           </h1>

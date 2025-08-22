@@ -63,7 +63,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
             {filteredOffers.map((offer) => (
               <CarouselItem key={offer.id} className="md:basis-1/2 lg:basis-1/3">
                 <div className="p-1">
-                  <Card className="overflow-hidden group transition-shadow duration-300 hover:shadow-2xl">
+                  <Card className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
                     <CardContent className="p-0">
                       <div className="relative aspect-[4/3]">
                         <Image

@@ -23,7 +23,7 @@ export function HowItWorks() {
   return (
     <section id="how-it-works" className="py-16 sm:py-24">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 animate-in fade-in-up duration-1000">
           <h2 className="text-3xl font-headline font-bold">How It Works</h2>
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
             A simple, streamlined process for businesses and customers to connect.
@@ -31,7 +31,7 @@ export function HowItWorks() {
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, index) => (
-            <Card key={index} className="text-center bg-card shadow-sm hover:shadow-xl transition-shadow duration-300">
+            <Card key={index} className="text-center bg-card shadow-sm hover:shadow-xl transition-all duration-300 ease-in-out hover:-translate-y-1 animate-in fade-in-up" style={{ animationDelay: `${200 * (index + 1)}ms`}}>
               <CardHeader>
                 <div className="mx-auto bg-primary/10 rounded-full p-3 w-fit mb-4">
                   {step.icon}
