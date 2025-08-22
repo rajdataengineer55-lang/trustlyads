@@ -6,7 +6,7 @@ export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 bg-white dark:bg-gray-900/10 py-16 sm:py-24">
+      <main className="flex-1 bg-background py-16 sm:py-24">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-4xl font-headline font-bold mb-8">✨ About Us</h1>

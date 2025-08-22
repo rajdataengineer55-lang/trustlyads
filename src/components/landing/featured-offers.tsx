@@ -28,11 +28,8 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
     })
     .sort((a, b) => {
         if (sortOption === 'trending') {
-            // Assuming more reviews means more trending
             return (b.reviews?.length || 0) - (a.reviews?.length || 0);
         }
-        // 'newest' is default, and since new items are added to the start, no extra sorting is needed for it.
-        // If there were timestamps, we would sort by `b.createdAt - a.createdAt`
         return 0; 
     });
 
@@ -83,7 +80,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
                           {offer.discount}
                         </Badge>
                       </div>
-                      <div className="p-6 bg-white dark:bg-card">
+                      <div className="p-6 bg-card">
                          <div className="flex items-center text-sm text-muted-foreground mb-3">
                             <MapPin className="h-4 w-4 mr-2" />
                             <span>{offer.location}</span>
@@ -94,7 +91,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
                           ))}
                         </div>
                         <Link href={`/offer/${offer.id}`} passHref>
-                          <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                          <Button className="w-full">
                                View Details <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
                         </Link>

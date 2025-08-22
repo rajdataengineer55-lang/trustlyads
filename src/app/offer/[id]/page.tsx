@@ -65,7 +65,7 @@ export default function OfferDetailsPage() {
     } else {
         setIsLoading(false);
     }
-  }, [id, getOfferById, offers]); // Add offers to dependency array to re-render when reviews are added
+  }, [id, getOfferById, offers]); 
 
   const handleShare = async () => {
     if (!offer) return;
@@ -117,7 +117,7 @@ export default function OfferDetailsPage() {
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex-1 bg-gray-50 dark:bg-gray-900/50 py-12">
+            <main className="flex-1 bg-background/50 py-12">
                 <div className="container mx-auto px-4 md:px-6">
                     <Skeleton className="h-8 w-1/4 mb-8" />
                     <div className="grid md:grid-cols-2 gap-8">
@@ -163,7 +163,7 @@ export default function OfferDetailsPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 bg-gray-50 dark:bg-gray-900/50 py-6 sm:py-12">
+      <main className="flex-1 bg-background/50 py-6 sm:py-12">
         <div className="container mx-auto px-4 md:px-6">
             <Link href="/" className="inline-flex items-center text-primary mb-4 sm:mb-8 hover:underline">
                  <ArrowLeft className="mr-2 h-4 w-4" />
@@ -389,7 +389,7 @@ export default function OfferDetailsPage() {
                             {similarOffer.discount}
                           </Badge>
                         </div>
-                        <div className="p-6 bg-white dark:bg-card">
+                        <div className="p-6 bg-card">
                           <div className="flex items-center text-sm text-muted-foreground mb-3">
                               <MapPin className="h-4 w-4 mr-2" />
                               <span>{similarOffer.location}</span>

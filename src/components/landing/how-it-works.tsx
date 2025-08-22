@@ -31,9 +31,9 @@ export function HowItWorks() {
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, index) => (
-            <Card key={index} className="text-center bg-white shadow-sm hover:shadow-xl transition-shadow duration-300">
+            <Card key={index} className="text-center bg-card shadow-sm hover:shadow-xl transition-shadow duration-300">
               <CardHeader>
-                <div className="mx-auto bg-blue-100/50 rounded-full p-3 w-fit mb-4">
+                <div className="mx-auto bg-primary/10 rounded-full p-3 w-fit mb-4">
                   {step.icon}
                 </div>
                 <CardTitle className="font-headline text-base sm:text-lg">{`Step ${index + 1}: ${step.title}`}</CardTitle>

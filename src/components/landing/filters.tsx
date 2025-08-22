@@ -38,7 +38,7 @@ export function Filters({
     const hasActiveFilters = selectedLocation || selectedCategory || sortOption !== 'newest';
 
     return (
-        <section id="filters" className="py-8 bg-gray-50 dark:bg-gray-900/50 border-t border-b">
+        <section id="filters" className="py-8 bg-background/50 border-t border-b">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="grid md:grid-cols-4 gap-4 items-center">
                     <div className="w-full">

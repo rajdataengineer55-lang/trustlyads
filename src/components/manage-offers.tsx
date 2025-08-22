@@ -80,7 +80,7 @@ export function ManageOffers() {
         </p>
       </div>
 
-      <div className="w-full bg-white dark:bg-card rounded-lg shadow-lg overflow-x-auto">
+      <div className="w-full bg-card rounded-lg shadow-lg overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>

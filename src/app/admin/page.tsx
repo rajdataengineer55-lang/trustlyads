@@ -17,23 +17,22 @@ export default function AdminPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check for login status from localStorage
         if (typeof window !== 'undefined') {
             const loggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
             if (!loggedIn) {
                 router.replace('/login');
             } else {
                 setIsLoggedIn(true);
-                setIsLoading(false);
             }
         }
+        setIsLoading(false);
     }, [router]);
 
     if (isLoading) {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
-                <main className="flex-1 bg-gray-50 dark:bg-gray-900/50 py-16">
+                <main className="flex-1 bg-background/50 py-16">
                     <div className="container mx-auto px-4 md:px-6">
                         <Skeleton className="h-12 w-1/2 mx-auto mb-4" />
                         <Skeleton className="h-8 w-3/4 mx-auto mb-12" />
@@ -48,15 +47,13 @@ export default function AdminPage() {
     }
     
     if (!isLoggedIn) {
-        // This will be shown briefly before the redirect happens.
-        // Or if the redirect somehow fails.
         return null; 
     }
 
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex-1 bg-gray-50 dark:bg-gray-900/50">
+            <main className="flex-1 bg-background/50">
                 <section className="py-12 sm:py-16">
                     <div className="container mx-auto px-4 md:px-6">
                         <AdGenerator />

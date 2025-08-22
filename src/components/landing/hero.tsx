@@ -5,13 +5,13 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <section id="hero" className="relative w-full py-12 md:py-20 lg:py-24 bg-white dark:bg-gray-900/10">
+    <section id="hero" className="relative w-full py-12 md:py-20 lg:py-24 bg-background/50">
       <div className="container mx-auto px-4 md:px-6 text-center">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-headline font-bold tracking-tighter sm:text-4xl text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-headline font-bold tracking-tighter sm:text-4xl text-foreground">
             Connect with Local Businesses. Find Best Offers Daily.
           </h1>
-          <p className="mt-4 text-base text-gray-600 dark:text-gray-300">
+          <p className="mt-4 text-base text-muted-foreground">
             All your local businesses in one place – shops, restaurants, salons, rentals, and more.
           </p>
           <div className="mt-6 max-w-lg mx-auto">
@@ -20,14 +20,14 @@ export function Hero() {
               <Input
                 type="search"
                 placeholder="Search in Tirupati, Vellore & more"
-                className="w-full pl-12 pr-4 py-5 rounded-full border-2 border-gray-200 focus:border-primary focus:ring-primary"
+                className="w-full pl-12 pr-4 py-5 rounded-full border-2 focus:border-primary focus:ring-primary"
               />
             </div>
           </div>
           <div className="mt-6 flex flex-col sm:flex-row justify-center items-center gap-4">
             <Button size="lg" className="rounded-full font-semibold w-full sm:w-auto">Explore Offers</Button>
             <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="rounded-full font-semibold bg-white w-full">Post Your Business</Button>
+              <Button size="lg" variant="outline" className="rounded-full font-semibold bg-background w-full">Post Your Business</Button>
             </a>
           </div>
         </div>
