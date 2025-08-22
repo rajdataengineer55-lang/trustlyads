@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -8,7 +7,6 @@ import { Categories } from "@/components/landing/categories";
 import { FeaturedOffers } from "@/components/landing/featured-offers";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Testimonials } from "@/components/landing/testimonials";
-import { CtaBanner } from "@/components/landing/cta-banner";
 import { Footer } from "@/components/landing/footer";
 
 export default function Home() {
@@ -26,7 +24,6 @@ export default function Home() {
         <FeaturedOffers selectedCategory={selectedCategory} />
         <HowItWorks />
         <Testimonials />
-        <CtaBanner />
       </main>
       <Footer />
     </div>
