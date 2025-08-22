@@ -23,7 +23,7 @@ export function Footer() {
             <p className="text-muted-foreground">Connecting communities, one offer at a time.</p>
           </div>
           <div className="md:col-span-2">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
               <div>
                 <h4 className="font-headline font-semibold mb-4">Quick Links</h4>
                 <ul className="space-y-2">
