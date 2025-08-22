@@ -77,24 +77,38 @@ export default function OfferDetailsPage() {
     };
 
     try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-        } else {
-            await navigator.clipboard.writeText(window.location.href);
-            toast({
-              title: "Link Copied!",
-              description: "The offer link has been copied to your clipboard.",
-            });
-        }
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback for browsers that do not support navigator.share
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Link Copied!",
+          description: "The offer link has been copied to your clipboard.",
+        });
+      }
     } catch (err: any) {
-        if (err.name !== 'AbortError') {
-          console.error("Error sharing:", err);
-           toast({
-              variant: "destructive",
-              title: "Failed to Share",
-              description: "Could not share the offer at this time.",
-            });
-        }
+      // Ignore AbortError which is triggered when the user cancels the share dialog
+      if (err.name === 'AbortError') {
+        return;
+      }
+      
+      console.error("Error sharing:", err);
+      // Fallback to copying the link if sharing fails for other reasons
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          variant: "default",
+          title: "Sharing not available, Link Copied!",
+          description: "The offer link has been copied to your clipboard instead.",
+        });
+      } catch (copyError) {
+        toast({
+          variant: "destructive",
+          title: "Failed to Share",
+          description: "Could not share or copy the offer link at this time.",
+        });
+      }
     }
   };
 
