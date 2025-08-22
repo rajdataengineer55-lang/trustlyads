@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu"
-import { Zap, MapPin, ChevronDown, Users, Menu, LogIn } from "lucide-react"
+import { Zap, MapPin, ChevronDown, Users, Menu } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -16,7 +16,15 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        {/* Desktop Header */}
+        <div className="flex-1 flex items-center md:hidden">
+          <Link href="/" className="flex items-center space-x-2">
+              <Zap className="h-6 w-6 text-primary" />
+              <span className="font-bold sm:inline-block font-headline">
+                TrustAds
+              </span>
+          </Link>
+        </div>
+
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Zap className="h-6 w-6 text-primary" />
@@ -53,14 +61,20 @@ export function Header() {
           </DropdownMenu>
         </div>
         
-        {/* Mobile Header */}
-        <div className="flex w-full items-center justify-between md:hidden">
-          <Link href="/" className="flex items-center space-x-2">
-              <Zap className="h-6 w-6 text-primary" />
-              <span className="font-bold sm:inline-block font-headline">
-              TrustAds
-              </span>
-          </Link>
+        <div className="hidden flex-1 items-center justify-end space-x-2 md:flex">
+          <nav className="flex gap-2 items-center">
+            <Button variant="outline" onClick={() => setFollowers(followers + 1)}>
+              <Users className="h-4 w-4 mr-2" />
+              Followers
+              <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
+            </Button>
+            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
+              <Button>Post Your Business</Button>
+            </a>
+          </nav>
+        </div>
+
+        <div className="flex items-center justify-end md:hidden">
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon">
@@ -84,20 +98,6 @@ export function Header() {
                </div>
             </SheetContent>
           </Sheet>
-        </div>
-        
-        {/* Desktop Nav Actions */}
-        <div className="hidden flex-1 items-center justify-end space-x-2 md:flex">
-          <nav className="flex gap-2 items-center">
-            <Button variant="outline" onClick={() => setFollowers(followers + 1)}>
-              <Users className="h-4 w-4 mr-2" />
-              Followers
-              <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
-            </Button>
-            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
-              <Button>Post Your Business</Button>
-            </a>
-          </nav>
         </div>
       </div>
     </header>

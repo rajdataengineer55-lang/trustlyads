@@ -1,8 +1,9 @@
 
+
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { useOffers, type Offer } from '@/contexts/OffersContext';
 import { Header } from '@/components/landing/header';
@@ -30,11 +31,13 @@ export default function OfferDetailsPage() {
   useEffect(() => {
     if (id) {
       const foundOffer = getOfferById(id);
-      setOffer(foundOffer || null);
       if (foundOffer) {
+        setOffer(foundOffer);
         setMainImage(foundOffer.image);
       }
       setIsLoading(false);
+    } else {
+        setIsLoading(false);
     }
   }, [id, getOfferById]);
 
@@ -74,8 +77,6 @@ export default function OfferDetailsPage() {
     }
   };
   
-  const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id).slice(0, 3);
-
   if (isLoading) {
     return (
         <div className="flex flex-col min-h-screen">
@@ -117,24 +118,11 @@ export default function OfferDetailsPage() {
   }
 
   if (!offer) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-1 flex flex-col items-center justify-center text-center">
-            <h1 className="text-4xl font-bold mb-4">Offer Not Found</h1>
-            <p className="text-muted-foreground mb-8">Sorry, we couldn't find the offer you're looking for.</p>
-            <Link href="/">
-                <Button>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Home
-                </Button>
-            </Link>
-        </main>
-        <Footer />
-      </div>
-    );
+    // If loading is finished and still no offer, show not found.
+    notFound();
   }
 
+  const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id).slice(0, 3);
   const allImages = [offer.image, ...(offer.otherImages || [])];
 
   return (
