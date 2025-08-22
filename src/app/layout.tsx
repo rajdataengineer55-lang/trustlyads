@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { OffersProvider } from '@/contexts/OffersContext';
 
 export const metadata: Metadata = {
-  title: 'TrustAds',
+  title: 'trustlyads.in',
   description: 'Connect with Local Businesses. Find Best Offers Daily.',
 };
 

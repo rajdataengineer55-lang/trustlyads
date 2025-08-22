@@ -11,7 +11,7 @@ export default function AboutPage() {
           <div className="max-w-3xl mx-auto">
             <h1 className="text-3xl font-headline font-bold mb-8">✨ About Us</h1>
             <div className="prose dark:prose-invert max-w-none space-y-6 text-base">
-              <p>Welcome to TrustAds, a community-driven platform dedicated to empowering local businesses, entrepreneurs, and service providers. Our mission is simple – to connect rural talent, shops, and services with the right customers through digital promotion.</p>
+              <p>Welcome to trustlyads.in, a community-driven platform dedicated to empowering local businesses, entrepreneurs, and service providers. Our mission is simple – to connect rural talent, shops, and services with the right customers through digital promotion.</p>
               <p>In today’s world, every business deserves visibility. Whether you are a farmer, a small shop owner, a service provider, or a startup, we provide a trusted space to advertise, grow, and reach more people.</p>
               
               <h2 className="text-xl font-headline font-bold mt-10 mb-4">🔹 What We Do</h2>

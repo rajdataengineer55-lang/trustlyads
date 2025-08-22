@@ -18,7 +18,7 @@ export function Footer() {
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
               <Zap className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold font-headline">TrustAds</span>
+              <span className="text-2xl font-bold font-headline">trustlyads.in</span>
             </Link>
             <p className="text-muted-foreground">Connecting communities, one offer at a time.</p>
           </div>
@@ -74,7 +74,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} TrustAds. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} trustlyads.in. All rights reserved.</p>
         </div>
       </div>
     </footer>

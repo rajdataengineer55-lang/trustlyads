@@ -20,7 +20,7 @@ export function Header() {
           <Link href="/" className="flex items-center space-x-2">
               <Zap className="h-6 w-6 text-primary" />
               <span className="font-bold sm:inline-block font-headline">
-                TrustAds
+                trustlyads.in
               </span>
           </Link>
         </div>
@@ -84,7 +84,7 @@ export function Header() {
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                     <Zap className="h-6 w-6 text-primary" />
                     <span className="font-bold sm:inline-block font-headline">
-                      TrustAds
+                      trustlyads.in
                     </span>
                   </Link>
                 </SheetTitle>
