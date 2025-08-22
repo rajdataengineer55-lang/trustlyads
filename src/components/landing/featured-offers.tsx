@@ -9,17 +9,32 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
+import type { SortOption } from "./filters";
 
 interface FeaturedOffersProps {
   selectedCategory: string | null;
+  selectedLocation: string | null;
+  sortOption: SortOption;
 }
 
-export function FeaturedOffers({ selectedCategory }: FeaturedOffersProps) {
+export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption }: FeaturedOffersProps) {
   const { offers } = useOffers();
 
-  const filteredOffers = selectedCategory
-    ? offers.filter(offer => offer.category === selectedCategory)
-    : offers;
+  const filteredOffers = offers
+    .filter(offer => {
+      const categoryMatch = selectedCategory ? offer.category === selectedCategory : true;
+      const locationMatch = selectedLocation ? offer.location === selectedLocation : true;
+      return categoryMatch && locationMatch;
+    })
+    .sort((a, b) => {
+        if (sortOption === 'trending') {
+            // Assuming more reviews means more trending
+            return (b.reviews?.length || 0) - (a.reviews?.length || 0);
+        }
+        // 'newest' is default, and since new items are added to the start, no extra sorting is needed for it.
+        // If there were timestamps, we would sort by `b.createdAt - a.createdAt`
+        return 0; 
+    });
 
   if (filteredOffers.length === 0) {
     return (
@@ -28,14 +43,14 @@ export function FeaturedOffers({ selectedCategory }: FeaturedOffersProps) {
             <h2 className="text-3xl font-headline font-bold mb-4">
               Featured Offers
             </h2>
-            <p className="text-muted-foreground">No offers found for the selected category.</p>
+            <p className="text-muted-foreground">No offers found for the selected filters.</p>
           </div>
        </section>
     );
   }
 
   return (
-    <section id="featured-offers" className="w-full py-16 sm:py-24">
+    <section id="featured-offers" className="w-full pt-16 sm:pt-24">
       <div className="container mx-auto px-4 md:px-6">
         <h2 className="text-3xl font-headline font-bold text-center mb-12">
           Featured Offers
