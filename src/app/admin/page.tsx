@@ -24,8 +24,8 @@ export default function AdminPage() {
                 router.replace('/login');
             } else {
                 setIsLoggedIn(true);
+                setIsLoading(false);
             }
-            setIsLoading(false);
         }
     }, [router]);
 

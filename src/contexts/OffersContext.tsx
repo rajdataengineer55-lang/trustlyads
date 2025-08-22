@@ -74,7 +74,7 @@ const initialOffers: Offer[] = [
       title: "Summer Collection Sale",
       description: "Get ready for summer with 30% off our new collection. Featuring vibrant colors and breezy fabrics, perfect for the sunny days ahead. Our collection includes dresses, tops, skirts, and accessories to complete your summer look. Limited stock available.",
       business: "Chic Boutique",
-      category: "Textile & Garments",
+      category: "Shops & Retail",
       location: "Vellore",
       image: "https://placehold.co/600x400.png",
        otherImages: [
@@ -122,7 +122,7 @@ const initialOffers: Offer[] = [
       title: "Weekend Car Rental Deal",
       description: "Rent any car for the weekend for just ₹3999 per day. Includes unlimited mileage. Choose from our wide range of vehicles, from compact cars to SUVs. Perfect for a weekend getaway or running errands around town.",
       business: "Speedy Rentals",
-      category: "Automobiles",
+      category: "Automobiles & Transport",
       location: "Tirupati Rural",
       image: "https://placehold.co/600x400.png",
       hint: "car rental",
@@ -139,7 +139,7 @@ const initialOffers: Offer[] = [
       title: "Home Cleaning Services",
       description: "Get your home sparkling clean with 20% off our deep cleaning services. Offer valid for a limited time. Our professional team uses eco-friendly products to ensure a safe and thorough clean for your home.",
       business: "Sparkle Clean",
-      category: "Home & Local Services",
+      category: "Services",
       location: "Puttur",
       image: "https://placehold.co/600x400.png",
       hint: "home service",
@@ -159,13 +159,23 @@ const initialOffers: Offer[] = [
 
 const OffersContext = createContext<OffersContextType | undefined>(undefined);
 
+// Helper function to generate a URL-friendly slug
+const createSlug = (text: string) => {
+  return text
+    .toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '');
+};
+
+
 export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>(initialOffers);
 
   const addOffer = (offer: Omit<Offer, 'id' | 'reviews'>) => {
+    const slug = `${createSlug(offer.title)}-${createSlug(offer.business)}`;
     const newOffer: Offer = {
       ...offer,
-      id: crypto.randomUUID(),
+      id: `${slug}-${crypto.randomUUID().slice(0, 4)}`,
       reviews: [],
     };
     setOffers(prevOffers => [newOffer, ...prevOffers]);
@@ -173,9 +183,14 @@ export function OffersProvider({ children }: { children: ReactNode }) {
 
   const updateOffer = (id: string, updatedOfferData: Partial<Omit<Offer, 'id' | 'reviews'>>) => {
     setOffers(prevOffers =>
-      prevOffers.map(offer =>
-        offer.id === id ? { ...offer, ...updatedOfferData } : offer
-      )
+      prevOffers.map(offer => {
+        if (offer.id === id) {
+          // Make sure to preserve existing reviews
+          const existingReviews = offer.reviews || [];
+          return { ...offer, ...updatedOfferData, reviews: existingReviews };
+        }
+        return offer;
+      })
     );
   };
   
