@@ -208,7 +208,7 @@ export default function OfferDetailsPage() {
                     {allImages.length > 1 && (
                       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
                           {allImages.map((img, i) => (
-                              <div key={i} className="relative aspect-square cursor-pointer" onClick={() => setMainImage(img)}>
+                              <div key={i} className="relative aspect-[4/3] cursor-pointer" onClick={() => setMainImage(img)}>
                                 <Image 
                                   src={img} 
                                   alt={`thumbnail ${i + 1}`} 
