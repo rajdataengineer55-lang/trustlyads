@@ -59,12 +59,11 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
           }}
           className="w-full"
         >
-          <CarouselContent>
+          <CarouselContent className="-ml-2 md:-ml-4">
             {filteredOffers.map((offer) => (
-              <CarouselItem key={offer.id} className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <Card className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
-                    <CardContent className="p-0">
+              <CarouselItem key={offer.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <Card className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 h-full flex flex-col">
+                    <CardContent className="p-0 flex flex-col flex-grow">
                       <div className="relative aspect-[4/3]">
                         <Image
                           src={offer.image}
@@ -72,33 +71,35 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
                           fill
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
                           data-ai-hint={offer.hint}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                            <h3 className="text-xl font-headline font-bold text-white">{offer.title}</h3>
+                            <h3 className="text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
                         </div>
                         <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
                           {offer.discount}
                         </Badge>
                       </div>
-                      <div className="p-6 bg-card">
-                         <div className="flex items-center text-sm text-muted-foreground mb-3">
-                            <MapPin className="h-4 w-4 mr-2" />
-                            <span>{offer.location}</span>
+                      <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
+                         <div className="flex items-start text-sm text-muted-foreground mb-3">
+                            <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
+                            <span className="truncate">{offer.location}</span>
                          </div>
                         <div className="flex flex-wrap gap-2 mb-4">
                           {offer.tags?.map((tag) => (
                             <Badge key={tag} variant="secondary">{tag}</Badge>
                           ))}
                         </div>
-                        <Link href={`/offer/${offer.id}`} passHref>
-                          <Button className="w-full">
-                               View Details <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
+                        <div className="mt-auto">
+                          <Link href={`/offer/${offer.id}`} passHref>
+                            <Button className="w-full">
+                                 View Details <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
-                </div>
               </CarouselItem>
             ))}
           </CarouselContent>

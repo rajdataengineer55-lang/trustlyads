@@ -458,19 +458,19 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             <div className="space-y-4">
                 <FormLabel>Communication Options</FormLabel>
                 <FormDescription>Select how customers can connect with you.</FormDescription>
-                <div className="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-2 gap-y-4 pt-2">
                     <FormField
                     control={form.control}
                     name="allowCall"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                         <FormControl>
                             <Checkbox
                             checked={field.value}
                             onCheckedChange={field.onChange}
                             />
                         </FormControl>
-                        <FormLabel className="font-normal text-sm">
+                        <FormLabel className="font-normal text-sm leading-none">
                             Allow Call
                         </FormLabel>
                         </FormItem>
@@ -480,14 +480,14 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                     control={form.control}
                     name="allowChat"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                         <FormControl>
                             <Checkbox
                             checked={field.value}
                             onCheckedChange={field.onChange}
                             />
                         </FormControl>
-                        <FormLabel className="font-normal text-sm">
+                        <FormLabel className="font-normal text-sm leading-none">
                             Allow Chat
                         </FormLabel>
                         </FormItem>
@@ -497,14 +497,14 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                     control={form.control}
                     name="allowSchedule"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                         <FormControl>
                             <Checkbox
                             checked={field.value}
                             onCheckedChange={field.onChange}
                             />
                         </FormControl>
-                        <FormLabel className="font-normal text-sm">
+                        <FormLabel className="font-normal text-sm leading-none">
                            Schedule
                         </FormLabel>
                         </FormItem>

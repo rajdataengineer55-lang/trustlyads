@@ -11,12 +11,11 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -134,7 +133,7 @@ export default function OfferDetailsPage() {
                     <Skeleton className="h-8 w-1/4 mb-8" />
                     <div className="grid md:grid-cols-2 gap-8">
                         <div>
-                            <Skeleton className="w-full h-96 rounded-lg" />
+                            <Skeleton className="w-full aspect-[4/3] rounded-lg" />
                             <div className="grid grid-cols-4 gap-2 mt-2">
                                 <Skeleton className="w-full h-24 rounded-lg" />
                                 <Skeleton className="w-full h-24 rounded-lg" />
@@ -173,9 +172,9 @@ export default function OfferDetailsPage() {
   const allImages = [offer.image, ...(offer.otherImages || [])];
 
   const LocationInfo = () => (
-    <div className="flex items-center text-muted-foreground mb-2">
-      <MapPin className="h-5 w-5 mr-2" />
-      <span>{offer.location}</span>
+    <div className="flex items-center text-muted-foreground mb-4">
+      <MapPin className="h-5 w-5 mr-2 shrink-0" />
+      <span className="truncate">{offer.location}</span>
     </div>
   );
 
@@ -190,14 +189,14 @@ export default function OfferDetailsPage() {
             </Link>
             <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
                 <div className="lg:col-span-3">
-                    <div className="relative mb-4 aspect-video sm:aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
+                    <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
                         <Image
                             src={mainImage || offer.image}
                             alt={offer.title}
                             fill
                             className="object-cover transition-all duration-300 ease-in-out hover:scale-105"
                             data-ai-hint={offer.hint}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 33vw"
                         />
                          <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-accent text-accent-foreground font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base">
                           {offer.discount}
@@ -231,7 +230,7 @@ export default function OfferDetailsPage() {
 
                              {offer.locationLink && (
                                 <a href={offer.locationLink} target="_blank" rel="noopener noreferrer" className="mb-6 block">
-                                    <Button variant="outline" size="sm">
+                                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
                                         <Navigation className="mr-2 h-4 w-4" />
                                         Get Directions
                                     </Button>
@@ -282,7 +281,7 @@ export default function OfferDetailsPage() {
                   <CardHeader>
                     <CardTitle>Offer Description</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-4 sm:p-6">
+                  <CardContent>
                     <p className="text-muted-foreground">
                       {offer.description}
                     </p>
@@ -294,7 +293,7 @@ export default function OfferDetailsPage() {
                     <CardHeader>
                       <CardTitle>Customer Reviews</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6 p-4 sm:p-6">
+                    <CardContent className="space-y-6">
                       {offer.reviews.map((review) => (
                         <div key={review.id} className="flex gap-4">
                           <Avatar>
@@ -323,7 +322,7 @@ export default function OfferDetailsPage() {
                     <CardHeader>
                         <CardTitle>Write a Review</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 sm:p-6">
+                    <CardContent>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onReviewSubmit)} className="space-y-4">
                                 <FormField
@@ -396,9 +395,9 @@ export default function OfferDetailsPage() {
                  <h2 className="text-2xl font-headline font-bold text-center mb-12">
                   Similar Offers
                 </h2>
-                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {similarOffers.map((similarOffer, i) => (
-                    <Card key={`similar-${similarOffer.id}-${i}`} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
+                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {similarOffers.map((similarOffer) => (
+                    <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
                       <CardContent className="p-0">
                         <div className="relative aspect-[4/3]">
                           <Image
@@ -410,16 +409,16 @@ export default function OfferDetailsPage() {
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           />
                           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <h3 className="text-lg font-headline font-bold text-white">{similarOffer.title}</h3>
+                              <h3 className="text-lg font-headline font-bold text-white truncate">{similarOffer.title}</h3>
                           </div>
                           <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
                             {similarOffer.discount}
                           </Badge>
                         </div>
-                        <div className="p-6 bg-card">
+                        <div className="p-4 sm:p-6 bg-card">
                           <div className="flex items-center text-sm text-muted-foreground mb-3">
-                              <MapPin className="h-4 w-4 mr-2" />
-                              <span>{similarOffer.location}</span>
+                              <MapPin className="h-4 w-4 mr-2 shrink-0" />
+                              <span className="truncate">{similarOffer.location}</span>
                           </div>
                           <div className="flex flex-wrap gap-2 mb-4">
                             {similarOffer.tags?.map((tag) => (
@@ -429,7 +428,7 @@ export default function OfferDetailsPage() {
                           <Link href={`/offer/${similarOffer.id}`} passHref>
                             <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
                                  View Details
-                                <ArrowLeft className="ml-2 h-4 w-4 transform rotate-180" />
+                                <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                           </Link>
                         </div>
@@ -446,7 +445,3 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
-
-    
-
-    
