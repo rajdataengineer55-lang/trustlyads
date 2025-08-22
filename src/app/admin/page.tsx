@@ -18,13 +18,17 @@ export default function AdminPage() {
     const { user, loading, signInWithGoogle } = useAuth();
     const router = useRouter();
 
+    // While not strictly necessary with the checks below, this is good practice
+    // if you wanted to redirect unauthenticated users instead of showing a message.
     useEffect(() => {
         if (!loading && !user) {
-            // This is handled by the component logic below, but could be a redirect
+            // For now, we show a message on the page.
+            // If you'd prefer a hard redirect, you could use:
             // router.replace('/'); 
         }
     }, [user, loading, router]);
 
+    // 1. Show a loading state while we check for the user
     if (loading) {
         return (
             <div className="flex flex-col min-h-screen">
@@ -43,6 +47,7 @@ export default function AdminPage() {
         );
     }
     
+    // 2. If the user is not logged in, show the login prompt
     if (!user) {
          return (
             <div className="flex flex-col min-h-screen">
@@ -60,6 +65,7 @@ export default function AdminPage() {
         );
     }
 
+    // 3. If the user is logged in, check if they are the authorized admin
     const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
     
     if (user.email !== authorizedAdminEmail) {
@@ -78,6 +84,7 @@ export default function AdminPage() {
         );
     }
 
+    // 4. If all checks pass, render the admin dashboard
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
