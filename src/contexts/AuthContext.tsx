@@ -2,14 +2,23 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut, type User } from 'firebase/auth';
+import { 
+  onAuthStateChanged, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut as firebaseSignOut, 
+  signInWithEmailAndPassword,
+  type User 
+} from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import type { AdminLoginData } from '@/components/admin-login-form';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (data: AdminLoginData) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -38,7 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "You have successfully signed in.",
       });
     } catch (error: any) {
-      // Don't show an error toast if the user simply closed the popup.
       if (error.code === 'auth/popup-closed-by-user') {
         return;
       }
@@ -48,6 +56,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         variant: "destructive",
         title: "Sign In Failed",
         description: "Could not sign in with Google. Please try again.",
+      });
+    }
+  };
+
+  const signInWithEmail = async ({ email, password }: AdminLoginData) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({
+        title: "Admin Signed In",
+        description: "Welcome back, admin!",
+      });
+    } catch (error: any) {
+       console.error("Error signing in with email:", error);
+       let description = "An unknown error occurred. Please try again.";
+       if(error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+          description = "Invalid email or password. Please try again.";
+       }
+       toast({
+        variant: "destructive",
+        title: "Sign In Failed",
+        description,
       });
     }
   };
@@ -70,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithEmail, signOut }}>
       {children}
     </AuthContext.Provider>
   );

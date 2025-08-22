@@ -11,12 +11,13 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogIn, ShieldAlert } from 'lucide-react';
+import { LogIn, ShieldAlert, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AdminLoginForm } from '@/components/admin-login-form';
 
 export default function AdminPage() {
-    const { user, loading, signInWithGoogle } = useAuth();
+    const { user, loading, signOut } = useAuth();
     const router = useRouter();
 
     const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
@@ -40,8 +41,8 @@ export default function AdminPage() {
         );
     }
     
-    // 2. If the user is not the admin, show the specific admin login prompt
-    if (!user || user.email !== authorizedAdminEmail) {
+    // 2. If no user is logged in, show the admin login form
+    if (!user) {
          return (
             <div className="flex flex-col min-h-screen">
                 <Header />
@@ -49,21 +50,44 @@ export default function AdminPage() {
                     <Card className="max-w-md w-full">
                         <CardHeader>
                             <CardTitle className="flex items-center justify-center gap-2">
-                                <ShieldAlert className="h-6 w-6" /> Admin Access Required
+                                <ShieldAlert className="h-6 w-6" /> Admin Login
                             </CardTitle>
                             <CardDescription>
-                                Please sign in with the authorized admin Google account to continue.
+                                Please sign in to manage the website.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           <AdminLoginForm />
+                        </CardContent>
+                    </Card>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
+
+    // 3. If a user is logged in but is not the admin, show unauthorized access message
+    if (user.email !== authorizedAdminEmail) {
+        return (
+            <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-1 bg-background/50 flex flex-col items-center justify-center text-center p-4">
+                    <Card className="max-w-md w-full">
+                        <CardHeader>
+                            <CardTitle className="flex items-center justify-center gap-2">
+                                <ShieldAlert className="h-6 w-6" /> Unauthorized Access
+                            </CardTitle>
+                            <CardDescription>
+                                This account is not authorized to view the admin page.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {user && user.email !== authorizedAdminEmail && (
-                                <p className="text-sm text-destructive">
-                                    Account <span className="font-medium">{user.email}</span> is not authorized.
-                                </p>
-                            )}
-                            <Button onClick={signInWithGoogle} className="w-full">
-                                <LogIn className="mr-2 h-4 w-4" />
-                                Sign in with Google
+                            <p className="text-sm text-destructive">
+                                Signed in as <span className="font-medium">{user.email}</span>.
+                            </p>
+                            <Button onClick={signOut} variant="destructive" className="w-full">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Sign Out
                             </Button>
                              <Button variant="outline" asChild className="w-full">
                                 <Link href="/">Go to Homepage</Link>
@@ -73,10 +97,10 @@ export default function AdminPage() {
                 </main>
                 <Footer />
             </div>
-        );
+        )
     }
 
-    // 3. If all checks pass, render the admin dashboard
+    // 4. If all checks pass, render the admin dashboard
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
