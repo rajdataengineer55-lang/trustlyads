@@ -197,7 +197,7 @@ export default function OfferDetailsPage() {
                             src={mainImage || offer.image}
                             alt={offer.title}
                             fill
-                            className="object-contain"
+                            className="object-cover"
                             data-ai-hint={offer.hint}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
@@ -213,7 +213,7 @@ export default function OfferDetailsPage() {
                                   src={img} 
                                   alt={`thumbnail ${i + 1}`} 
                                   fill 
-                                  className={cn("rounded-md object-contain transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                  className={cn("rounded-md object-cover transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
                                   data-ai-hint="placeholder image"
                                   sizes="10vw" 
                                 />
@@ -404,7 +404,7 @@ export default function OfferDetailsPage() {
                             src={similarOffer.image}
                             alt={similarOffer.title}
                             fill
-                            className="object-contain transition-transform duration-300 group-hover:scale-105"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint={similarOffer.hint}
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           />
