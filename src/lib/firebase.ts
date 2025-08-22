@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 // IMPORTANT: Create a .env.local file in the root of your project
 // and add your Firebase configuration there.
@@ -33,4 +34,5 @@ if (!getApps().length) {
 
 
 export const auth = getAuth(app);
+export const db = getFirestore(app);
 export default app;
