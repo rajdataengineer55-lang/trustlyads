@@ -35,7 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { cn } from "@/lib/utils";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 export function ManageOffers() {
