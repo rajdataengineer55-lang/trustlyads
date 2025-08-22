@@ -72,96 +72,94 @@ export function ManageOffers() {
   }
 
   return (
-    <section id="manage-offers" className="pb-16 sm:pb-24">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-headline font-bold">Manage Your Offers</h2>
-          <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-            Here you can edit, delete, and boost your current offers.
-          </p>
-        </div>
+    <>
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-headline font-bold">Manage Your Offers</h2>
+        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+          Here you can edit, delete, and boost your current offers.
+        </p>
+      </div>
 
-        <div className="max-w-4xl mx-auto bg-white dark:bg-card rounded-lg shadow-lg p-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Offer</TableHead>
-                <TableHead className="hidden md:table-cell">Category</TableHead>
-                <TableHead className="hidden sm:table-cell">Discount</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {offers.map((offer) => (
-                <TableRow key={offer.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-4">
-                      <Image
-                        src={offer.image}
-                        alt={offer.title}
-                        width={64}
-                        height={48}
-                        className="rounded-md object-cover hidden sm:block"
-                        data-ai-hint={offer.hint}
-                      />
-                      <div>
-                        <p className="font-medium">{offer.title}</p>
-                        <p className="text-sm text-muted-foreground">{offer.business}</p>
-                      </div>
+      <div className="w-full bg-white dark:bg-card rounded-lg shadow-lg overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Offer</TableHead>
+              <TableHead className="hidden md:table-cell">Category</TableHead>
+              <TableHead className="hidden sm:table-cell">Discount</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {offers.map((offer) => (
+              <TableRow key={offer.id}>
+                <TableCell>
+                  <div className="flex items-center gap-4">
+                    <Image
+                      src={offer.image}
+                      alt={offer.title}
+                      width={64}
+                      height={48}
+                      className="rounded-md object-cover hidden sm:block"
+                      data-ai-hint={offer.hint}
+                    />
+                    <div>
+                      <p className="font-medium whitespace-nowrap">{offer.title}</p>
+                      <p className="text-sm text-muted-foreground whitespace-nowrap">{offer.business}</p>
                     </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">{offer.category}</TableCell>
-                  <TableCell className="hidden sm:table-cell">{offer.discount}</TableCell>
-                  <TableCell className="text-right">
-                    <Dialog open={isEditDialogOpen && selectedOffer?.id === offer.id} onOpenChange={(isOpen) => {
-                        if (!isOpen) setSelectedOffer(null);
-                        setIsEditDialogOpen(isOpen);
-                    }}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-5 w-5" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleBoostClick(offer)}>
-                          <Zap className="mr-2 h-4 w-4" />
-                          Boost
-                        </DropdownMenuItem>
-                        <DialogTrigger asChild>
-                            <DropdownMenuItem onClick={() => handleEditClick(offer)}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </DropdownMenuItem>
-                        </DialogTrigger>
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteClick(offer)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <DialogContent className="sm:max-w-[625px]">
-                        <DialogHeader>
-                            <DialogTitle>Edit Offer</DialogTitle>
-                        </DialogHeader>
-                        <AdGenerator 
-                          offerToEdit={selectedOffer!} 
-                          onFinished={() => {
-                            setIsEditDialogOpen(false);
-                            setSelectedOffer(null);
-                          }} 
-                        />
-                    </DialogContent>
-                    </Dialog>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">{offer.category}</TableCell>
+                <TableCell className="hidden sm:table-cell">{offer.discount}</TableCell>
+                <TableCell className="text-right">
+                  <Dialog open={isEditDialogOpen && selectedOffer?.id === offer.id} onOpenChange={(isOpen) => {
+                      if (!isOpen) setSelectedOffer(null);
+                      setIsEditDialogOpen(isOpen);
+                  }}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleBoostClick(offer)}>
+                        <Zap className="mr-2 h-4 w-4" />
+                        Boost
+                      </DropdownMenuItem>
+                      <DialogTrigger asChild>
+                          <DropdownMenuItem onClick={() => handleEditClick(offer)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit
+                          </DropdownMenuItem>
+                      </DialogTrigger>
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteClick(offer)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <DialogContent className="sm:max-w-[625px]">
+                      <DialogHeader>
+                          <DialogTitle>Edit Offer</DialogTitle>
+                      </DialogHeader>
+                      <AdGenerator 
+                        offerToEdit={selectedOffer!} 
+                        onFinished={() => {
+                          setIsEditDialogOpen(false);
+                          setSelectedOffer(null);
+                        }} 
+                      />
+                  </DialogContent>
+                  </Dialog>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
@@ -183,6 +181,6 @@ export function ManageOffers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </section>
+    </>
   );
 }

@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu"
-import { Zap, MapPin, ChevronDown, Users, Menu } from "lucide-react"
+import { Zap, MapPin, ChevronDown, Users, Menu, Phone, User, Info } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -88,9 +88,6 @@ export function Header() {
                     </span>
                   </Link>
                 </SheetTitle>
-                <SheetDescription>
-                  Quick links to navigate the app.
-                </SheetDescription>
               </SheetHeader>
                <nav className="flex flex-col gap-4 py-6">
                   <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
@@ -105,11 +102,14 @@ export function Header() {
                       <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
                   </Button>
                   <Link href="/admin" passHref>
-                    <Button variant="ghost" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>Admin</Button>
+                    <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><User /> Admin</Button>
                   </Link>
                   <Link href="/about" passHref>
-                    <Button variant="ghost" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>About</Button>
+                    <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Info /> About</Button>
                   </Link>
+                  <a href="tel:+919380002829">
+                    <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Phone /> Contact Us</Button>
+                  </a>
                </nav>
             </SheetContent>
           </Sheet>

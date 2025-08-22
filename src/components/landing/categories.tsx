@@ -25,7 +25,7 @@ export function Categories({ selectedCategory, setSelectedCategory }: Categories
         <h2 className="text-3xl font-headline font-bold text-center mb-12">
           Explore by Category
         </h2>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
           {categories.map((category) => (
             <Card 
               key={category.name} 
@@ -39,7 +39,7 @@ export function Categories({ selectedCategory, setSelectedCategory }: Categories
                 <div className={cn("text-primary group-hover:text-primary-foreground transition-colors", selectedCategory === category.name && "text-primary-foreground")}>
                   {category.icon}
                 </div>
-                <p className="font-semibold font-headline text-xs">{category.name}</p>
+                <p className="font-semibold font-headline text-xs sm:text-sm">{category.name}</p>
               </CardContent>
             </Card>
           ))}

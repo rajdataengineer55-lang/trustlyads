@@ -57,9 +57,17 @@ export default function AdminPage() {
         <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-1 bg-gray-50 dark:bg-gray-900/50">
-                <AdGenerator />
-                <Separator className="my-12" />
-                <ManageOffers />
+                <section className="py-12 sm:py-16">
+                    <div className="container mx-auto px-4 md:px-6">
+                        <AdGenerator />
+                    </div>
+                </section>
+                <Separator className="my-8 sm:my-12" />
+                <section className="pb-12 sm:pb-16">
+                     <div className="container mx-auto px-4 md:px-6">
+                        <ManageOffers />
+                    </div>
+                </section>
             </main>
             <Footer />
         </div>

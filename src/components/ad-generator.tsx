@@ -438,7 +438,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             <div className="space-y-4">
                 <FormLabel>Communication Options</FormLabel>
                 <FormDescription>Select how customers can connect with you.</FormDescription>
-                <div className="flex items-center space-x-4 pt-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
                     <FormField
                     control={form.control}
                     name="allowCall"
@@ -450,7 +450,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                             onCheckedChange={field.onChange}
                             />
                         </FormControl>
-                        <FormLabel className="font-normal">
+                        <FormLabel className="font-normal text-sm">
                             Allow Call
                         </FormLabel>
                         </FormItem>
@@ -467,7 +467,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                             onCheckedChange={field.onChange}
                             />
                         </FormControl>
-                        <FormLabel className="font-normal">
+                        <FormLabel className="font-normal text-sm">
                             Allow Chat
                         </FormLabel>
                         </FormItem>
@@ -484,8 +484,8 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                             onCheckedChange={field.onChange}
                             />
                         </FormControl>
-                        <FormLabel className="font-normal">
-                            Schedule Meeting
+                        <FormLabel className="font-normal text-sm">
+                           Schedule
                         </FormLabel>
                         </FormItem>
                     )}
@@ -563,30 +563,28 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   }
 
   return (
-    <section id="dashboard-preview" className="py-16 sm:py-24 bg-white dark:bg-gray-900/10">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold">Post Ads and Manage Offers Easily</h2>
-            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                Fill out the form below to post your new offer to the platform.
-            </p>
-        </div>
-
-        <div className="max-w-2xl mx-auto">
-          <Card className="shadow-lg">
-              <CardHeader>
-                  <div className="flex items-center gap-2">
-                      <Megaphone className="h-6 w-6 text-primary" />
-                      <CardTitle className="font-headline">Post Your Offer</CardTitle>
-                  </div>
-                  <CardDescription>Fill out your offer details to get started.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                  {AdForm}
-              </CardContent>
-          </Card>
-        </div>
+    <>
+      <div className="text-center mb-12">
+          <h2 className="text-3xl font-headline font-bold">Post Ads and Manage Offers Easily</h2>
+          <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
+              Fill out the form below to post your new offer to the platform.
+          </p>
       </div>
-    </section>
+
+      <div className="max-w-2xl mx-auto">
+        <Card className="shadow-lg">
+            <CardHeader>
+                <div className="flex items-center gap-2">
+                    <Megaphone className="h-6 w-6 text-primary" />
+                    <CardTitle className="font-headline">Post Your Offer</CardTitle>
+                </div>
+                <CardDescription>Fill out your offer details to get started.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {AdForm}
+            </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }

@@ -168,28 +168,29 @@ export default function OfferDetailsPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 bg-gray-50 dark:bg-gray-900/50 py-12">
+      <main className="flex-1 bg-gray-50 dark:bg-gray-900/50 py-6 sm:py-12">
         <div className="container mx-auto px-4 md:px-6">
-            <Link href="/" className="inline-flex items-center text-primary mb-8 hover:underline">
+            <Link href="/" className="inline-flex items-center text-primary mb-4 sm:mb-8 hover:underline">
                  <ArrowLeft className="mr-2 h-4 w-4" />
                  Back to all offers
             </Link>
-            <div className="grid md:grid-cols-5 gap-8 lg:gap-12">
-                <div className="md:col-span-3">
-                    <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
+            <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
+                <div className="lg:col-span-3">
+                    <div className="relative mb-4 aspect-video sm:aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
                         <Image
                             src={mainImage || offer.image}
                             alt={offer.title}
                             fill
                             className="object-cover"
                             data-ai-hint={offer.hint}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
-                         <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-2 px-3 text-base">
+                         <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-accent text-accent-foreground font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base">
                           {offer.discount}
                         </Badge>
                     </div>
                     {allImages.length > 1 && (
-                      <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
+                      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
                           {allImages.map((img, i) => (
                               <div key={i} className="relative aspect-square cursor-pointer" onClick={() => setMainImage(img)}>
                                 <Image 
@@ -197,7 +198,8 @@ export default function OfferDetailsPage() {
                                   alt={`thumbnail ${i + 1}`} 
                                   fill 
                                   className={cn("rounded-md object-cover transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
-                                  data-ai-hint="placeholder image" 
+                                  data-ai-hint="placeholder image"
+                                  sizes="10vw" 
                                 />
                               </div>
                           ))}
@@ -205,10 +207,10 @@ export default function OfferDetailsPage() {
                     )}
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="lg:col-span-2">
                     <Card>
-                        <CardContent className="p-6">
-                            <h1 className="text-xl font-headline font-bold mb-2">{offer.title}</h1>
+                        <CardContent className="p-4 sm:p-6">
+                            <h1 className="text-xl sm:text-2xl font-headline font-bold mb-2">{offer.title}</h1>
                             <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>
                             <div className="flex items-center text-muted-foreground mb-6">
                                 <MapPin className="h-5 w-5 mr-2" />
@@ -252,13 +254,13 @@ export default function OfferDetailsPage() {
                 </div>
             </div>
 
-            <div className="mt-12 grid md:grid-cols-2 gap-8">
+            <div className="mt-12 grid lg:grid-cols-2 gap-8 lg:gap-12">
               <div className="space-y-8">
                 <Card>
                   <CardHeader>
                     <CardTitle>Offer Description</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 sm:p-6">
                     <p className="text-muted-foreground">
                       {offer.description}
                     </p>
@@ -270,7 +272,7 @@ export default function OfferDetailsPage() {
                     <CardHeader>
                       <CardTitle>Customer Reviews</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-6 p-4 sm:p-6">
                       {offer.reviews.map((review, index) => (
                         <div key={index} className="flex gap-4">
                           <Avatar>
@@ -285,7 +287,7 @@ export default function OfferDetailsPage() {
                                 ))}
                               </div>
                             </div>
-                            <p className="text-muted-foreground mt-1">{review.comment}</p>
+                            <p className="text-muted-foreground mt-1 text-sm">{review.comment}</p>
                           </div>
                         </div>
                       ))}
@@ -299,7 +301,7 @@ export default function OfferDetailsPage() {
                     <CardHeader>
                         <CardTitle>Write a Review</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-4 sm:p-6">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onReviewSubmit)} className="space-y-4">
                                 <FormField
@@ -372,7 +374,7 @@ export default function OfferDetailsPage() {
                  <h2 className="text-2xl font-headline font-bold text-center mb-12">
                   Similar Offers
                 </h2>
-                 <div className="grid md:grid-cols-3 gap-4">
+                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {similarOffers.map((similarOffer) => (
                     <Card key={similarOffer.id} className="overflow-hidden group transition-shadow duration-300 hover:shadow-2xl">
                       <CardContent className="p-0">
@@ -383,6 +385,7 @@ export default function OfferDetailsPage() {
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint={similarOffer.hint}
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           />
                           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                               <h3 className="text-lg font-headline font-bold text-white">{similarOffer.title}</h3>
