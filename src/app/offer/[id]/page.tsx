@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
-import { useOffers, type Offer } from '@/contexts/OffersContext';
+import { useOffers, type Offer, type Review } from '@/contexts/OffersContext';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
@@ -17,18 +17,43 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+
+
+const reviewSchema = z.object({
+    author: z.string().min(2, "Name must be at least 2 characters."),
+    rating: z.number().min(1, "Please select a rating.").max(5),
+    comment: z.string().min(10, "Comment must be at least 10 characters."),
+});
 
 
 export default function OfferDetailsPage() {
   const params = useParams();
-  const { offers, getOfferById } = useOffers();
+  const { offers, getOfferById, addReview } = useOffers();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const { toast } = useToast();
   
   const id = typeof params.id === 'string' ? params.id : '';
+
+  const form = useForm<z.infer<typeof reviewSchema>>({
+    resolver: zodResolver(reviewSchema),
+    defaultValues: {
+      author: "",
+      rating: 0,
+      comment: "",
+    },
+  });
+
+  const [hoverRating, setHoverRating] = useState(0);
+  const currentRating = form.watch("rating");
 
   useEffect(() => {
     if (id) {
@@ -41,7 +66,7 @@ export default function OfferDetailsPage() {
     } else {
         setIsLoading(false);
     }
-  }, [id, getOfferById]);
+  }, [id, getOfferById, offers]); // Add offers to dependency array to re-render when reviews are added
 
   const handleShare = async () => {
     if (!offer) return;
@@ -56,7 +81,6 @@ export default function OfferDetailsPage() {
       try {
         await navigator.share(shareData);
       } catch (err: any) {
-        // Silently fail if the user cancels the share sheet
         if (err.name !== 'AbortError') {
           console.error("Error sharing:", err);
         }
@@ -77,6 +101,21 @@ export default function OfferDetailsPage() {
         });
       }
     }
+  };
+
+  const onReviewSubmit = (data: z.infer<typeof reviewSchema>) => {
+    if (!offer) return;
+    const newReview: Omit<Review, 'id'> = {
+        author: data.author,
+        rating: data.rating,
+        comment: data.comment,
+    };
+    addReview(offer.id, newReview);
+    toast({
+        title: "Review Submitted!",
+        description: "Thank you for your feedback.",
+    });
+    form.reset();
   };
   
   if (isLoading) {
@@ -120,7 +159,6 @@ export default function OfferDetailsPage() {
   }
 
   if (!offer) {
-    // If loading is finished and still no offer, show not found.
     notFound();
   }
 
@@ -214,48 +252,120 @@ export default function OfferDetailsPage() {
                 </div>
             </div>
 
-            <div className="mt-12">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Offer Description</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    {offer.description}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-            
-            {offer.reviews && offer.reviews.length > 0 && (
-              <div className="mt-12">
+            <div className="mt-12 grid md:grid-cols-2 gap-8">
+              <div className="space-y-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Customer Reviews</CardTitle>
+                    <CardTitle>Offer Description</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    {offer.reviews.map((review, index) => (
-                      <div key={index} className="flex gap-4">
-                        <Avatar>
-                          <AvatarFallback>{review.author.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <p className="font-semibold">{review.author}</p>
-                            <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={cn("h-4 w-4", i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300')} />
-                              ))}
-                            </div>
-                          </div>
-                          <p className="text-muted-foreground mt-1">{review.comment}</p>
-                        </div>
-                      </div>
-                    ))}
+                  <CardContent>
+                    <p className="text-muted-foreground">
+                      {offer.description}
+                    </p>
                   </CardContent>
                 </Card>
+                
+                {offer.reviews && offer.reviews.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Customer Reviews</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {offer.reviews.map((review, index) => (
+                        <div key={index} className="flex gap-4">
+                          <Avatar>
+                            <AvatarFallback>{review.author.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <p className="font-semibold">{review.author}</p>
+                              <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star key={i} className={cn("h-4 w-4", i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300')} />
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-muted-foreground mt-1">{review.comment}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
               </div>
-            )}
+
+              <div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Write a Review</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onReviewSubmit)} className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="author"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Your Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Enter your name" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="rating"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Rating</FormLabel>
+                                            <FormControl>
+                                                <div className="flex items-center gap-1">
+                                                    {[...Array(5)].map((_, i) => {
+                                                        const ratingValue = i + 1;
+                                                        return (
+                                                            <Star
+                                                                key={ratingValue}
+                                                                className={cn(
+                                                                    "h-6 w-6 cursor-pointer transition-colors",
+                                                                    (hoverRating || currentRating) >= ratingValue
+                                                                        ? 'text-yellow-400 fill-yellow-400'
+                                                                        : 'text-gray-300'
+                                                                )}
+                                                                onClick={() => field.onChange(ratingValue)}
+                                                                onMouseEnter={() => setHoverRating(ratingValue)}
+                                                                onMouseLeave={() => setHoverRating(0)}
+                                                            />
+                                                        );
+                                                    })}
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="comment"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Your Review</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="Share your experience..." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <Button type="submit">Submit Review</Button>
+                            </form>
+                        </Form>
+                    </CardContent>
+                </Card>
+              </div>
+            </div>
             
             {similarOffers.length > 0 && (
               <div className="mt-16">

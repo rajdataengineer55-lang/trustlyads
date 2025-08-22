@@ -37,6 +37,7 @@ interface OffersContextType {
   updateOffer: (id: string, updatedOffer: Omit<Offer, 'id'>) => void;
   deleteOffer: (id: string) => void;
   boostOffer: (id: string) => void;
+  addReview: (offerId: string, review: Omit<Review, 'id'>) => void;
 }
 
 const initialOffers: Offer[] = [
@@ -130,6 +131,7 @@ const initialOffers: Offer[] = [
       allowChat: false,
       allowSchedule: false,
       phoneNumber: "9380002829",
+      reviews: [],
     },
     {
       id: "sparkle-clean-home-cleaning-servic",
@@ -162,7 +164,8 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const addOffer = (offer: Omit<Offer, 'id'>) => {
     const newOffer: Offer = {
       ...offer,
-      id: `${offer.business.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0,15)}-${offer.title.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0,20)}`
+      id: `${offer.business.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0,15)}-${offer.title.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0,20)}`,
+      reviews: [],
     };
     setOffers(prevOffers => [newOffer, ...prevOffers]);
   };
@@ -191,9 +194,21 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const getOfferById = (id: string) => {
     return offers.find(offer => offer.id === id);
   };
+  
+  const addReview = (offerId: string, review: Review) => {
+    setOffers(prevOffers =>
+      prevOffers.map(offer => {
+        if (offer.id === offerId) {
+          const updatedReviews = [...(offer.reviews || []), review];
+          return { ...offer, reviews: updatedReviews };
+        }
+        return offer;
+      })
+    );
+  };
 
   return (
-    <OffersContext.Provider value={{ offers, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer }}>
+    <OffersContext.Provider value={{ offers, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview }}>
       {children}
     </OffersContext.Provider>
   );
