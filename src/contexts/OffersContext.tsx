@@ -30,6 +30,7 @@ export interface Offer {
   chatLink?: string;
   scheduleLink?: string;
   reviews?: Review[];
+  isHidden?: boolean;
 }
 
 const initialOffers: Offer[] = [
@@ -60,6 +61,7 @@ const initialOffers: Offer[] = [
         { id: 'review-1', author: "Rahul Kumar", rating: 5, comment: "Amazing food and great service! Highly recommended." },
         { id: 'review-2', author: "Priya Sharma", rating: 4, comment: "The pasta was delicious, but the wait time was a bit long." },
       ],
+      isHidden: false,
     },
     {
       id: "chic-boutique-summer-collection-sal",
@@ -86,6 +88,7 @@ const initialOffers: Offer[] = [
       reviews: [
         { id: 'review-3', author: "Anjali Mehta", rating: 5, comment: "Beautiful collection and very helpful staff." },
       ],
+      isHidden: false,
     },
     {
       id: "serenity-spa-relaxing-spa-day-pack",
@@ -109,6 +112,7 @@ const initialOffers: Offer[] = [
         { id: 'review-5', author: "Meena Iyer", rating: 4, comment: "Good service, but the facility was a bit crowded." },
         { id: 'review-6', author: "Amit Singh", rating: 5, comment: "My wife and I loved the couple's package. Will definitely be back." },
       ],
+      isHidden: false,
     },
     {
       id: "speedy-rentals-weekend-car-rental-d",
@@ -126,6 +130,7 @@ const initialOffers: Offer[] = [
       allowSchedule: false,
       phoneNumber: "9380002829",
       reviews: [],
+      isHidden: false,
     },
     {
       id: "sparkle-clean-home-cleaning-servic",
@@ -147,6 +152,7 @@ const initialOffers: Offer[] = [
       reviews: [
           { id: 'review-7', author: "Kavita Reddy", rating: 5, comment: "Very professional and thorough cleaning service. My house looks brand new!" }
       ],
+      isHidden: false,
     },
     {
       id: "fitness-first-gym-membership-offer",
@@ -168,22 +174,23 @@ const initialOffers: Offer[] = [
         { id: 'review-8', author: "Arjun Verma", rating: 5, comment: "Great gym with modern equipment and friendly trainers. The best in Vellore!" },
         { id: 'review-9', author: "Sneha Reddy", rating: 4, comment: "I love the variety of classes offered. It can get a bit crowded in the evenings though." }
       ],
+      isHidden: false,
     }
   ];
 
 interface OffersContextType {
   offers: Offer[];
-  addOffer: (offer: Omit<Offer, 'id' | 'reviews'>) => void;
-  updateOffer: (id: string, updatedOfferData: Partial<Omit<Offer, 'id' | 'reviews'>>) => void;
+  addOffer: (offer: Omit<Offer, 'id' | 'reviews' | 'isHidden'>) => void;
+  updateOffer: (id: string, updatedOfferData: Partial<Omit<Offer, 'id' | 'reviews' | 'isHidden'>>) => void;
   deleteOffer: (id: string) => void;
   boostOffer: (id: string) => void;
   getOfferById: (id: string) => Offer | undefined;
   addReview: (offerId: string, review: Omit<Review, 'id'>) => void;
+  toggleOfferVisibility: (id: string) => void;
 }
 
 const OffersContext = createContext<OffersContextType | undefined>(undefined);
 
-// Helper function to generate a URL-friendly slug
 const createSlug = (text: string) => {
   return text
     .toLowerCase()
@@ -195,12 +202,13 @@ const createSlug = (text: string) => {
 export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>(initialOffers);
 
-  const addOffer = (offer: Omit<Offer, 'id' | 'reviews'>) => {
+  const addOffer = (offer: Omit<Offer, 'id' | 'reviews' | 'isHidden'>) => {
     const slug = createSlug(`${offer.business} ${offer.title}`);
     const newOffer: Offer = {
       ...offer,
       id: `${slug}-${crypto.randomUUID().slice(0, 4)}`,
       reviews: [],
+      isHidden: false,
     };
     setOffers(prevOffers => [newOffer, ...prevOffers]);
   };
@@ -209,7 +217,6 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     setOffers(prevOffers =>
       prevOffers.map(offer => {
         if (offer.id === id) {
-          // Make sure to preserve existing reviews and other fields not in updatedOfferData
           return { ...offer, ...updatedOfferData };
         }
         return offer;
@@ -247,8 +254,16 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const toggleOfferVisibility = (id: string) => {
+    setOffers(prevOffers =>
+      prevOffers.map(offer =>
+        offer.id === id ? { ...offer, isHidden: !offer.isHidden } : offer
+      )
+    );
+  };
+
   return (
-    <OffersContext.Provider value={{ offers, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview }}>
+    <OffersContext.Provider value={{ offers, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility }}>
       {children}
     </OffersContext.Provider>
   );

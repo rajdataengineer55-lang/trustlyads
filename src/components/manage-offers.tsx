@@ -18,6 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
@@ -29,15 +30,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Pencil, Trash2, Megaphone } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { cn } from "@/lib/utils";
+
 
 export function ManageOffers() {
-  const { offers, deleteOffer, boostOffer } = useOffers();
+  const { offers, deleteOffer, boostOffer, toggleOfferVisibility } = useOffers();
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
 
   const handleDeleteClick = (offer: Offer) => {
@@ -67,11 +71,21 @@ export function ManageOffers() {
 
   const handleEditClick = (offer: Offer) => {
     setSelectedOffer(offer);
+    setIsEditDialogOpen(true);
   }
   
   const handleEditDialogClose = () => {
+    setIsEditDialogOpen(false);
     setSelectedOffer(null);
   }
+
+  const handleToggleVisibility = (offer: Offer) => {
+    toggleOfferVisibility(offer.id);
+    toast({
+        title: `Offer ${offer.isHidden ? 'Shown' : 'Hidden'}`,
+        description: `"${offer.title}" is now ${offer.isHidden ? 'visible' : 'hidden'}.`,
+    });
+  };
 
   return (
     <>
@@ -88,13 +102,13 @@ export function ManageOffers() {
             <TableRow>
               <TableHead>Offer</TableHead>
               <TableHead className="hidden md:table-cell">Category</TableHead>
-              <TableHead className="hidden sm:table-cell">Discount</TableHead>
+              <TableHead className="hidden sm:table-cell">Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {offers.map((offer) => (
-              <TableRow key={offer.id}>
+              <TableRow key={offer.id} className={cn(offer.isHidden && "opacity-50")}>
                 <TableCell>
                   <div className="flex items-center gap-4">
                     <Image
@@ -112,9 +126,21 @@ export function ManageOffers() {
                   </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{offer.category}</TableCell>
-                <TableCell className="hidden sm:table-cell">{offer.discount}</TableCell>
+                <TableCell className="hidden sm:table-cell">
+                    {offer.isHidden ? (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <EyeOff className="h-4 w-4" />
+                            <span>Hidden</span>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2 text-green-600">
+                            <Eye className="h-4 w-4" />
+                            <span>Visible</span>
+                        </div>
+                    )}
+                </TableCell>
                 <TableCell className="text-right">
-                  <Dialog onOpenChange={(isOpen) => !isOpen && handleEditDialogClose()}>
+                  <Dialog open={isEditDialogOpen && selectedOffer?.id === offer.id} onOpenChange={(isOpen) => !isOpen && handleEditDialogClose()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -126,12 +152,18 @@ export function ManageOffers() {
                         <Megaphone className="mr-2 h-4 w-4" />
                         Boost
                       </DropdownMenuItem>
-                      <DialogTrigger asChild>
-                          <DropdownMenuItem onClick={() => handleEditClick(offer)}>
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Edit
-                          </DropdownMenuItem>
-                      </DialogTrigger>
+                       <DropdownMenuItem onClick={() => handleToggleVisibility(offer)}>
+                          {offer.isHidden ? (
+                              <><Eye className="mr-2 h-4 w-4" /> Unhide</>
+                          ) : (
+                              <><EyeOff className="mr-2 h-4 w-4" /> Hide</>
+                          )}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditClick(offer)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleDeleteClick(offer)}
                         className="text-destructive focus:text-destructive"
@@ -141,17 +173,17 @@ export function ManageOffers() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {selectedOffer?.id === offer.id && (
+                  
                     <DialogContent className="sm:max-w-[625px]">
                         <DialogHeader>
                             <DialogTitle>Edit Offer</DialogTitle>
                         </DialogHeader>
-                        <AdGenerator 
+                         {selectedOffer && <AdGenerator 
                           offerToEdit={selectedOffer} 
                           onFinished={handleEditDialogClose} 
-                        />
+                        />}
                     </DialogContent>
-                  )}
+                  
                   </Dialog>
                 </TableCell>
               </TableRow>
@@ -182,5 +214,3 @@ export function ManageOffers() {
     </>
   );
 }
-
-    

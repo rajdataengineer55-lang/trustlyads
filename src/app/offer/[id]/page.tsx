@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -57,7 +56,7 @@ export default function OfferDetailsPage() {
   useEffect(() => {
     if (id) {
       const foundOffer = getOfferById(id);
-      if (foundOffer) {
+      if (foundOffer && !foundOffer.isHidden) {
         setOffer(foundOffer);
         setMainImage(foundOffer.image);
       }
@@ -168,7 +167,7 @@ export default function OfferDetailsPage() {
     notFound();
   }
 
-  const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id).slice(0, 3);
+  const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
   const allImages = [offer.image, ...(offer.otherImages || [])];
 
   const LocationInfo = () => (

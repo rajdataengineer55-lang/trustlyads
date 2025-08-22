@@ -21,6 +21,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
   const { offers } = useOffers();
 
   const filteredOffers = offers
+    .filter(offer => !offer.isHidden) // Filter out hidden offers
     .filter(offer => {
       const categoryMatch = selectedCategory ? offer.category === selectedCategory : true;
       const locationMatch = selectedLocation ? offer.location === selectedLocation : true;
