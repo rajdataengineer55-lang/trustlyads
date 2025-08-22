@@ -1,8 +1,7 @@
 
-
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdGenerator } from "@/components/ad-generator";
 import { Footer } from "@/components/landing/footer";
@@ -10,25 +9,21 @@ import { Header } from "@/components/landing/header";
 import { ManageOffers } from "@/components/manage-offers";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { LogIn } from 'lucide-react';
 
 export default function AdminPage() {
+    const { user, loading, signInWithGoogle } = useAuth();
     const router = useRouter();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const loggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
-            if (!loggedIn) {
-                router.replace('/login');
-            } else {
-                setIsLoggedIn(true);
-            }
+        if (!loading && !user) {
+            router.replace('/');
         }
-        setIsLoading(false);
-    }, [router]);
+    }, [user, loading, router]);
 
-    if (isLoading) {
+    if (loading) {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
@@ -46,8 +41,41 @@ export default function AdminPage() {
         );
     }
     
-    if (!isLoggedIn) {
-        return null; 
+    if (!user) {
+         return (
+            <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-1 bg-background/50 flex flex-col items-center justify-center text-center p-4">
+                    <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+                    <p className="text-muted-foreground mb-8">You must be logged in to view the admin dashboard.</p>
+                    <Button onClick={signInWithGoogle}>
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Sign in with Google
+                    </Button>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
+
+    // Only allow specific admin users
+    const adminUIDs = ['your-admin-uid-here', 'another-admin-uid-here']; // Replace with your actual Firebase Admin User UIDs
+    const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
+    
+    if (user.email !== authorizedAdminEmail) {
+        return (
+            <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-1 bg-background/50 flex flex-col items-center justify-center text-center p-4">
+                    <h1 className="text-2xl font-bold mb-4">Unauthorized</h1>
+                    <p className="text-muted-foreground mb-8">You are not authorized to view this page.</p>
+                    <Link href="/" passHref>
+                        <Button variant="outline">Go to Homepage</Button>
+                    </Link>
+                </main>
+                <Footer />
+            </div>
+        );
     }
 
     return (
@@ -70,3 +98,4 @@ export default function AdminPage() {
         </div>
     );
 }
+

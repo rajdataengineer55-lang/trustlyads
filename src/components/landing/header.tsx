@@ -3,16 +3,58 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu"
-import { Megaphone, MapPin, ChevronDown, Users, Menu, Phone, User, Info } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
+import { Megaphone, MapPin, ChevronDown, Users, Menu, Phone, User, Info, LogIn, LogOut } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '../theme-toggle';
+import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Skeleton } from '../ui/skeleton';
 
 export function Header() {
   const [followers, setFollowers] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, loading, signInWithGoogle, signOut } = useAuth();
+
+  const UserMenu = () => {
+    if (loading) {
+      return <Skeleton className="h-10 w-10 rounded-full" />;
+    }
+
+    if (user) {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar>
+                <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+                <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem disabled>
+              Signed in as {user.displayName}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <Link href="/admin" passHref>
+              <DropdownMenuItem><User className="mr-2" /> Admin</DropdownMenuItem>
+            </Link>
+            <DropdownMenuItem onClick={signOut}><LogOut className="mr-2" /> Sign Out</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+
+    return (
+      <Button onClick={signInWithGoogle}>
+        <LogIn className="mr-2" />
+        Sign In
+      </Button>
+    )
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -65,11 +107,6 @@ export function Header() {
                     <Info />
                 </Button>
             </Link>
-             <Link href="/admin" passHref>
-                <Button variant="ghost" size="icon" aria-label="Admin">
-                    <User />
-                </Button>
-            </Link>
              <a href="tel:+919380002829">
                 <Button variant="ghost" size="icon" aria-label="Contact us">
                     <Phone />
@@ -83,6 +120,7 @@ export function Header() {
             <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
               <Button>Post Your Business</Button>
             </a>
+            <UserMenu />
             <ThemeToggle />
           </nav>
         </div>
@@ -110,6 +148,16 @@ export function Header() {
                   <div className="px-4">
                      <ThemeToggle />
                   </div>
+                   {user ? (
+                    <>
+                      <Link href="/admin" passHref>
+                        <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><User /> Admin</Button>
+                      </Link>
+                      <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => { signOut(); setIsMobileMenuOpen(false); }}><LogOut /> Sign Out</Button>
+                    </>
+                  ) : (
+                    <Button className="w-full" onClick={() => { signInWithGoogle(); setIsMobileMenuOpen(false); }}><LogIn /> Sign In</Button>
+                  )}
                   <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
                       <Button className="w-full">Post Your Business</Button>
                   </a>
@@ -121,9 +169,7 @@ export function Header() {
                       Followers
                       <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
                   </Button>
-                  <Link href="/admin" passHref>
-                    <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><User /> Admin</Button>
-                  </Link>
+                  
                   <Link href="/about" passHref>
                     <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Info /> About</Button>
                   </Link>

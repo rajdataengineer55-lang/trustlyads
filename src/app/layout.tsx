@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { OffersProvider } from '@/contexts/OffersContext';
 import { ThemeProvider } from '@/components/theme-provider';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
   title: 'trustlyads.in',
@@ -28,10 +29,12 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
-          <OffersProvider>
-            {children}
-          </OffersProvider>
-          <Toaster />
+          <AuthProvider>
+            <OffersProvider>
+              {children}
+            </OffersProvider>
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
