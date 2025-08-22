@@ -11,11 +11,13 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2 } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 export default function OfferDetailsPage() {
@@ -168,7 +170,7 @@ export default function OfferDetailsPage() {
                 <div className="md:col-span-2">
                     <Card>
                         <CardContent className="p-6">
-                            <h1 className="text-2xl font-headline font-bold mb-2">{offer.title}</h1>
+                            <h1 className="text-xl font-headline font-bold mb-2">{offer.title}</h1>
                             <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>
                             <div className="flex items-center text-muted-foreground mb-6">
                                 <MapPin className="h-5 w-5 mr-2" />
@@ -224,6 +226,36 @@ export default function OfferDetailsPage() {
                 </CardContent>
               </Card>
             </div>
+            
+            {offer.reviews && offer.reviews.length > 0 && (
+              <div className="mt-12">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Customer Reviews</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {offer.reviews.map((review, index) => (
+                      <div key={index} className="flex gap-4">
+                        <Avatar>
+                          <AvatarFallback>{review.author.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="font-semibold">{review.author}</p>
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className={cn("h-4 w-4", i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300')} />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-muted-foreground mt-1">{review.comment}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
             
             {similarOffers.length > 0 && (
               <div className="mt-16">

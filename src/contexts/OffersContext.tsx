@@ -3,6 +3,12 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 
+export interface Review {
+  author: string;
+  rating: number;
+  comment: string;
+}
+
 export interface Offer {
   id: string;
   title: string;
@@ -21,6 +27,7 @@ export interface Offer {
   phoneNumber?: string;
   chatLink?: string;
   scheduleLink?: string;
+  reviews?: Review[];
 }
 
 interface OffersContextType {
@@ -55,6 +62,10 @@ const initialOffers: Offer[] = [
       allowSchedule: false,
       phoneNumber: "9380002829",
       chatLink: "wa.me/919380002829",
+      reviews: [
+        { author: "Rahul Kumar", rating: 5, comment: "Amazing food and great service! Highly recommended." },
+        { author: "Priya Sharma", rating: 4, comment: "The pasta was delicious, but the wait time was a bit long." },
+      ],
     },
     {
       id: "chic-boutique-summer-collection-sal",
@@ -77,6 +88,9 @@ const initialOffers: Offer[] = [
       allowSchedule: true,
       phoneNumber: "9380002829",
       scheduleLink: "https://calendly.com/dandurajkumarworld24",
+      reviews: [
+        { author: "Anjali Mehta", rating: 5, comment: "Beautiful collection and very helpful staff." },
+      ],
     },
     {
       id: "serenity-spa-relaxing-spa-day-pack",
@@ -95,6 +109,11 @@ const initialOffers: Offer[] = [
       phoneNumber: "9380002829",
       chatLink: "wa.me/919380002829",
       scheduleLink: "https://calendly.com/dandurajkumarworld24",
+      reviews: [
+        { author: "Suresh Patel", rating: 5, comment: "Incredibly relaxing experience. The best spa in town!" },
+        { author: "Meena Iyer", rating: 4, comment: "Good service, but the facility was a bit crowded." },
+        { author: "Amit Singh", rating: 5, comment: "My wife and I loved the couple's package. Will definitely be back." },
+      ],
     },
     {
       id: "speedy-rentals-weekend-car-rental-d",
@@ -129,6 +148,9 @@ const initialOffers: Offer[] = [
       phoneNumber: "9380002829",
       chatLink: "wa.me/919380002829",
       scheduleLink: "https://calendly.com/dandurajkumarworld24",
+      reviews: [
+          { author: "Kavita Reddy", rating: 5, comment: "Very professional and thorough cleaning service. My house looks brand new!" }
+      ],
     }
   ];
 
