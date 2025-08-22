@@ -10,10 +10,12 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useToast } from "@/hooks/use-toast";
+
 
 export default function OfferDetailsPage() {
   const params = useParams();
@@ -21,6 +23,7 @@ export default function OfferDetailsPage() {
   const [offer, setOffer] = useState<Offer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mainImage, setMainImage] = useState<string | null>(null);
+  const { toast } = useToast();
   
   const id = typeof params.id === 'string' ? params.id : '';
 
@@ -34,6 +37,39 @@ export default function OfferDetailsPage() {
       setIsLoading(false);
     }
   }, [id, getOfferById]);
+
+  const handleShare = async () => {
+    if (!offer) return;
+
+    const shareData = {
+      title: offer.title,
+      text: `${offer.business} is offering: ${offer.discount}!`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Link Copied!",
+          description: "The offer link has been copied to your clipboard.",
+        });
+      } catch (err) {
+        console.error("Failed to copy:", err);
+        toast({
+          variant: "destructive",
+          title: "Failed to Copy",
+          description: "Could not copy the link to your clipboard.",
+        });
+      }
+    }
+  };
   
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id).slice(0, 3);
 
@@ -155,6 +191,9 @@ export default function OfferDetailsPage() {
                             </div>
 
                             <div className="space-y-3">
+                                <Button className="w-full justify-start text-lg py-6" variant="outline" onClick={handleShare}>
+                                    <Share2 className="mr-4" /> Share Offer
+                                </Button>
                                 {offer.allowCall && offer.phoneNumber && (
                                 <a href={`tel:${offer.phoneNumber}`}>
                                     <Button className="w-full justify-start text-lg py-6" variant="outline">
@@ -249,5 +288,3 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
-
-    
