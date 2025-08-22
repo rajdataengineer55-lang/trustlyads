@@ -17,6 +17,7 @@ export const locations = [
     {
       name: "Chittoor",
       subLocations: [
+        "Chittoor",
         "Gudipala",
         "Yadamarri",
         "Gangadhara Nellore",
