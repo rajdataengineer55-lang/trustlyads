@@ -16,6 +16,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
+        {/* Desktop Header */}
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Zap className="h-6 w-6 text-primary" />
@@ -52,19 +53,42 @@ export function Header() {
           </DropdownMenu>
         </div>
         
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            {/* Mobile Title */}
-            <div className="md:hidden">
-                <Link href="/" className="flex items-center space-x-2">
-                    <Zap className="h-6 w-6 text-primary" />
-                    <span className="font-bold sm:inline-block font-headline">
-                    TrustAds
-                    </span>
-                </Link>
-            </div>
-          </div>
-          <nav className="hidden md:flex gap-2 items-center">
+        {/* Mobile Header */}
+        <div className="flex w-full items-center justify-between md:hidden">
+          <Link href="/" className="flex items-center space-x-2">
+              <Zap className="h-6 w-6 text-primary" />
+              <span className="font-bold sm:inline-block font-headline">
+              TrustAds
+              </span>
+          </Link>
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+               <div className="flex flex-col gap-4 py-6">
+                  <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button className="w-full">Post Your Business</Button>
+                  </a>
+                  <Button variant="outline" onClick={() => {
+                      setFollowers(followers + 1);
+                      setIsMobileMenuOpen(false);
+                  }}>
+                      <Users className="h-4 w-4 mr-2" />
+                      Followers
+                      <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
+                  </Button>
+               </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+        
+        {/* Desktop Nav Actions */}
+        <div className="hidden flex-1 items-center justify-end space-x-2 md:flex">
+          <nav className="flex gap-2 items-center">
             <Button variant="outline" onClick={() => setFollowers(followers + 1)}>
               <Users className="h-4 w-4 mr-2" />
               Followers
@@ -74,32 +98,6 @@ export function Header() {
               <Button>Post Your Business</Button>
             </a>
           </nav>
-          {/* Mobile Menu */}
-          <div className="md:hidden">
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                 <div className="flex flex-col gap-4 py-6">
-                    <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Button className="w-full">Post Your Business</Button>
-                    </a>
-                    <Button variant="outline" onClick={() => {
-                        setFollowers(followers + 1);
-                        setIsMobileMenuOpen(false);
-                    }}>
-                        <Users className="h-4 w-4 mr-2" />
-                        Followers
-                        <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">{followers}</span>
-                    </Button>
-                 </div>
-              </SheetContent>
-            </Sheet>
-          </div>
         </div>
       </div>
     </header>
