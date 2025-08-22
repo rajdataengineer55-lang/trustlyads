@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { LogIn } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AdminPage() {
     const { user, loading, signInWithGoogle } = useAuth();
@@ -19,7 +20,8 @@ export default function AdminPage() {
 
     useEffect(() => {
         if (!loading && !user) {
-            router.replace('/');
+            // This is handled by the component logic below, but could be a redirect
+            // router.replace('/'); 
         }
     }, [user, loading, router]);
 
@@ -58,8 +60,6 @@ export default function AdminPage() {
         );
     }
 
-    // Only allow specific admin users
-    const adminUIDs = ['your-admin-uid-here', 'another-admin-uid-here']; // Replace with your actual Firebase Admin User UIDs
     const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
     
     if (user.email !== authorizedAdminEmail) {
@@ -98,4 +98,3 @@ export default function AdminPage() {
         </div>
     );
 }
-
