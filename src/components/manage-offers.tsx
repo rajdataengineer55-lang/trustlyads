@@ -99,7 +99,11 @@ export function ManageOffers() {
             cacheBust: true,
             pixelRatio: 2,
             width: 380,
-            height: 285
+            height: 285,
+            fetchRequestInit: {
+                mode: 'cors',
+                cache: 'no-cache'
+            }
           });
 
           const blob = await (await fetch(dataUrl)).blob();
