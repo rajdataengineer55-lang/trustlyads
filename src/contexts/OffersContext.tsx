@@ -154,6 +154,27 @@ const initialOffers: Offer[] = [
       reviews: [
           { id: 'review-7', author: "Kavita Reddy", rating: 5, comment: "Very professional and thorough cleaning service. My house looks brand new!" }
       ],
+    },
+    {
+      id: "fitness-first-gym-membership-offer",
+      title: "Annual Gym Membership Offer",
+      description: "Sign up for a yearly membership and get 3 months free! Access to all our equipment, classes, and facilities. Our certified trainers are always available to help you achieve your fitness goals.",
+      business: "Fitness First",
+      category: "Gym",
+      location: "Vellore",
+      image: "https://placehold.co/600x400.png",
+      hint: "gym fitness",
+      discount: "3 Months Free",
+      tags: ["Health", "Fitness"],
+      allowCall: true,
+      allowChat: true,
+      allowSchedule: false,
+      phoneNumber: "9380002829",
+      chatLink: "wa.me/919380002829",
+      reviews: [
+        { id: 'review-8', author: "Arjun Verma", rating: 5, comment: "Great gym with modern equipment and friendly trainers. The best in Vellore!" },
+        { id: 'review-9', author: "Sneha Reddy", rating: 4, comment: "I love the variety of classes offered. It can get a bit crowded in the evenings though." }
+      ],
     }
   ];
 
@@ -172,7 +193,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>(initialOffers);
 
   const addOffer = (offer: Omit<Offer, 'id' | 'reviews'>) => {
-    const slug = `${createSlug(offer.title)}-${createSlug(offer.business)}`;
+    const slug = createSlug(`${offer.business} ${offer.title}`);
     const newOffer: Offer = {
       ...offer,
       id: `${slug}-${crypto.randomUUID().slice(0, 4)}`,
