@@ -1,5 +1,5 @@
 
-import { Zap, Facebook, Twitter, Linkedin, Phone, MessageCircle } from "lucide-react";
+import { Zap, Facebook, Twitter, Linkedin, Phone, MessageCircle, Instagram } from "lucide-react";
 import Link from "next/link";
 
 const footerLinks = [
@@ -67,6 +67,9 @@ export function Footer() {
                   </Link>
                   <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
                     <Linkedin className="h-6 w-6" />
+                  </Link>
+                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                    <Instagram className="h-6 w-6" />
                   </Link>
                 </div>
               </div>
