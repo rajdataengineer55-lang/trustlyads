@@ -219,8 +219,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 1500));
 
     const mainImage = imagePreviews[selectedMainImage] || 'https://placehold.co/600x400.png';
     const otherImages = imagePreviews.filter((_, index) => index !== selectedMainImage);
@@ -608,3 +606,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    

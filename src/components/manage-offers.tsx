@@ -38,7 +38,6 @@ export function ManageOffers() {
   const { offers, deleteOffer, boostOffer } = useOffers();
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
 
   const handleDeleteClick = (offer: Offer) => {
@@ -68,11 +67,9 @@ export function ManageOffers() {
 
   const handleEditClick = (offer: Offer) => {
     setSelectedOffer(offer);
-    setIsEditDialogOpen(true);
   }
   
   const handleEditDialogClose = () => {
-    setIsEditDialogOpen(false);
     setSelectedOffer(null);
   }
 
@@ -117,7 +114,7 @@ export function ManageOffers() {
                 <TableCell className="hidden md:table-cell">{offer.category}</TableCell>
                 <TableCell className="hidden sm:table-cell">{offer.discount}</TableCell>
                 <TableCell className="text-right">
-                  <Dialog open={isEditDialogOpen && selectedOffer?.id === offer.id} onOpenChange={setIsEditDialogOpen}>
+                  <Dialog onOpenChange={(isOpen) => !isOpen && handleEditDialogClose()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -144,15 +141,17 @@ export function ManageOffers() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <DialogContent className="sm:max-w-[625px]">
-                      <DialogHeader>
-                          <DialogTitle>Edit Offer</DialogTitle>
-                      </DialogHeader>
-                      <AdGenerator 
-                        offerToEdit={selectedOffer!} 
-                        onFinished={handleEditDialogClose} 
-                      />
-                  </DialogContent>
+                  {selectedOffer?.id === offer.id && (
+                    <DialogContent className="sm:max-w-[625px]">
+                        <DialogHeader>
+                            <DialogTitle>Edit Offer</DialogTitle>
+                        </DialogHeader>
+                        <AdGenerator 
+                          offerToEdit={selectedOffer} 
+                          onFinished={handleEditDialogClose} 
+                        />
+                    </DialogContent>
+                  )}
                   </Dialog>
                 </TableCell>
               </TableRow>
@@ -183,3 +182,5 @@ export function ManageOffers() {
     </>
   );
 }
+
+    
