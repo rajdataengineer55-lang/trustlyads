@@ -1,5 +1,5 @@
 
-import { Leaf, Milk, Shirt, Palette, Armchair, Construction, Car, CircuitBoard, Wrench, Gem, Building, ShoppingCart, Printer, Pill, Code, Landmark, Dumbbell } from "lucide-react";
+import { Leaf, Milk, Shirt, Palette, Armchair, Construction, Car, CircuitBoard, Wrench, Gem, Building, ShoppingCart, Printer, Pill, Code, Landmark, Dumbbell, UtensilsCrossed } from "lucide-react";
 
 export const categories = [
     { name: "Agriculture & Farming", icon: <Leaf className="h-8 w-8" /> },
@@ -19,5 +19,6 @@ export const categories = [
     { name: "IT & Software Solutions", icon: <Code className="h-8 w-8" /> },
     { name: "Banks & Finance", icon: <Landmark className="h-8 w-8" /> },
     { name: "Gym", icon: <Dumbbell className="h-8 w-8" /> },
+    { name: "Hotels & Restaurants", icon: <UtensilsCrossed className="h-8 w-8" /> },
   ];
   

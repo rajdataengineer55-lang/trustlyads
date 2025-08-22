@@ -74,7 +74,8 @@ const businessTypes = {
     "Fitness Centers / Gyms",
     "Beauty Parlors & Salons",
   ],
-  "Food & Restaurants": [
+  "Hotels, Food & Restaurants": [
+    "Hotels",
     "Restaurants",
     "Biryani Points",
     "Tiffin Centers",

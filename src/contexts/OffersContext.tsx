@@ -32,23 +32,13 @@ export interface Offer {
   reviews?: Review[];
 }
 
-interface OffersContextType {
-  offers: Offer[];
-  addOffer: (offer: Omit<Offer, 'id' | 'reviews'>) => void;
-  getOfferById: (id: string) => Offer | undefined;
-  updateOffer: (id: string, updatedOffer: Partial<Omit<Offer, 'id' | 'reviews'>>) => void;
-  deleteOffer: (id: string) => void;
-  boostOffer: (id: string) => void;
-  addReview: (offerId: string, review: Omit<Review, 'id'>) => void;
-}
-
 const initialOffers: Offer[] = [
     {
       id: "bella-italia-50-off-on-italian-cu",
       title: "50% Off on Italian Cuisine",
       description: "Enjoy a taste of Italy with a 50% discount on our entire menu. Valid for dine-in only. We use the freshest ingredients to bring you authentic flavors that will transport you to the heart of Italy. Our cozy ambiance and friendly staff make for a perfect dining experience.",
       business: "Bella Italia",
-      category: "Food & Restaurants",
+      category: "Restaurants",
       location: "Tirupati Urban",
       locationLink: "https://maps.app.goo.gl/1J2K3L4M5N6P7Q8R9",
       image: "https://placehold.co/600x400.png",
