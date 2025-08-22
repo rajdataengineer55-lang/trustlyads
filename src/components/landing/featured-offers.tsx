@@ -70,7 +70,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
                           src={offer.image}
                           alt={offer.title}
                           fill
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          className="object-contain transition-transform duration-300 group-hover:scale-105"
                           data-ai-hint={offer.hint}
                         />
                          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
