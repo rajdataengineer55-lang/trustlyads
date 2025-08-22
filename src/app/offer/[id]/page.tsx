@@ -273,8 +273,8 @@ export default function OfferDetailsPage() {
                       <CardTitle>Customer Reviews</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6 p-4 sm:p-6">
-                      {offer.reviews.map((review, index) => (
-                        <div key={index} className="flex gap-4">
+                      {offer.reviews.map((review) => (
+                        <div key={review.id} className="flex gap-4">
                           <Avatar>
                             <AvatarFallback>{review.author.charAt(0)}</AvatarFallback>
                           </Avatar>

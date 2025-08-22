@@ -4,6 +4,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface Review {
+  id: string;
   author: string;
   rating: number;
   comment: string;
@@ -32,9 +33,9 @@ export interface Offer {
 
 interface OffersContextType {
   offers: Offer[];
-  addOffer: (offer: Omit<Offer, 'id'>) => void;
+  addOffer: (offer: Omit<Offer, 'id' | 'reviews'>) => void;
   getOfferById: (id: string) => Offer | undefined;
-  updateOffer: (id: string, updatedOffer: Omit<Offer, 'id'>) => void;
+  updateOffer: (id: string, updatedOffer: Partial<Omit<Offer, 'id' | 'reviews'>>) => void;
   deleteOffer: (id: string) => void;
   boostOffer: (id: string) => void;
   addReview: (offerId: string, review: Omit<Review, 'id'>) => void;
@@ -64,8 +65,8 @@ const initialOffers: Offer[] = [
       phoneNumber: "9380002829",
       chatLink: "wa.me/919380002829",
       reviews: [
-        { author: "Rahul Kumar", rating: 5, comment: "Amazing food and great service! Highly recommended." },
-        { author: "Priya Sharma", rating: 4, comment: "The pasta was delicious, but the wait time was a bit long." },
+        { id: 'review-1', author: "Rahul Kumar", rating: 5, comment: "Amazing food and great service! Highly recommended." },
+        { id: 'review-2', author: "Priya Sharma", rating: 4, comment: "The pasta was delicious, but the wait time was a bit long." },
       ],
     },
     {
@@ -90,7 +91,7 @@ const initialOffers: Offer[] = [
       phoneNumber: "9380002829",
       scheduleLink: "https://calendly.com/dandurajkumarworld24",
       reviews: [
-        { author: "Anjali Mehta", rating: 5, comment: "Beautiful collection and very helpful staff." },
+        { id: 'review-3', author: "Anjali Mehta", rating: 5, comment: "Beautiful collection and very helpful staff." },
       ],
     },
     {
@@ -111,9 +112,9 @@ const initialOffers: Offer[] = [
       chatLink: "wa.me/919380002829",
       scheduleLink: "https://calendly.com/dandurajkumarworld24",
       reviews: [
-        { author: "Suresh Patel", rating: 5, comment: "Incredibly relaxing experience. The best spa in town!" },
-        { author: "Meena Iyer", rating: 4, comment: "Good service, but the facility was a bit crowded." },
-        { author: "Amit Singh", rating: 5, comment: "My wife and I loved the couple's package. Will definitely be back." },
+        { id: 'review-4', author: "Suresh Patel", rating: 5, comment: "Incredibly relaxing experience. The best spa in town!" },
+        { id: 'review-5', author: "Meena Iyer", rating: 4, comment: "Good service, but the facility was a bit crowded." },
+        { id: 'review-6', author: "Amit Singh", rating: 5, comment: "My wife and I loved the couple's package. Will definitely be back." },
       ],
     },
     {
@@ -151,7 +152,7 @@ const initialOffers: Offer[] = [
       chatLink: "wa.me/919380002829",
       scheduleLink: "https://calendly.com/dandurajkumarworld24",
       reviews: [
-          { author: "Kavita Reddy", rating: 5, comment: "Very professional and thorough cleaning service. My house looks brand new!" }
+          { id: 'review-7', author: "Kavita Reddy", rating: 5, comment: "Very professional and thorough cleaning service. My house looks brand new!" }
       ],
     }
   ];
@@ -161,19 +162,19 @@ const OffersContext = createContext<OffersContextType | undefined>(undefined);
 export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>(initialOffers);
 
-  const addOffer = (offer: Omit<Offer, 'id'>) => {
+  const addOffer = (offer: Omit<Offer, 'id' | 'reviews'>) => {
     const newOffer: Offer = {
       ...offer,
-      id: `${offer.business.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0,15)}-${offer.title.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0,20)}`,
+      id: crypto.randomUUID(),
       reviews: [],
     };
     setOffers(prevOffers => [newOffer, ...prevOffers]);
   };
 
-  const updateOffer = (id: string, updatedOfferData: Omit<Offer, 'id'>) => {
+  const updateOffer = (id: string, updatedOfferData: Partial<Omit<Offer, 'id' | 'reviews'>>) => {
     setOffers(prevOffers =>
       prevOffers.map(offer =>
-        offer.id === id ? { ...offer, ...updatedOfferData, id } : offer
+        offer.id === id ? { ...offer, ...updatedOfferData } : offer
       )
     );
   };
@@ -195,11 +196,12 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     return offers.find(offer => offer.id === id);
   };
   
-  const addReview = (offerId: string, review: Review) => {
+  const addReview = (offerId: string, review: Omit<Review, 'id'>) => {
     setOffers(prevOffers =>
       prevOffers.map(offer => {
         if (offer.id === offerId) {
-          const updatedReviews = [...(offer.reviews || []), review];
+          const newReview = { ...review, id: crypto.randomUUID() };
+          const updatedReviews = [...(offer.reviews || []), newReview];
           return { ...offer, reviews: updatedReviews };
         }
         return offer;

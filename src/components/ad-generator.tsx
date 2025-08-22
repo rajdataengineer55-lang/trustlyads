@@ -143,7 +143,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   });
 
   useEffect(() => {
-    if (isEditMode) {
+    if (isEditMode && offerToEdit) {
       form.reset({
         businessName: offerToEdit.business,
         businessType: offerToEdit.category,
@@ -220,7 +220,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     const mainImage = imagePreviews[selectedMainImage] || 'https://placehold.co/600x400.png';
     const otherImages = imagePreviews.filter((_, index) => index !== selectedMainImage);
 
-    const offerData = {
+    const offerData: Omit<Offer, 'id' | 'reviews'> = {
         title: values.offerTitle,
         description: values.offerCompleteDetails,
         business: values.businessName,
@@ -239,7 +239,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         scheduleLink: values.scheduleLink,
     };
 
-    if (isEditMode) {
+    if (isEditMode && offerToEdit) {
       updateOffer(offerToEdit.id, offerData);
       toast({
         title: "Offer Updated!",
