@@ -76,6 +76,27 @@ export function ManageOffers() {
   
   const handleShareClick = async (offer: Offer) => {
     setIsSharing(offer.id);
+    const offerPageUrl = `${window.location.origin}/offer/${offer.id}`;
+    const shareData = {
+        title: offer.title,
+        text: `${offer.business} is offering: ${offer.discount}!`,
+        url: offerPageUrl,
+    };
+
+    // Fallback function for browsers that can't share files
+    const shareLinkFallback = async () => {
+        if (navigator.share) {
+            await navigator.share(shareData);
+        } else {
+            await navigator.clipboard.writeText(offerPageUrl);
+            toast({
+                title: "Link Copied!",
+                description: "The offer link has been copied to your clipboard.",
+            });
+        }
+    };
+
+
     try {
       const shareUrl = `${window.location.origin}/share/${offer.id}`;
       const iframe = document.createElement('iframe');
@@ -112,30 +133,38 @@ export function ManageOffers() {
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
              await navigator.share({
                 files: [file],
-                title: offer.title,
-                text: `${offer.business} is offering: ${offer.discount}!`,
+                ...shareData
               });
           } else {
-            throw new Error("Sharing files is not supported by this browser.");
+            // If file sharing is not supported, fall back to sharing the link.
+            await shareLinkFallback();
           }
         } catch (err: any) {
-           toast({
-            variant: "destructive",
-            title: "Sharing Failed",
-            description: err.message || "There was an error generating the share image.",
-          });
+            toast({
+                variant: "destructive",
+                title: "Sharing Failed",
+                description: err.message || "There was an error generating the share image. Trying to share a link instead.",
+            });
+            // Attempt to share link if image generation/sharing fails
+            await shareLinkFallback();
         } finally {
             document.body.removeChild(iframe);
             setIsSharing(null);
         }
       };
+      
+      iframe.onerror = async () => {
+        document.body.removeChild(iframe);
+        throw new Error("Failed to load share iframe.");
+      }
     
     } catch(err: any) {
         toast({
             variant: "destructive",
             title: "Sharing Failed",
-            description: "Could not initialize sharing process.",
+            description: "Could not initialize sharing process. Sharing link instead.",
         });
+        await shareLinkFallback();
         setIsSharing(null);
     }
   };
