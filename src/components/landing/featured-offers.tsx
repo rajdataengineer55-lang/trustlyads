@@ -6,11 +6,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, EyeOff, MapPin } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 import type { SortOption } from "./filters";
 import { Skeleton } from "../ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 
 interface FeaturedOffersProps {
   selectedCategory: string | null;
@@ -18,11 +20,20 @@ interface FeaturedOffersProps {
   sortOption: SortOption;
 }
 
+const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
+
 export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption }: FeaturedOffersProps) {
-  const { offers, loading } = useOffers();
+  const { offers, loading: offersLoading } = useOffers();
+  const { user, loading: authLoading } = useAuth();
+  
+  const loading = offersLoading || authLoading;
+  const isAdmin = user?.email === authorizedAdminEmail;
 
   const filteredOffers = offers
-    .filter(offer => !offer.isHidden)
+    .filter(offer => {
+      // Admin sees all offers, others only see non-hidden ones.
+      return isAdmin || !offer.isHidden;
+    })
     .filter(offer => {
       const categoryMatch = selectedCategory ? offer.category === selectedCategory : true;
       const locationMatch = selectedLocation ? offer.location === selectedLocation : true;
@@ -82,7 +93,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
           <CarouselContent className="-ml-2 md:-ml-4">
             {filteredOffers.map((offer) => (
               <CarouselItem key={offer.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                  <Card className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 h-full flex flex-col">
+                  <Card className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 h-full flex flex-col", offer.isHidden && "opacity-60")}>
                     <CardContent className="p-0 flex flex-col flex-grow">
                       <div className="relative aspect-[4/3]">
                         <Image
@@ -99,6 +110,11 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
                         <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
                           {offer.discount}
                         </Badge>
+                         {offer.isHidden && (
+                            <Badge variant="destructive" className="absolute top-4 left-4 font-bold py-1 px-3">
+                              <EyeOff className="mr-2 h-4 w-4" /> Hidden
+                            </Badge>
+                         )}
                       </div>
                       <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
                          <div className="flex items-start text-sm text-muted-foreground mb-3">

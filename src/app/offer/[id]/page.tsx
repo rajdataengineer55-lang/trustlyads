@@ -10,7 +10,7 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, LogIn } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, LogIn, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -64,13 +64,14 @@ export default function OfferDetailsPage() {
         return;
       }
       
-      // An offer is visible if it's not hidden, OR if it is hidden but the admin is viewing it.
       const isAdmin = user?.email === authorizedAdminEmail;
       const isVisible = !foundOffer.isHidden || (foundOffer.isHidden && isAdmin);
 
       if (isVisible) {
         setOffer(foundOffer);
-        setMainImage(foundOffer.image);
+        if (foundOffer.image) {
+            setMainImage(foundOffer.image);
+        }
       } else {
         notFound();
       }
@@ -182,8 +183,6 @@ export default function OfferDetailsPage() {
   }
 
   if (!offer) {
-    // This case will be hit if the offer is hidden for a non-admin, or if it truly doesn't exist
-    // The effect has already called notFound(), but this is a fallback.
     return null;
   }
 
@@ -215,7 +214,7 @@ export default function OfferDetailsPage() {
   }
 
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
-  const allImages = [offer.image, ...(offer.otherImages || [])];
+  const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean);
 
   const LocationInfo = () => (
     <div className="flex items-center text-muted-foreground mb-4">
@@ -237,7 +236,7 @@ export default function OfferDetailsPage() {
                 <div className="lg:col-span-3">
                     <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
                         <Image
-                            src={mainImage || offer.image}
+                            src={mainImage || 'https://placehold.co/600x400.png'}
                             alt={offer.title}
                             fill
                             className="object-cover transition-all duration-300 ease-in-out hover:scale-105"
@@ -247,6 +246,11 @@ export default function OfferDetailsPage() {
                          <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-accent text-accent-foreground font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base">
                           {offer.discount}
                         </Badge>
+                        {offer.isHidden && (
+                            <Badge variant="destructive" className="absolute top-2 left-2 sm:top-4 sm:left-4 font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base">
+                                <EyeOff className="mr-2 h-4 w-4" /> Hidden
+                            </Badge>
+                        )}
                     </div>
                     {allImages.length > 1 && (
                       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
@@ -491,5 +495,3 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
-
-    
