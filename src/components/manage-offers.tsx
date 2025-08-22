@@ -30,15 +30,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "../ui/skeleton";
 
 
 export function ManageOffers() {
-  const { offers, deleteOffer, boostOffer, toggleOfferVisibility } = useOffers();
+  const { offers, deleteOffer, boostOffer, toggleOfferVisibility, loading } = useOffers();
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -49,9 +50,9 @@ export function ManageOffers() {
     setIsDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedOffer) {
-      deleteOffer(selectedOffer.id);
+      await deleteOffer(selectedOffer.id);
       toast({
         title: "Offer Deleted",
         description: `"${selectedOffer.title}" has been removed.`,
@@ -65,7 +66,7 @@ export function ManageOffers() {
     boostOffer(offer.id);
     toast({
         title: "Offer Boosted!",
-        description: `"${offer.title}" has been moved to the top.`,
+        description: `"${offer.title}" has been moved to the top of the list for this session.`,
     });
   };
 
@@ -79,13 +80,30 @@ export function ManageOffers() {
     setSelectedOffer(null);
   }
 
-  const handleToggleVisibility = (offer: Offer) => {
-    toggleOfferVisibility(offer.id);
+  const handleToggleVisibility = async (offer: Offer) => {
+    await toggleOfferVisibility(offer.id);
     toast({
-        title: `Offer ${offer.isHidden ? 'Shown' : 'Hidden'}`,
-        description: `"${offer.title}" is now ${offer.isHidden ? 'visible' : 'hidden'}.`,
+        title: `Offer ${offer.isHidden ? 'Made Visible' : 'Hidden'}`,
+        description: `"${offer.title}" is now ${offer.isHidden ? 'visible' : 'hidden from public view'}.`,
     });
   };
+
+  if (loading) {
+    return (
+      <div className="w-full">
+        <div className="text-center mb-12">
+            <Skeleton className="h-10 w-1/2 mx-auto" />
+            <Skeleton className="h-6 w-3/4 mx-auto mt-4" />
+        </div>
+        <div className="space-y-2">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <>
@@ -159,10 +177,12 @@ export function ManageOffers() {
                               <><EyeOff className="mr-2 h-4 w-4" /> Hide</>
                           )}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEditClick(offer)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Edit
-                      </DropdownMenuItem>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} onClick={() => handleEditClick(offer)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </DropdownMenuItem>
+                      </DialogTrigger>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleDeleteClick(offer)}

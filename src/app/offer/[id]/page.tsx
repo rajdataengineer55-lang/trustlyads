@@ -34,10 +34,10 @@ const reviewSchema = z.object({
 
 export default function OfferDetailsPage() {
   const params = useParams();
-  const { offers, getOfferById, addReview } = useOffers();
+  const { offers, getOfferById, addReview, loading: offersLoading } = useOffers();
   const { user, loading: authLoading, signInWithGoogle } = useAuth();
+  
   const [offer, setOffer] = useState<Offer | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const { toast } = useToast();
   
@@ -55,20 +55,18 @@ export default function OfferDetailsPage() {
   const currentRating = form.watch("rating");
 
   useEffect(() => {
-    if (id) {
+    if (id && !offersLoading) {
       const foundOffer = getOfferById(id);
       if (foundOffer && !foundOffer.isHidden) {
         setOffer(foundOffer);
         setMainImage(foundOffer.image);
+      } else if (!foundOffer) {
+        // If offers are loaded and offer is still not found, it's a 404
+        notFound();
       }
     }
-  }, [id, getOfferById, offers]);
+  }, [id, getOfferById, offersLoading, offers]);
 
-  useEffect(() => {
-    if(!authLoading) {
-      setIsLoading(false);
-    }
-  }, [authLoading]);
 
   useEffect(() => {
     if (user) {
@@ -118,14 +116,14 @@ export default function OfferDetailsPage() {
     }
   };
 
-  const onReviewSubmit = (data: z.infer<typeof reviewSchema>) => {
+  const onReviewSubmit = async (data: z.infer<typeof reviewSchema>) => {
     if (!offer || !user) return;
-    const newReview: Omit<Review, 'id'> = {
+    const newReview: Omit<Review, 'id' | 'createdAt'> = {
         author: user.displayName || "Anonymous",
         rating: data.rating,
         comment: data.comment,
     };
-    addReview(offer.id, newReview);
+    await addReview(offer.id, newReview);
     toast({
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
@@ -133,7 +131,7 @@ export default function OfferDetailsPage() {
     form.reset({ rating: 0, comment: '' });
   };
   
-  if (isLoading) {
+  if (authLoading || offersLoading) {
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
@@ -174,6 +172,7 @@ export default function OfferDetailsPage() {
   }
 
   if (!offer) {
+    // This case will be hit if the offer is hidden for a non-admin, or if it truly doesn't exist
     notFound();
   }
 

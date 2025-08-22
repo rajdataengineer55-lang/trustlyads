@@ -19,6 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { locations } from "@/lib/locations";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
 import { cn } from "@/lib/utils";
+import type { OfferData } from "@/lib/offers";
 
 const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -220,10 +221,12 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
+    // Note: Image and video uploads are not implemented to a storage backend.
+    // Previews are shown, but for persistence, you'd need to upload these to a service like Firebase Storage.
     const mainImage = imagePreviews[selectedMainImage] || 'https://placehold.co/600x400.png';
     const otherImages = imagePreviews.filter((_, index) => index !== selectedMainImage);
 
-    const offerData: Omit<Offer, 'id' | 'reviews'> = {
+    const offerData: OfferData = {
         title: values.offerTitle,
         description: values.offerCompleteDetails,
         business: values.businessName,
@@ -232,41 +235,51 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         locationLink: values.locationLink,
         image: mainImage,
         otherImages: otherImages,
-        hint: 'new offer',
+        hint: 'new offer', // In a real app, this might be dynamically generated.
         discount: values.discount,
-        tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || ["Just Listed"],
+        tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
         allowCall: values.allowCall ?? false,
         allowChat: values.allowChat ?? false,
         allowSchedule: values.allowSchedule ?? false,
         phoneNumber: values.phoneNumber,
         chatLink: values.chatLink,
         scheduleLink: values.scheduleLink,
+        isHidden: isEditMode ? offerToEdit.isHidden : false,
     };
 
-    if (isEditMode && offerToEdit) {
-      updateOffer(offerToEdit.id, offerData);
-      toast({
-        title: "Offer Updated!",
-        description: "Your offer has been successfully updated.",
-      });
-    } else {
-      addOffer(offerData);
-      toast({
-        title: "Offer Posted!",
-        description: "Your offer has been successfully posted and is now live.",
-      });
+    try {
+      if (isEditMode && offerToEdit) {
+        await updateOffer(offerToEdit.id, offerData);
+        toast({
+          title: "Offer Updated!",
+          description: "Your offer has been successfully updated in the database.",
+        });
+      } else {
+        await addOffer(offerData);
+        toast({
+          title: "Offer Posted!",
+          description: "Your offer has been successfully posted and is now live.",
+        });
+      }
+      
+      if (onFinished) {
+          onFinished();
+      } else {
+          form.reset();
+          setImagePreviews([]);
+          setSelectedMainImage(0);
+          setVideoPreview(null);
+      }
+    } catch (error) {
+       console.error("Failed to save offer:", error);
+       toast({
+          variant: "destructive",
+          title: "Save Failed",
+          description: "Could not save the offer to the database. Please try again.",
+        });
+    } finally {
+      setIsLoading(false);
     }
-    
-    if (onFinished) {
-        onFinished();
-    } else {
-        form.reset();
-        setImagePreviews([]);
-        setSelectedMainImage(0);
-        setVideoPreview(null);
-    }
-    
-    setIsLoading(false);
   }
 
   const AdForm = (
@@ -606,5 +619,3 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
-
-    

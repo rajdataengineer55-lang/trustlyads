@@ -10,6 +10,7 @@ import { ArrowRight, MapPin } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 import type { SortOption } from "./filters";
+import { Skeleton } from "../ui/skeleton";
 
 interface FeaturedOffersProps {
   selectedCategory: string | null;
@@ -18,10 +19,10 @@ interface FeaturedOffersProps {
 }
 
 export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption }: FeaturedOffersProps) {
-  const { offers } = useOffers();
+  const { offers, loading } = useOffers();
 
   const filteredOffers = offers
-    .filter(offer => !offer.isHidden) // Filter out hidden offers
+    .filter(offer => !offer.isHidden)
     .filter(offer => {
       const categoryMatch = selectedCategory ? offer.category === selectedCategory : true;
       const locationMatch = selectedLocation ? offer.location === selectedLocation : true;
@@ -31,8 +32,26 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
         if (sortOption === 'trending') {
             return (b.reviews?.length || 0) - (a.reviews?.length || 0);
         }
+        // default sort is by creation date (newest first), which is handled by Firestore query.
         return 0; 
     });
+  
+  if (loading) {
+    return (
+      <section id="featured-offers" className="w-full pt-16 sm:pt-24">
+        <div className="container mx-auto px-4 md:px-6">
+           <h2 className="text-3xl font-headline font-bold text-center mb-12">
+            Featured Offers
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Skeleton className="h-[400px] w-full" />
+            <Skeleton className="h-[400px] w-full" />
+            <Skeleton className="h-[400px] w-full" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (filteredOffers.length === 0) {
     return (
