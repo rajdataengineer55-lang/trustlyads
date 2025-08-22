@@ -60,6 +60,21 @@ export function Header() {
         
         <div className="hidden flex-1 items-center justify-end space-x-2 md:flex">
           <nav className="flex gap-2 items-center">
+            <Link href="/about" passHref>
+                <Button variant="ghost" size="icon" aria-label="About us">
+                    <Info />
+                </Button>
+            </Link>
+             <Link href="/admin" passHref>
+                <Button variant="ghost" size="icon" aria-label="Admin">
+                    <User />
+                </Button>
+            </Link>
+             <a href="tel:+919380002829">
+                <Button variant="ghost" size="icon" aria-label="Contact us">
+                    <Phone />
+                </Button>
+            </a>
             <Button variant="outline" onClick={() => setFollowers(followers + 1)}>
               <Users className="h-4 w-4 mr-2" />
               Followers
