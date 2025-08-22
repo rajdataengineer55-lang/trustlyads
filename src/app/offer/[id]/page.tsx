@@ -31,6 +31,7 @@ const reviewSchema = z.object({
     comment: z.string().min(10, "Comment must be at least 10 characters."),
 });
 
+const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
 
 export default function OfferDetailsPage() {
   const params = useParams();
@@ -57,15 +58,24 @@ export default function OfferDetailsPage() {
   useEffect(() => {
     if (id && !offersLoading) {
       const foundOffer = getOfferById(id);
-      if (foundOffer && !foundOffer.isHidden) {
+      
+      if (!foundOffer) {
+        notFound();
+        return;
+      }
+      
+      // An offer is visible if it's not hidden, OR if it is hidden but the admin is viewing it.
+      const isAdmin = user?.email === authorizedAdminEmail;
+      const isVisible = !foundOffer.isHidden || (foundOffer.isHidden && isAdmin);
+
+      if (isVisible) {
         setOffer(foundOffer);
         setMainImage(foundOffer.image);
-      } else if (!foundOffer) {
-        // If offers are loaded and offer is still not found, it's a 404
+      } else {
         notFound();
       }
     }
-  }, [id, getOfferById, offersLoading, offers]);
+  }, [id, getOfferById, offersLoading, offers, user]);
 
 
   useEffect(() => {
@@ -173,7 +183,8 @@ export default function OfferDetailsPage() {
 
   if (!offer) {
     // This case will be hit if the offer is hidden for a non-admin, or if it truly doesn't exist
-    notFound();
+    // The effect has already called notFound(), but this is a fallback.
+    return null;
   }
 
   if (!user) {
@@ -480,3 +491,5 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    
