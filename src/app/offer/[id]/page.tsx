@@ -10,7 +10,7 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -22,10 +22,11 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 const reviewSchema = z.object({
-    author: z.string().min(2, "Name must be at least 2 characters."),
+    author: z.string().min(2, "Name must be at least 2 characters.").optional(),
     rating: z.number().min(1, "Please select a rating.").max(5),
     comment: z.string().min(10, "Comment must be at least 10 characters."),
 });
@@ -34,6 +35,7 @@ const reviewSchema = z.object({
 export default function OfferDetailsPage() {
   const params = useParams();
   const { offers, getOfferById, addReview } = useOffers();
+  const { user, loading: authLoading, signInWithGoogle } = useAuth();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mainImage, setMainImage] = useState<string | null>(null);
@@ -44,7 +46,6 @@ export default function OfferDetailsPage() {
   const form = useForm<z.infer<typeof reviewSchema>>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
-      author: "",
       rating: 0,
       comment: "",
     },
@@ -60,11 +61,20 @@ export default function OfferDetailsPage() {
         setOffer(foundOffer);
         setMainImage(foundOffer.image);
       }
-      setIsLoading(false);
-    } else {
-        setIsLoading(false);
     }
-  }, [id, getOfferById, offers]); 
+  }, [id, getOfferById, offers]);
+
+  useEffect(() => {
+    if(!authLoading) {
+      setIsLoading(false);
+    }
+  }, [authLoading]);
+
+  useEffect(() => {
+    if (user) {
+        form.setValue("author", user.displayName || "Anonymous");
+    }
+  }, [user, form]);
 
   const handleShare = async () => {
     if (!offer) return;
@@ -109,9 +119,9 @@ export default function OfferDetailsPage() {
   };
 
   const onReviewSubmit = (data: z.infer<typeof reviewSchema>) => {
-    if (!offer) return;
+    if (!offer || !user) return;
     const newReview: Omit<Review, 'id'> = {
-        author: data.author,
+        author: user.displayName || "Anonymous",
         rating: data.rating,
         comment: data.comment,
     };
@@ -120,7 +130,7 @@ export default function OfferDetailsPage() {
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
     });
-    form.reset();
+    form.reset({ rating: 0, comment: '' });
   };
   
   if (isLoading) {
@@ -165,6 +175,33 @@ export default function OfferDetailsPage() {
 
   if (!offer) {
     notFound();
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 bg-background/50 flex items-center justify-center">
+            <div className="text-center p-8 max-w-md mx-auto">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>View Offer Details</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground mb-6">
+                            Please sign in to view the full details of this offer and write a review.
+                        </p>
+                        <Button onClick={signInWithGoogle} className="w-full">
+                            <LogIn className="mr-2 h-4 w-4" />
+                            Sign in with Google
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
@@ -328,10 +365,10 @@ export default function OfferDetailsPage() {
                                     control={form.control}
                                     name="author"
                                     render={({ field }) => (
-                                        <FormItem>
+                                        <FormItem className="hidden">
                                             <FormLabel>Your Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Enter your name" {...field} />
+                                                <Input readOnly placeholder="Enter your name" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -342,7 +379,7 @@ export default function OfferDetailsPage() {
                                     name="rating"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Rating</FormLabel>
+                                            <FormLabel>Your Rating</FormLabel>
                                             <FormControl>
                                                 <div className="flex items-center gap-1">
                                                     {[...Array(5)].map((_, i) => {
