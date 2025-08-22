@@ -7,7 +7,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Zap, MapPin, ChevronDown, Users, Menu, Phone, User, Info } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ThemeToggle } from '../theme-toggle';
 
 export function Header() {
   const [followers, setFollowers] = useState(0);
@@ -67,6 +68,7 @@ export function Header() {
             <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
               <Button>Post Your Business</Button>
             </a>
+            <ThemeToggle />
           </nav>
         </div>
 
@@ -90,6 +92,9 @@ export function Header() {
                 </SheetTitle>
               </SheetHeader>
                <nav className="flex flex-col gap-4 py-6">
+                  <div className="px-4">
+                     <ThemeToggle />
+                  </div>
                   <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
                       <Button className="w-full">Post Your Business</Button>
                   </a>
