@@ -144,7 +144,7 @@ export default function OfferDetailsPage() {
                             className="object-cover"
                             data-ai-hint={offer.hint}
                         />
-                         <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-2 px-4 text-lg">
+                         <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-2 px-3 text-base">
                           {offer.discount}
                         </Badge>
                     </div>
@@ -168,8 +168,8 @@ export default function OfferDetailsPage() {
                 <div className="md:col-span-2">
                     <Card>
                         <CardContent className="p-6">
-                            <h1 className="text-3xl font-headline font-bold mb-2">{offer.title}</h1>
-                            <p className="text-xl font-semibold text-primary mb-4">{offer.business}</p>
+                            <h1 className="text-2xl font-headline font-bold mb-2">{offer.title}</h1>
+                            <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>
                             <div className="flex items-center text-muted-foreground mb-6">
                                 <MapPin className="h-5 w-5 mr-2" />
                                 <span>{offer.location}</span>
@@ -182,26 +182,26 @@ export default function OfferDetailsPage() {
                             </div>
 
                             <div className="space-y-3">
-                                <Button className="w-full justify-start text-lg py-6" variant="outline" onClick={handleShare}>
+                                <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
                                     <Share2 className="mr-4" /> Share Offer
                                 </Button>
                                 {offer.allowCall && offer.phoneNumber && (
                                 <a href={`tel:${offer.phoneNumber}`}>
-                                    <Button className="w-full justify-start text-lg py-6" variant="outline">
+                                    <Button className="w-full justify-start text-base py-6" variant="outline">
                                         <Phone className="mr-4" /> Call Now
                                     </Button>
                                 </a>
                                 )}
                                 {offer.allowChat && offer.chatLink && (
                                 <a href={`https://${offer.chatLink}`} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full justify-start text-lg py-6" variant="outline">
+                                    <Button className="w-full justify-start text-base py-6" variant="outline">
                                         <MessageSquare className="mr-4" /> Chat on WhatsApp
                                     </Button>
                                 </a>
                                 )}
                                 {offer.allowSchedule && offer.scheduleLink && (
                                 <a href={offer.scheduleLink} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full justify-start text-lg py-6" variant="outline">
+                                    <Button className="w-full justify-start text-base py-6" variant="outline">
                                         <CalendarIcon className="mr-4" /> Schedule a Meeting
                                     </Button>
                                 </a>
@@ -227,7 +227,7 @@ export default function OfferDetailsPage() {
             
             {similarOffers.length > 0 && (
               <div className="mt-16">
-                 <h2 className="text-3xl font-headline font-bold text-center mb-12">
+                 <h2 className="text-2xl font-headline font-bold text-center mb-12">
                   Similar Offers
                 </h2>
                  <div className="grid md:grid-cols-3 gap-4">
@@ -243,7 +243,7 @@ export default function OfferDetailsPage() {
                             data-ai-hint={similarOffer.hint}
                           />
                           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <h3 className="text-xl font-headline font-bold text-white">{similarOffer.title}</h3>
+                              <h3 className="text-lg font-headline font-bold text-white">{similarOffer.title}</h3>
                           </div>
                           <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
                             {similarOffer.discount}

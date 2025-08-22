@@ -4,18 +4,18 @@ export function CtaBanner() {
   return (
     <section id="cta" className="py-16 sm:py-24">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="bg-primary text-primary-foreground rounded-2xl p-10 md:p-16 text-center shadow-xl">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold">
+        <div className="bg-primary text-primary-foreground rounded-2xl p-10 md:p-12 text-center shadow-xl">
+          <h2 className="text-2xl md:text-3xl font-headline font-bold">
             Ready to Boost Your Business?
           </h2>
-          <p className="mt-4 max-w-2xl mx-auto text-lg">
+          <p className="mt-4 max-w-2xl mx-auto text-base">
             Join hundreds of local businesses on TrustAds. Sign up today and post your first ad in minutes!
           </p>
           <div className="mt-8">
-            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.me/+919380002829" target="_blank" rel="noopener noreferrer">
               <Button
                 size="lg"
-                className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg py-7 px-10 rounded-full"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-base py-6 px-8 rounded-full"
               >
                 Sign Up & Post Your Ad
               </Button>

@@ -5,13 +5,13 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <section id="hero" className="relative w-full py-16 md:py-24 lg:py-32 bg-white dark:bg-gray-900/10">
+    <section id="hero" className="relative w-full py-12 md:py-20 lg:py-24 bg-white dark:bg-gray-900/10">
       <div className="container mx-auto px-4 md:px-6 text-center">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-headline font-bold tracking-tighter sm:text-4xl md:text-5xl text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-headline font-bold tracking-tighter sm:text-4xl md:text-4xl text-gray-900 dark:text-white">
             Connect with Local Businesses. Find Best Offers Daily.
           </h1>
-          <p className="mt-4 text-md text-gray-600 dark:text-gray-300">
+          <p className="mt-4 text-base text-gray-600 dark:text-gray-300">
             All your local businesses in one place – shops, restaurants, salons, rentals, and more.
           </p>
           <div className="mt-6 max-w-lg mx-auto">
