@@ -17,6 +17,7 @@ export interface Offer {
   business: string;
   category: string;
   location: string;
+  locationLink?: string;
   image: string;
   otherImages?: string[];
   hint: string;
@@ -49,6 +50,7 @@ const initialOffers: Offer[] = [
       business: "Bella Italia",
       category: "Food & Restaurants",
       location: "Tirupati Urban",
+      locationLink: "https://maps.app.goo.gl/1J2K3L4M5N6P7Q8R9",
       image: "https://placehold.co/600x400.png",
       otherImages: [
         "https://placehold.co/200x200.png",
@@ -76,6 +78,7 @@ const initialOffers: Offer[] = [
       business: "Chic Boutique",
       category: "Shops & Retail",
       location: "Vellore",
+      locationLink: "https://maps.app.goo.gl/1J2K3L4M5N6P7Q8R9",
       image: "https://placehold.co/600x400.png",
        otherImages: [
         "https://placehold.co/200x200.png",

@@ -24,6 +24,7 @@ const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
   businessType: z.string({ required_error: "Please select a business type." }),
   location: z.string({ required_error: "Please select a location." }),
+  locationLink: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   offerTitle: z.string().min(5, { message: "Offer title must be at least 5 characters." }),
   offerCompleteDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   discount: z.string().min(1, { message: "Discount details are required." }),
@@ -107,6 +108,7 @@ const businessTypes = {
     "Insurance Services",
     "Legal Advisors",
   ],
+   "Gym": ["Gym"],
 };
 
 interface AdGeneratorProps {
@@ -133,6 +135,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
       offerCompleteDetails: "",
       discount: "",
       tags: "",
+      locationLink: "",
       allowCall: true,
       phoneNumber: "",
       allowChat: false,
@@ -148,6 +151,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         businessName: offerToEdit.business,
         businessType: offerToEdit.category,
         location: offerToEdit.location,
+        locationLink: offerToEdit.locationLink,
         offerTitle: offerToEdit.title,
         offerCompleteDetails: offerToEdit.description,
         discount: offerToEdit.discount,
@@ -226,6 +230,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         business: values.businessName,
         category: values.businessType,
         location: values.location,
+        locationLink: values.locationLink,
         image: mainImage,
         otherImages: otherImages,
         hint: 'new offer',
@@ -339,6 +344,20 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                       )}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="locationLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Business Location Link</FormLabel>
+                  <FormControl>
+                    <Input type="url" placeholder="e.g., https://maps.app.goo.gl/your-link" {...field} />
+                  </FormControl>
+                  <FormDescription>Enter the Google Maps link or similar for your business.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

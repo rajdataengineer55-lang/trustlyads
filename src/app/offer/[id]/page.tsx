@@ -174,6 +174,13 @@ export default function OfferDetailsPage() {
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id).slice(0, 3);
   const allImages = [offer.image, ...(offer.otherImages || [])];
 
+  const LocationInfo = () => (
+    <div className="flex items-center text-muted-foreground mb-6">
+      <MapPin className="h-5 w-5 mr-2" />
+      <span>{offer.location}</span>
+    </div>
+  );
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -221,10 +228,15 @@ export default function OfferDetailsPage() {
                         <CardContent className="p-4 sm:p-6">
                             <h1 className="text-xl sm:text-2xl font-headline font-bold mb-2">{offer.title}</h1>
                             <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>
-                            <div className="flex items-center text-muted-foreground mb-6">
-                                <MapPin className="h-5 w-5 mr-2" />
-                                <span>{offer.location}</span>
-                            </div>
+                            
+                            {offer.locationLink ? (
+                              <a href={offer.locationLink} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                <LocationInfo />
+                              </a>
+                            ) : (
+                              <LocationInfo />
+                            )}
+
 
                             <div className="flex flex-wrap gap-2 mb-6">
                             {offer.tags?.map((tag) => (
@@ -410,7 +422,7 @@ export default function OfferDetailsPage() {
                           </div>
                           <div className="flex flex-wrap gap-2 mb-4">
                             {similarOffer.tags?.map((tag) => (
-                              <Badge key={tag} variant="secondary">{tag}</Badge>
+                              <Badge key={tag} variant="secondary">{tag}</Badge>                            
                             ))}
                           </div>
                           <Link href={`/offer/${similarOffer.id}`} passHref>
