@@ -365,7 +365,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                   <FormItem>
                   <FormLabel>Discount / Price</FormLabel>
                   <FormControl>
-                      <Input placeholder="e.g., 50% OFF, 2-for-1, $10" {...field} />
+                      <Input placeholder="e.g., 50% OFF, 2-for-1, ₹500" {...field} />
                   </FormControl>
                   <FormMessage />
                   </FormItem>
