@@ -37,7 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Signed In",
         description: "You have successfully signed in.",
       });
-    } catch (error) {
+    } catch (error: any) {
+      // Don't show an error toast if the user simply closed the popup.
+      if (error.code === 'auth/popup-closed-by-user') {
+        return;
+      }
+      
       console.error("Error signing in with Google:", error);
       toast({
         variant: "destructive",
