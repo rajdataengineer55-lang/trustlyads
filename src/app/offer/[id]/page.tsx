@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -10,7 +11,7 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -80,7 +81,6 @@ export default function OfferDetailsPage() {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        // Fallback for browsers that do not support navigator.share
         await navigator.clipboard.writeText(window.location.href);
         toast({
           title: "Link Copied!",
@@ -88,13 +88,11 @@ export default function OfferDetailsPage() {
         });
       }
     } catch (err: any) {
-      // Ignore AbortError which is triggered when the user cancels the share dialog
       if (err.name === 'AbortError') {
         return;
       }
       
       console.error("Error sharing:", err);
-      // Fallback to copying the link if sharing fails for other reasons
       try {
         await navigator.clipboard.writeText(window.location.href);
         toast({
@@ -175,7 +173,7 @@ export default function OfferDetailsPage() {
   const allImages = [offer.image, ...(offer.otherImages || [])];
 
   const LocationInfo = () => (
-    <div className="flex items-center text-muted-foreground mb-6">
+    <div className="flex items-center text-muted-foreground mb-2">
       <MapPin className="h-5 w-5 mr-2" />
       <span>{offer.location}</span>
     </div>
@@ -229,13 +227,16 @@ export default function OfferDetailsPage() {
                             <h1 className="text-xl sm:text-2xl font-headline font-bold mb-2">{offer.title}</h1>
                             <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>
                             
-                            {offer.locationLink ? (
-                              <a href={offer.locationLink} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                                <LocationInfo />
-                              </a>
-                            ) : (
-                              <LocationInfo />
-                            )}
+                            <LocationInfo />
+
+                             {offer.locationLink && (
+                                <a href={offer.locationLink} target="_blank" rel="noopener noreferrer" className="mb-6 block">
+                                    <Button variant="outline" size="sm">
+                                        <Navigation className="mr-2 h-4 w-4" />
+                                        Get Directions
+                                    </Button>
+                                </a>
+                             )}
 
 
                             <div className="flex flex-wrap gap-2 mb-6">
@@ -445,5 +446,7 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    
 
     
