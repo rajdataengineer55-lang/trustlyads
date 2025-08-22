@@ -29,14 +29,14 @@ export function HowItWorks() {
             A simple, streamlined process for businesses and customers to connect.
           </p>
         </div>
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8">
           {steps.map((step, index) => (
             <Card key={index} className="text-center bg-card shadow-sm hover:shadow-xl transition-all duration-300 ease-in-out hover:-translate-y-1 animate-in fade-in-up" style={{ animationDelay: `${200 * (index + 1)}ms`}}>
-              <CardHeader>
+              <CardHeader className="p-4 md:p-6">
                 <div className="mx-auto bg-primary/10 rounded-full p-3 w-fit mb-4">
                   {step.icon}
                 </div>
-                <CardTitle className="font-headline text-base sm:text-lg">{`Step ${index + 1}: ${step.title}`}</CardTitle>
+                <CardTitle className="font-headline text-sm sm:text-base md:text-lg">{`Step ${index + 1}: ${step.title}`}</CardTitle>
                 <CardDescription className="pt-2 text-xs sm:text-sm">{step.description}</CardDescription>
               </CardHeader>
             </Card>
