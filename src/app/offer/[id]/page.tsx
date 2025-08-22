@@ -195,7 +195,7 @@ export default function OfferDetailsPage() {
                             src={mainImage || offer.image}
                             alt={offer.title}
                             fill
-                            className="object-cover"
+                            className="object-cover transition-all duration-300 ease-in-out hover:scale-105"
                             data-ai-hint={offer.hint}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />

@@ -171,6 +171,16 @@ const initialOffers: Offer[] = [
     }
   ];
 
+interface OffersContextType {
+  offers: Offer[];
+  addOffer: (offer: Omit<Offer, 'id' | 'reviews'>) => void;
+  updateOffer: (id: string, updatedOfferData: Partial<Omit<Offer, 'id' | 'reviews'>>) => void;
+  deleteOffer: (id: string) => void;
+  boostOffer: (id: string) => void;
+  getOfferById: (id: string) => Offer | undefined;
+  addReview: (offerId: string, review: Omit<Review, 'id'>) => void;
+}
+
 const OffersContext = createContext<OffersContextType | undefined>(undefined);
 
 // Helper function to generate a URL-friendly slug
