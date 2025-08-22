@@ -9,6 +9,7 @@ import { FeaturedOffers } from "@/components/landing/featured-offers";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Footer } from "@/components/landing/footer";
 import { Filters, SortOption } from "@/components/landing/filters";
+import { categories as categoryData } from "@/lib/categories";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -30,6 +31,9 @@ export default function Home() {
             setSelectedLocation={setSelectedLocation}
             sortOption={sortOption}
             setSortOption={setSortOption}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            categories={categoryData}
         />
         <FeaturedOffers 
           selectedCategory={selectedCategory} 
