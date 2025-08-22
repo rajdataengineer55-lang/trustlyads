@@ -197,7 +197,7 @@ export default function OfferDetailsPage() {
                             src={mainImage || offer.image}
                             alt={offer.title}
                             fill
-                            className="object-cover"
+                            className="object-contain"
                             data-ai-hint={offer.hint}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
@@ -213,7 +213,7 @@ export default function OfferDetailsPage() {
                                   src={img} 
                                   alt={`thumbnail ${i + 1}`} 
                                   fill 
-                                  className={cn("rounded-md object-cover transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                  className={cn("rounded-md object-contain transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
                                   data-ai-hint="placeholder image"
                                   sizes="10vw" 
                                 />
@@ -396,15 +396,15 @@ export default function OfferDetailsPage() {
                   Similar Offers
                 </h2>
                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {similarOffers.map((similarOffer) => (
-                    <Card key={`similar-${similarOffer.id}`} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
+                  {similarOffers.map((similarOffer, i) => (
+                    <Card key={`similar-${similarOffer.id}-${i}`} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
                       <CardContent className="p-0">
                         <div className="relative aspect-[4/3]">
                           <Image
                             src={similarOffer.image}
                             alt={similarOffer.title}
                             fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="object-contain transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint={similarOffer.hint}
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           />
@@ -445,3 +445,5 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    
