@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
+        body: ['"PT Sans"', 'sans-serif'],
         headline: ['Montserrat', 'sans-serif'],
         code: ['monospace'],
       },
