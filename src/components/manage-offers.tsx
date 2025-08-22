@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Pencil, Trash2, Zap } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Megaphone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
@@ -126,7 +126,7 @@ export function ManageOffers() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleBoostClick(offer)}>
-                        <Zap className="mr-2 h-4 w-4" />
+                        <Megaphone className="mr-2 h-4 w-4" />
                         Boost
                       </DropdownMenuItem>
                       <DialogTrigger asChild>

@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal } from "@/components/ui/dropdown-menu"
-import { Zap, MapPin, ChevronDown, Users, Menu, Phone, User, Info } from "lucide-react"
+import { Megaphone, MapPin, ChevronDown, Users, Menu, Phone, User, Info } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -19,7 +19,7 @@ export function Header() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="flex-1 flex items-center">
           <Link href="/" className="flex items-center space-x-2">
-              <Zap className="h-6 w-6 text-primary" />
+              <Megaphone className="h-6 w-6 text-primary" />
               <span className="font-bold sm:inline-block font-headline">
                 trustlyads.in
               </span>
@@ -99,7 +99,7 @@ export function Header() {
               <SheetHeader>
                 <SheetTitle>
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Zap className="h-6 w-6 text-primary" />
+                    <Megaphone className="h-6 w-6 text-primary" />
                     <span className="font-bold sm:inline-block font-headline">
                       trustlyads.in
                     </span>

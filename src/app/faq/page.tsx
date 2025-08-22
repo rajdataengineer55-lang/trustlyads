@@ -7,7 +7,7 @@ import {
   } from "@/components/ui/accordion"
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
-import { Zap } from "lucide-react";
+import { Megaphone } from "lucide-react";
   
 
 const faqs = [
@@ -44,7 +44,7 @@ export default function FaqPage() {
         <main className="flex-1 bg-background py-16 sm:py-24">
           <div className="container mx-auto px-4 md:px-6">
             <div className="max-w-3xl mx-auto text-center">
-                <Zap className="h-12 w-12 text-primary mx-auto mb-4" />
+                <Megaphone className="h-12 w-12 text-primary mx-auto mb-4" />
                 <h1 className="text-3xl sm:text-4xl font-headline font-bold mb-4">Frequently Asked Questions</h1>
                 <p className="text-muted-foreground">Find answers to common questions about our platform.</p>
             </div>
