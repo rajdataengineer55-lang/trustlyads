@@ -50,8 +50,11 @@ export default function OfferDetailsPage() {
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-      } catch (err) {
-        console.error("Error sharing:", err);
+      } catch (err: any) {
+        // Silently fail if the user cancels the share sheet
+        if (err.name !== 'AbortError') {
+          console.error("Error sharing:", err);
+        }
       }
     } else {
       try {
