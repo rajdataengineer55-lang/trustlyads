@@ -438,7 +438,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             <div className="space-y-4">
                 <FormLabel>Communication Options</FormLabel>
                 <FormDescription>Select how customers can connect with you.</FormDescription>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
+                <div className="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-3">
                     <FormField
                     control={form.control}
                     name="allowCall"

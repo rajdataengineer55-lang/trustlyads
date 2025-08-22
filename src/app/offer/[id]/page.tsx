@@ -385,7 +385,7 @@ export default function OfferDetailsPage() {
                 </h2>
                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {similarOffers.map((similarOffer) => (
-                    <Card key={similarOffer.id} className="overflow-hidden group transition-shadow duration-300 hover:shadow-2xl">
+                    <Card key={`similar-${similarOffer.id}`} className="overflow-hidden group transition-shadow duration-300 hover:shadow-2xl">
                       <CardContent className="p-0">
                         <div className="relative aspect-[4/3]">
                           <Image
