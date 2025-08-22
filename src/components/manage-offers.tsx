@@ -70,6 +70,11 @@ export function ManageOffers() {
     setSelectedOffer(offer);
     setIsEditDialogOpen(true);
   }
+  
+  const handleEditDialogClose = () => {
+    setIsEditDialogOpen(false);
+    setSelectedOffer(null);
+  }
 
   return (
     <>
@@ -112,10 +117,7 @@ export function ManageOffers() {
                 <TableCell className="hidden md:table-cell">{offer.category}</TableCell>
                 <TableCell className="hidden sm:table-cell">{offer.discount}</TableCell>
                 <TableCell className="text-right">
-                  <Dialog open={isEditDialogOpen && selectedOffer?.id === offer.id} onOpenChange={(isOpen) => {
-                      if (!isOpen) setSelectedOffer(null);
-                      setIsEditDialogOpen(isOpen);
-                  }}>
+                  <Dialog open={isEditDialogOpen && selectedOffer?.id === offer.id} onOpenChange={setIsEditDialogOpen}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -148,10 +150,7 @@ export function ManageOffers() {
                       </DialogHeader>
                       <AdGenerator 
                         offerToEdit={selectedOffer!} 
-                        onFinished={() => {
-                          setIsEditDialogOpen(false);
-                          setSelectedOffer(null);
-                        }} 
+                        onFinished={handleEditDialogClose} 
                       />
                   </DialogContent>
                   </Dialog>
