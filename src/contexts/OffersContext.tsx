@@ -27,6 +27,9 @@ interface OffersContextType {
   offers: Offer[];
   addOffer: (offer: Omit<Offer, 'id'>) => void;
   getOfferById: (id: string) => Offer | undefined;
+  updateOffer: (id: string, updatedOffer: Omit<Offer, 'id'>) => void;
+  deleteOffer: (id: string) => void;
+  boostOffer: (id: string) => void;
 }
 
 const initialOffers: Offer[] = [
@@ -142,12 +145,33 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     setOffers(prevOffers => [newOffer, ...prevOffers]);
   };
 
+  const updateOffer = (id: string, updatedOfferData: Omit<Offer, 'id'>) => {
+    setOffers(prevOffers =>
+      prevOffers.map(offer =>
+        offer.id === id ? { ...offer, ...updatedOfferData, id } : offer
+      )
+    );
+  };
+  
+  const deleteOffer = (id: string) => {
+    setOffers(prevOffers => prevOffers.filter(offer => offer.id !== id));
+  };
+  
+  const boostOffer = (id: string) => {
+    setOffers(prevOffers => {
+      const offerToBoost = prevOffers.find(offer => offer.id === id);
+      if (!offerToBoost) return prevOffers;
+      const otherOffers = prevOffers.filter(offer => offer.id !== id);
+      return [offerToBoost, ...otherOffers];
+    });
+  };
+
   const getOfferById = (id: string) => {
     return offers.find(offer => offer.id === id);
   };
 
   return (
-    <OffersContext.Provider value={{ offers, addOffer, getOfferById }}>
+    <OffersContext.Provider value={{ offers, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer }}>
       {children}
     </OffersContext.Provider>
   );
@@ -160,5 +184,3 @@ export function useOffers() {
   }
   return context;
 }
-
-    

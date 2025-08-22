@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,11 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Megaphone, Star } from "lucide-react";
+import { Loader2, Megaphone, Star, Edit } from "lucide-react";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { locations } from "@/lib/locations";
-import { useOffers } from "@/contexts/OffersContext";
+import { useOffers, type Offer } from "@/contexts/OffersContext";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
@@ -97,14 +97,21 @@ const businessTypes = {
   ],
 };
 
-export function AdGenerator() {
+interface AdGeneratorProps {
+  offerToEdit?: Offer;
+  onFinished?: () => void;
+}
+
+export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [selectedMainImage, setSelectedMainImage] = useState(0);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
   const { toast } = useToast();
-  const { addOffer } = useOffers();
+  const { addOffer, updateOffer } = useOffers();
+
+  const isEditMode = !!offerToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -123,6 +130,30 @@ export function AdGenerator() {
     },
   });
 
+  useEffect(() => {
+    if (isEditMode) {
+      form.reset({
+        businessName: offerToEdit.business,
+        businessType: offerToEdit.category,
+        location: offerToEdit.location,
+        offerTitle: offerToEdit.title,
+        offerCompleteDetails: offerToEdit.description,
+        discount: offerToEdit.discount,
+        tags: offerToEdit.tags.join(", "),
+        allowCall: offerToEdit.allowCall,
+        phoneNumber: offerToEdit.phoneNumber,
+        allowChat: offerToEdit.allowChat,
+        chatLink: offerToEdit.chatLink,
+        allowSchedule: offerToEdit.allowSchedule,
+        scheduleLink: offerToEdit.scheduleLink,
+      });
+
+      const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])];
+      setImagePreviews(allImages);
+      setSelectedMainImage(0); // Main image is always first in the array
+    }
+  }, [offerToEdit, isEditMode, form]);
+
   const watchAllowCall = form.watch("allowCall");
   const watchAllowChat = form.watch("allowChat");
   const watchAllowSchedule = form.watch("allowSchedule");
@@ -139,7 +170,7 @@ export function AdGenerator() {
         return;
       }
       const newPreviews = Array.from(files).map(file => URL.createObjectURL(file));
-      setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 10)); // Limit to 10 images
+      setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 10));
       form.setValue('images', files);
     }
   };
@@ -159,7 +190,7 @@ export function AdGenerator() {
           });
           setVideoPreview(null);
           form.setValue('video', undefined);
-          if (e.target) e.target.value = ''; // Reset the file input
+          if (e.target) e.target.value = '';
         } else {
           setVideoPreview(URL.createObjectURL(file));
           form.setValue('video', e.target.files);
@@ -169,7 +200,6 @@ export function AdGenerator() {
     }
   };
 
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     
@@ -178,7 +208,7 @@ export function AdGenerator() {
     const mainImage = imagePreviews[selectedMainImage] || 'https://placehold.co/600x400.png';
     const otherImages = imagePreviews.filter((_, index) => index !== selectedMainImage);
 
-    const newOffer = {
+    const offerData = {
         title: values.offerTitle,
         description: values.offerCompleteDetails,
         business: values.businessName,
@@ -197,19 +227,327 @@ export function AdGenerator() {
         scheduleLink: values.scheduleLink,
     };
 
-    addOffer(newOffer);
-
-    toast({
-      title: "Offer Posted!",
-      description: "Your offer has been successfully posted and is now live.",
-    });
+    if (isEditMode) {
+      updateOffer(offerToEdit.id, offerData);
+      toast({
+        title: "Offer Updated!",
+        description: "Your offer has been successfully updated.",
+      });
+    } else {
+      addOffer(offerData);
+      toast({
+        title: "Offer Posted!",
+        description: "Your offer has been successfully posted and is now live.",
+      });
+    }
     
-    form.reset();
-    setImagePreviews([]);
-    setSelectedMainImage(0);
-    setVideoPreview(null);
-
+    if (onFinished) {
+        onFinished();
+    } else {
+        form.reset();
+        setImagePreviews([]);
+        setSelectedMainImage(0);
+        setVideoPreview(null);
+    }
+    
     setIsLoading(false);
+  }
+
+  const AdForm = (
+        <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+            control={form.control}
+            name="businessName"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Business Name</FormLabel>
+                <FormControl>
+                    <Input placeholder="e.g., The Cozy Cafe" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+            <FormField
+              control={form.control}
+              name="businessType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Business Type</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a business type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.entries(businessTypes).map(([group, types]) => (
+                        <SelectGroup key={group}>
+                          <FormLabel className="px-2 text-xs text-muted-foreground">{group}</FormLabel>
+                          {types.map(type => (
+                            <SelectItem key={type} value={type}>{type}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a location" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {locations.map((location) =>
+                        location.subLocations ? (
+                          <SelectGroup key={location.name}>
+                            <FormLabel className="px-2 text-xs text-muted-foreground">{location.name}</FormLabel>
+                            {location.subLocations.map((sub) => (
+                              <SelectItem key={`${location.name}-${sub}`} value={sub}>
+                                {sub}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        ) : (
+                          <SelectItem key={location.name} value={location.name}>
+                            {location.name}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="offerTitle"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Offer Title</FormLabel>
+                  <FormControl>
+                      <Input placeholder="e.g., Get 20% off all coffee" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="offerCompleteDetails"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Complete Offer Details</FormLabel>
+                  <FormControl>
+                      <Textarea placeholder="Describe your offer in detail..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="discount"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Discount / Price</FormLabel>
+                  <FormControl>
+                      <Input placeholder="e.g., 50% OFF, 2-for-1, $10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                      <Input placeholder="e.g., Today's Offer, Sale, New" {...field} />
+                  </FormControl>
+                  <FormDescription>Separate tags with a comma.</FormDescription>
+                  <FormMessage />
+                  </FormItem>
+              )}
+            />
+
+            <FormItem>
+              <FormLabel>Offer Images</FormLabel>
+              <FormControl>
+                <Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+              </FormControl>
+              <FormDescription>Upload up to 10 images. Click on an image below to select it as the main cover image.</FormDescription>
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
+                  {imagePreviews.map((src, i) => (
+                    <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImage(i)}>
+                      <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImage === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")}/>
+                      {selectedMainImage === i && (
+                        <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1">
+                          <Star className="h-3 w-3" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <FormMessage />
+            </FormItem>
+
+            <FormItem>
+              <FormLabel>Offer Video</FormLabel>
+              <FormControl>
+                <Input type="file" accept="video/*" onChange={handleVideoChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+              </FormControl>
+               <FormDescription>Upload a short video (max 1 minute) for your offer.</FormDescription>
+              {videoPreview && (
+                <div className="mt-2 relative">
+                  <video src={videoPreview} controls className="rounded-md w-full object-cover" />
+                </div>
+              )}
+              <FormMessage />
+            </FormItem>
+
+            <div className="space-y-4">
+                <FormLabel>Communication Options</FormLabel>
+                <FormDescription>Select how customers can connect with you.</FormDescription>
+                <div className="flex items-center space-x-4 pt-2">
+                    <FormField
+                    control={form.control}
+                    name="allowCall"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                            <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                            Allow Call
+                        </FormLabel>
+                        </FormItem>
+                    )}
+                    />
+                     <FormField
+                    control={form.control}
+                    name="allowChat"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                            <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                            Allow Chat
+                        </FormLabel>
+                        </FormItem>
+                    )}
+                    />
+                     <FormField
+                    control={form.control}
+                    name="allowSchedule"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                            <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                            Schedule Meeting
+                        </FormLabel>
+                        </FormItem>
+                    )}
+                    />
+                </div>
+            </div>
+            
+            {watchAllowCall && (
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input type="tel" placeholder="Enter phone number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            
+            {watchAllowChat && (
+              <FormField
+                control={form.control}
+                name="chatLink"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chat Link or ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., your-whatsapp-link or username" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {watchAllowSchedule && (
+              <FormField
+                control={form.control}
+                name="scheduleLink"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Scheduling URL</FormLabel>
+                    <FormControl>
+                      <Input type="url" placeholder="e.g., https://calendly.com/your-name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
+            {isLoading ? (
+                <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isEditMode ? 'Updating...' : 'Posting...'}
+                </>
+            ) : (
+                <>
+                {isEditMode ? <Edit className="mr-2 h-4 w-4" /> : <Megaphone className="mr-2 h-4 w-4" />}
+                {isEditMode ? 'Update Offer' : 'Post Offer'}
+                </>
+            )}
+            </Button>
+        </form>
+        </Form>
+  )
+
+  if (isEditMode) {
+    return AdForm;
   }
 
   return (
@@ -232,296 +570,7 @@ export function AdGenerator() {
                   <CardDescription>Fill out your offer details to get started.</CardDescription>
               </CardHeader>
               <CardContent>
-                  <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <FormField
-                      control={form.control}
-                      name="businessName"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Business Name</FormLabel>
-                          <FormControl>
-                              <Input placeholder="e.g., The Cozy Cafe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="businessType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Business Type</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a business type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Object.entries(businessTypes).map(([group, types]) => (
-                                  <SelectGroup key={group}>
-                                    <FormLabel className="px-2 text-xs text-muted-foreground">{group}</FormLabel>
-                                    {types.map(type => (
-                                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                                    ))}
-                                  </SelectGroup>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                       <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Location</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a location" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {locations.map((location) =>
-                                  location.subLocations ? (
-                                    <SelectGroup key={location.name}>
-                                      <FormLabel className="px-2 text-xs text-muted-foreground">{location.name}</FormLabel>
-                                      {location.subLocations.map((sub) => (
-                                        <SelectItem key={`${location.name}-${sub}`} value={sub}>
-                                          {sub}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectGroup>
-                                  ) : (
-                                    <SelectItem key={location.name} value={location.name}>
-                                      {location.name}
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="offerTitle"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Offer Title</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., Get 20% off all coffee" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="offerCompleteDetails"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Complete Offer Details</FormLabel>
-                            <FormControl>
-                                <Textarea placeholder="Describe your offer in detail..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="discount"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Discount / Price</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., 50% OFF, 2-for-1, $10" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                      />
-                       <FormField
-                        control={form.control}
-                        name="tags"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Tags</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., Today's Offer, Sale, New" {...field} />
-                            </FormControl>
-                            <FormDescription>Separate tags with a comma.</FormDescription>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                      />
-
-                      <FormItem>
-                        <FormLabel>Offer Images</FormLabel>
-                        <FormControl>
-                          <Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
-                        </FormControl>
-                        <FormDescription>Upload up to 10 images. Click on an image below to select it as the main cover image.</FormDescription>
-                        {imagePreviews.length > 0 && (
-                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
-                            {imagePreviews.map((src, i) => (
-                              <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImage(i)}>
-                                <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImage === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")}/>
-                                {selectedMainImage === i && (
-                                  <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1">
-                                    <Star className="h-3 w-3" />
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-
-                      <FormItem>
-                        <FormLabel>Offer Video</FormLabel>
-                        <FormControl>
-                          <Input type="file" accept="video/*" onChange={handleVideoChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
-                        </FormControl>
-                         <FormDescription>Upload a short video (max 1 minute) for your offer.</FormDescription>
-                        {videoPreview && (
-                          <div className="mt-2 relative">
-                            <video src={videoPreview} controls className="rounded-md w-full object-cover" />
-                          </div>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-
-                      <div className="space-y-4">
-                          <FormLabel>Communication Options</FormLabel>
-                          <FormDescription>Select how customers can connect with you.</FormDescription>
-                          <div className="flex items-center space-x-4 pt-2">
-                              <FormField
-                              control={form.control}
-                              name="allowCall"
-                              render={({ field }) => (
-                                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                                  <FormControl>
-                                      <Checkbox
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                      />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                      Allow Call
-                                  </FormLabel>
-                                  </FormItem>
-                              )}
-                              />
-                               <FormField
-                              control={form.control}
-                              name="allowChat"
-                              render={({ field }) => (
-                                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                                  <FormControl>
-                                      <Checkbox
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                      />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                      Allow Chat
-                                  </FormLabel>
-                                  </FormItem>
-                              )}
-                              />
-                               <FormField
-                              control={form.control}
-                              name="allowSchedule"
-                              render={({ field }) => (
-                                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                                  <FormControl>
-                                      <Checkbox
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                      />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                      Schedule Meeting
-                                  </FormLabel>
-                                  </FormItem>
-                              )}
-                              />
-                          </div>
-                      </div>
-                      
-                      {watchAllowCall && (
-                        <FormField
-                          control={form.control}
-                          name="phoneNumber"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone Number</FormLabel>
-                              <FormControl>
-                                <Input type="tel" placeholder="Enter phone number" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                      
-                      {watchAllowChat && (
-                        <FormField
-                          control={form.control}
-                          name="chatLink"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Chat Link or ID</FormLabel>
-                              <FormControl>
-                                <Input placeholder="e.g., your-whatsapp-link or username" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-
-                      {watchAllowSchedule && (
-                        <FormField
-                          control={form.control}
-                          name="scheduleLink"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Scheduling URL</FormLabel>
-                              <FormControl>
-                                <Input type="url" placeholder="e.g., https://calendly.com/your-name" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-
-                      <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
-                      {isLoading ? (
-                          <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Posting...
-                          </>
-                      ) : (
-                          <>
-                          <Megaphone className="mr-2 h-4 w-4" />
-                          Post Offer
-                          </>
-                      )}
-                      </Button>
-                  </form>
-                  </Form>
+                  {AdForm}
               </CardContent>
           </Card>
         </div>
@@ -529,5 +578,3 @@ export function AdGenerator() {
     </section>
   );
 }
-
-    
