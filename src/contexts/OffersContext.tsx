@@ -209,9 +209,8 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     setOffers(prevOffers =>
       prevOffers.map(offer => {
         if (offer.id === id) {
-          // Make sure to preserve existing reviews
-          const existingReviews = offer.reviews || [];
-          return { ...offer, ...updatedOfferData, reviews: existingReviews };
+          // Make sure to preserve existing reviews and other fields not in updatedOfferData
+          return { ...offer, ...updatedOfferData };
         }
         return offer;
       })
