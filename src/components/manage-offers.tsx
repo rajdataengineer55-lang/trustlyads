@@ -85,14 +85,25 @@ export function ManageOffers() {
 
     // Fallback function for browsers that can't share files
     const shareLinkFallback = async () => {
-        if (navigator.share) {
-            await navigator.share(shareData);
-        } else {
-            await navigator.clipboard.writeText(offerPageUrl);
-            toast({
-                title: "Link Copied!",
-                description: "The offer link has been copied to your clipboard.",
-            });
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(offerPageUrl);
+                toast({
+                    title: "Link Copied!",
+                    description: "The offer link has been copied to your clipboard.",
+                });
+            }
+        } catch (err: any) {
+             if (err.name !== 'AbortError') {
+                console.error("Error sharing link:", err);
+                toast({
+                    variant: "destructive",
+                    title: "Sharing Failed",
+                    description: "Could not share or copy the link.",
+                });
+            }
         }
     };
 
@@ -140,10 +151,14 @@ export function ManageOffers() {
             await shareLinkFallback();
           }
         } catch (err: any) {
+            // Ignore abort errors, which happen when the user cancels the share dialog
+            if (err.name === 'AbortError') {
+              return;
+            }
             toast({
                 variant: "destructive",
                 title: "Sharing Failed",
-                description: err.message || "There was an error generating the share image. Trying to share a link instead.",
+                description: "There was an error generating the share image. Trying to share a link instead.",
             });
             // Attempt to share link if image generation/sharing fails
             await shareLinkFallback();

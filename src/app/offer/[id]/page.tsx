@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -77,29 +76,25 @@ export default function OfferDetailsPage() {
       url: window.location.href,
     };
 
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err: any) {
+    try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+            await navigator.clipboard.writeText(window.location.href);
+            toast({
+              title: "Link Copied!",
+              description: "The offer link has been copied to your clipboard.",
+            });
+        }
+    } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("Error sharing:", err);
+           toast({
+              variant: "destructive",
+              title: "Failed to Share",
+              description: "Could not share the offer at this time.",
+            });
         }
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        toast({
-          title: "Link Copied!",
-          description: "The offer link has been copied to your clipboard.",
-        });
-      } catch (err) {
-        console.error("Failed to copy:", err);
-        toast({
-          variant: "destructive",
-          title: "Failed to Copy",
-          description: "Could not copy the link to your clipboard.",
-        });
-      }
     }
   };
 
