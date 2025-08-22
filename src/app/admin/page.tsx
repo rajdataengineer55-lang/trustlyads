@@ -11,22 +11,15 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogIn } from 'lucide-react';
+import { LogIn, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminPage() {
     const { user, loading, signInWithGoogle } = useAuth();
     const router = useRouter();
 
-    // While not strictly necessary with the checks below, this is good practice
-    // if you wanted to redirect unauthenticated users instead of showing a message.
-    useEffect(() => {
-        if (!loading && !user) {
-            // For now, we show a message on the page.
-            // If you'd prefer a hard redirect, you could use:
-            // router.replace('/'); 
-        }
-    }, [user, loading, router]);
+    const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
 
     // 1. Show a loading state while we check for the user
     if (loading) {
@@ -47,44 +40,43 @@ export default function AdminPage() {
         );
     }
     
-    // 2. If the user is not logged in, show the login prompt
-    if (!user) {
+    // 2. If the user is not the admin, show the specific admin login prompt
+    if (!user || user.email !== authorizedAdminEmail) {
          return (
             <div className="flex flex-col min-h-screen">
                 <Header />
                 <main className="flex-1 bg-background/50 flex flex-col items-center justify-center text-center p-4">
-                    <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-                    <p className="text-muted-foreground mb-8">You must be logged in to view the admin dashboard.</p>
-                    <Button onClick={signInWithGoogle}>
-                        <LogIn className="mr-2 h-4 w-4" />
-                        Sign in with Google
-                    </Button>
+                    <Card className="max-w-md w-full">
+                        <CardHeader>
+                            <CardTitle className="flex items-center justify-center gap-2">
+                                <ShieldAlert className="h-6 w-6" /> Admin Access Required
+                            </CardTitle>
+                            <CardDescription>
+                                Please sign in with the authorized admin Google account to continue.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {user && user.email !== authorizedAdminEmail && (
+                                <p className="text-sm text-destructive">
+                                    Account <span className="font-medium">{user.email}</span> is not authorized.
+                                </p>
+                            )}
+                            <Button onClick={signInWithGoogle} className="w-full">
+                                <LogIn className="mr-2 h-4 w-4" />
+                                Sign in with Google
+                            </Button>
+                             <Button variant="outline" asChild className="w-full">
+                                <Link href="/">Go to Homepage</Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
                 </main>
                 <Footer />
             </div>
         );
     }
 
-    // 3. If the user is logged in, check if they are the authorized admin
-    const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
-    
-    if (user.email !== authorizedAdminEmail) {
-        return (
-            <div className="flex flex-col min-h-screen">
-                <Header />
-                <main className="flex-1 bg-background/50 flex flex-col items-center justify-center text-center p-4">
-                    <h1 className="text-2xl font-bold mb-4">Unauthorized</h1>
-                    <p className="text-muted-foreground mb-8">You are not authorized to view this page.</p>
-                    <Link href="/" passHref>
-                        <Button variant="outline">Go to Homepage</Button>
-                    </Link>
-                </main>
-                <Footer />
-            </div>
-        );
-    }
-
-    // 4. If all checks pass, render the admin dashboard
+    // 3. If all checks pass, render the admin dashboard
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
