@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Pencil, Trash2, Zap } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Zap, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
@@ -70,6 +70,47 @@ export function ManageOffers() {
     setSelectedOffer(offer);
     setIsEditDialogOpen(true);
   }
+  
+  const handleShareClick = async (offer: Offer) => {
+    const offerUrl = `${window.location.origin}/offer/${offer.id}`;
+    const shareData = {
+      title: offer.title,
+      text: `${offer.business} is offering: ${offer.discount}! Check it out.`,
+      url: offerUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        toast({
+          title: "Shared Successfully!",
+          description: "The offer has been shared.",
+        });
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+           toast({
+            variant: "destructive",
+            title: "Sharing Failed",
+            description: "There was an error trying to share the offer.",
+          });
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(offerUrl);
+        toast({
+          title: "Link Copied!",
+          description: "The offer link has been copied to your clipboard.",
+        });
+      } catch (err) {
+        toast({
+          variant: "destructive",
+          title: "Failed to Copy",
+          description: "Could not copy the link.",
+        });
+      }
+    }
+  };
 
   return (
     <>
@@ -123,6 +164,10 @@ export function ManageOffers() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleShareClick(offer)}>
+                        <Share2 className="mr-2 h-4 w-4" />
+                        Share
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleBoostClick(offer)}>
                         <Zap className="mr-2 h-4 w-4" />
                         Boost
