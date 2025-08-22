@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { locations } from "@/lib/locations";
 import { Button } from "@/components/ui/button";
 
@@ -27,8 +27,6 @@ export function Filters({
     categories
 }: FiltersProps) {
     
-    const allSubLocations = locations.flatMap(l => l.subLocations || [l.name]);
-
     const handleClearFilters = () => {
         setSelectedLocation(null);
         setSelectedCategory(null);
@@ -61,9 +59,22 @@ export function Filters({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Locations</SelectItem>
-                                {allSubLocations.map(loc => (
-                                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                                ))}
+                                {locations.map((location) =>
+                                    location.subLocations ? (
+                                    <SelectGroup key={location.name}>
+                                        <SelectLabel>{location.name}</SelectLabel>
+                                        {location.subLocations.map((sub) => (
+                                        <SelectItem key={`${location.name}-${sub}`} value={sub}>
+                                            {sub}
+                                        </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                    ) : (
+                                    <SelectItem key={location.name} value={location.name}>
+                                        {location.name}
+                                    </SelectItem>
+                                    )
+                                )}
                             </SelectContent>
                         </Select>
                     </div>

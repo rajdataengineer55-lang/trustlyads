@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Megaphone, Star, Edit } from "lucide-react";
@@ -167,7 +167,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
       const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])];
       setImagePreviews(allImages);
-      setSelectedMainImage(0); // Main image is always first in the array
+      setSelectedMainImage(0);
     }
   }, [offerToEdit, isEditMode, form]);
 
@@ -300,7 +300,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                     <SelectContent>
                       {Object.entries(businessTypes).map(([group, types]) => (
                         <SelectGroup key={group}>
-                          <FormLabel className="px-2 text-xs text-muted-foreground">{group}</FormLabel>
+                          <SelectLabel>{group}</SelectLabel>
                           {types.map(type => (
                             <SelectItem key={type} value={type}>{type}</SelectItem>
                           ))}
@@ -325,22 +325,22 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {locations.map((location) =>
-                        location.subLocations ? (
-                          <SelectGroup key={location.name}>
-                            <FormLabel className="px-2 text-xs text-muted-foreground">{location.name}</FormLabel>
-                            {location.subLocations.map((sub) => (
-                              <SelectItem key={`${location.name}-${sub}`} value={sub}>
-                                {sub}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        ) : (
-                          <SelectItem key={location.name} value={location.name}>
-                            {location.name}
-                          </SelectItem>
-                        )
-                      )}
+                        {locations.map((location) =>
+                          location.subLocations ? (
+                            <SelectGroup key={location.name}>
+                              <SelectLabel>{location.name}</SelectLabel>
+                              {location.subLocations.map((sub) => (
+                                <SelectItem key={`${location.name}-${sub}`} value={sub}>
+                                  {sub}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          ) : (
+                            <SelectItem key={location.name} value={location.name}>
+                              {location.name}
+                            </SelectItem>
+                          )
+                        )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
