@@ -36,8 +36,10 @@ export function Categories({ selectedCategory, setSelectedCategory }: Categories
               )}
             >
               <CardContent className="p-0 flex flex-col items-center justify-center space-y-2">
-                <div className={cn("text-primary group-hover:text-primary-foreground transition-colors", selectedCategory === category.name && "text-primary-foreground")}>
-                  {category.icon}
+                <div className={cn("h-12 w-12 flex items-center justify-center rounded-full bg-primary/10 group-hover:bg-primary-foreground transition-colors duration-300", selectedCategory === category.name && "bg-primary-foreground")}>
+                  <div className={cn("text-primary group-hover:text-primary transition-colors duration-300", selectedCategory === category.name && "text-primary")}>
+                    {category.icon}
+                  </div>
                 </div>
                 <p className="font-semibold font-headline text-xs sm:text-sm">{category.name}</p>
               </CardContent>
