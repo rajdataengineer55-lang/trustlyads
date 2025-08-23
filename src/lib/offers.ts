@@ -1,4 +1,5 @@
 
+
 import { db } from './firebase';
 import { 
     collection, 
@@ -59,43 +60,55 @@ const mapDocToOffer = (doc: any): Offer => {
 export const getOffers = (callback: (offers: Offer[]) => void) => {
   const q = query(offersCollection, orderBy('createdAt', 'desc'));
 
-  const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-    // Map offers and initialize reviews array
+  // Listen to changes in the main 'offers' collection
+  const unsubscribeOffers = onSnapshot(q, (offersSnapshot) => {
     const offersById: Record<string, Offer> = {};
-    querySnapshot.docs.forEach(doc => {
+    
+    offersSnapshot.docs.forEach(doc => {
       const offer = mapDocToOffer(doc);
       offersById[offer.id] = offer;
     });
 
-    // Get all reviews from the 'reviews' subcollection group
+    // Now, set up a listener for all reviews
     const reviewsQuery = query(collectionGroup(db, 'reviews'), orderBy('createdAt', 'desc'));
-    const reviewsSnapshot = await getDocs(reviewsQuery);
     
-    reviewsSnapshot.forEach(reviewDoc => {
-      const review = {
-        id: reviewDoc.id,
-        ...reviewDoc.data(),
-        createdAt: (reviewDoc.data().createdAt as Timestamp)?.toDate() || new Date()
-      } as Review;
-      
-      // The parent offer document reference
-      const offerRef = reviewDoc.ref.parent.parent;
-      if (offerRef && offersById[offerRef.id]) {
-        if (!offersById[offerRef.id].reviews) {
-          offersById[offerRef.id].reviews = [];
-        }
-        offersById[offerRef.id].reviews?.push(review);
-      }
+    // This will be our combined data object that we update
+    let offersWithReviews = { ...offersById };
+
+    const unsubscribeReviews = onSnapshot(reviewsQuery, (reviewsSnapshot) => {
+        // Reset reviews for all offers to avoid duplication on updates
+        Object.keys(offersWithReviews).forEach(offerId => {
+            offersWithReviews[offerId].reviews = [];
+        });
+
+        reviewsSnapshot.forEach(reviewDoc => {
+            const review = {
+                id: reviewDoc.id,
+                ...reviewDoc.data(),
+                createdAt: (reviewDoc.data().createdAt as Timestamp)?.toDate() || new Date()
+            } as Review;
+
+            const offerRef = reviewDoc.ref.parent.parent;
+            if (offerRef && offersWithReviews[offerRef.id]) {
+                offersWithReviews[offerRef.id].reviews?.push(review);
+            }
+        });
+        
+        // Convert the map back to an array, maintaining the original sort order from the offers query
+        const sortedOffers = offersSnapshot.docs.map(doc => offersWithReviews[doc.id]).filter(Boolean);
+        callback(sortedOffers);
     });
 
-    // Convert the map back to an array, maintaining the original sort order
-    const offersWithReviews = querySnapshot.docs.map(doc => offersById[doc.id]);
-
-    callback(offersWithReviews);
+    // Return a function that unsubscribes from both listeners
+    return () => {
+      unsubscribeOffers();
+      unsubscribeReviews();
+    };
   });
 
-  return unsubscribe; // Return the unsubscribe function for cleanup
+  return unsubscribeOffers;
 };
+
 
 // Helper function to clean data before sending to Firestore
 const cleanDataForFirestore = (data: any) => {
