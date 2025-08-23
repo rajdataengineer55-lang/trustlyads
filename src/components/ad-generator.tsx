@@ -229,15 +229,15 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     setLoadingMessage(isEditMode ? "Updating..." : "Posting...");
 
     let uploadedImageUrls: string[] = isEditMode && offerToEdit 
-        ? [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean) 
+        ? imagePreviews.filter(url => url.startsWith('http')) // Keep existing DB images
         : [];
 
-    // Check if new images were uploaded
+    // Check if new images were uploaded by looking at the FileList
     if (values.images && values.images.length > 0) {
         setLoadingMessage("Compressing & Uploading...");
         try {
             const newUrls = await uploadMultipleFiles(values.images, 'offers');
-            uploadedImageUrls = newUrls; // Replace old images with new ones if in edit mode
+            uploadedImageUrls.push(...newUrls);
         } catch (error: any) {
             console.error("Image upload failed:", error);
             let description = "Could not upload images. Please check your network and try again.";
@@ -254,6 +254,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         }
     }
     
+    // If after everything there are still no images (e.g. in edit mode, user removed all images and added none)
     if (uploadedImageUrls.length === 0) {
         uploadedImageUrls.push('https://placehold.co/600x400.png');
     }
@@ -272,7 +273,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         locationLink: values.locationLink,
         image: mainImage,
         otherImages: otherImages,
-        hint: 'new offer',
+        hint: 'food biryani',
         discount: values.discount,
         tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
         allowCall: values.allowCall ?? false,
@@ -490,6 +491,19 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                       ))}
                     </div>
                   )}
+                   {imagePreviews.length === 0 && !isEditMode && (
+                        <div className="mt-2 rounded-md border border-dashed border-gray-300 p-4 text-center">
+                            <Image 
+                                src="https://placehold.co/600x400.png" 
+                                alt="Placeholder" 
+                                width={100} 
+                                height={100} 
+                                className="mx-auto rounded-md object-cover aspect-square"
+                                data-ai-hint="food biryani"
+                            />
+                            <p className="text-xs text-muted-foreground mt-2">Image previews will appear here</p>
+                        </div>
+                    )}
                   <FormMessage />
                 </FormItem>
               )}
