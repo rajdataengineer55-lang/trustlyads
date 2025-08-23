@@ -206,7 +206,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         : [];
 
     if (values.images && values.images.length > 0) {
-        setLoadingMessage("Uploading...");
+        setLoadingMessage("Uploading images...");
         try {
             const formData = new FormData();
             Array.from(values.images).forEach(file => {
@@ -453,7 +453,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                   <FormControl>
                     <Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
                   </FormControl>
-                  <FormDescription>Upload up to 10 images. Click on an image below to select it as the main cover image.</FormDescription>
+                  <FormDescription>Upload up to 10 images. Click an image to select it as the main cover photo.</FormDescription>
                   {imagePreviews.length > 0 && (
                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
                       {imagePreviews.map((src, i) => (
@@ -639,3 +639,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
