@@ -218,7 +218,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             toast({
                 variant: "destructive",
                 title: "Image Upload Failed",
-                description: description,
+                description: error.message || description,
             });
             setIsLoading(false);
             return;
@@ -638,5 +638,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
 
     
