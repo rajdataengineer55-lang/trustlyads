@@ -12,7 +12,6 @@ import { Footer } from "@/components/landing/footer";
 import { Filters, SortOption } from "@/components/landing/filters";
 import { categories as categoryData } from "@/lib/categories";
 import { Testimonials } from "@/components/landing/testimonials";
-import { AdCopyGenerator } from "@/components/ad-copy-generator";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -45,7 +44,6 @@ export default function Home() {
         />
         <HowItWorks />
         <Testimonials />
-        <AdCopyGenerator />
       </main>
       <Footer />
     </div>
