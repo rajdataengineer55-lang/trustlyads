@@ -32,7 +32,6 @@ const formSchema = z.object({
   discount: z.string().min(1, { message: "Discount details are required." }),
   tags: z.string().optional(),
   images: z.custom<FileList>().optional(),
-  video: z.custom<FileList>().optional(),
   allowCall: z.boolean().default(false).optional(),
   phoneNumber: z.string().optional(),
   allowChat: z.boolean().default(false).optional(),
@@ -124,7 +123,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [loadingMessage, setLoadingMessage] = useState("Posting...");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [selectedMainImageIndex, setSelectedMainImageIndex] = useState(0);
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
   const { toast } = useToast();
   const { addOffer, updateOffer } = useOffers();
@@ -190,7 +188,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             return;
         }
         
-        // When new files are selected, we should clear old previews that are not from the DB
         const existingDbImages = isEditMode && offerToEdit ? [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean) : [];
         const newFilePreviews = Array.from(files).map(file => URL.createObjectURL(file));
 
@@ -199,40 +196,14 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     }
   };
   
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const videoElement = document.createElement('video');
-      videoElement.preload = 'metadata';
-      videoElement.onloadedmetadata = function() {
-        window.URL.revokeObjectURL(videoElement.src);
-        if (videoElement.duration > 60) {
-          toast({
-            variant: "destructive",
-            title: "Video Too Long",
-            description: "Please upload a video that is 1 minute or less.",
-          });
-          setVideoPreview(null);
-          form.setValue('video', undefined);
-          if (e.target) e.target.value = '';
-        } else {
-          setVideoPreview(URL.createObjectURL(file));
-          form.setValue('video', e.target.files);
-        }
-      }
-      videoElement.src = URL.createObjectURL(file);
-    }
-  };
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setLoadingMessage(isEditMode ? "Updating..." : "Posting...");
 
     let uploadedImageUrls: string[] = isEditMode && offerToEdit 
-        ? imagePreviews.filter(url => url.startsWith('http')) // Keep existing DB images
+        ? imagePreviews.filter(url => url.startsWith('http')) 
         : [];
 
-    // Check if new images were uploaded by looking at the FileList
     if (values.images && values.images.length > 0) {
         setLoadingMessage("Uploading...");
         try {
@@ -254,7 +225,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         }
     }
     
-    // If after everything there are still no images (e.g. in edit mode, user removed all images and added none)
     if (uploadedImageUrls.length === 0) {
         uploadedImageUrls.push('https://placehold.co/600x400.png');
     }
@@ -264,7 +234,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     const mainImage = uploadedImageUrls[selectedMainImageIndex] || uploadedImageUrls[0];
     const otherImages = uploadedImageUrls.filter((_, index) => index !== selectedMainImageIndex);
 
-    // Dynamically generate hint based on offer content
     const generatedHint = [
       values.offerTitle,
       values.businessName,
@@ -281,7 +250,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         locationLink: values.locationLink,
         image: mainImage,
         otherImages: otherImages,
-        hint: generatedHint, // Use the dynamically generated hint
+        hint: generatedHint,
         discount: values.discount,
         tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
         allowCall: values.allowCall ?? false,
@@ -314,7 +283,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
           form.reset();
           setImagePreviews([]);
           setSelectedMainImageIndex(0);
-          setVideoPreview(null);
       }
     } catch (error) {
        console.error("Failed to save offer:", error);
@@ -516,21 +484,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                 </FormItem>
               )}
             />
-
-            <FormItem>
-              <FormLabel>Offer Video</FormLabel>
-              <FormControl>
-                <Input type="file" accept="video/*" onChange={handleVideoChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
-              </FormControl>
-               <FormDescription>Upload a short video (max 1 minute) for your offer.</FormDescription>
-              {videoPreview && (
-                <div className="mt-2 relative">
-                  <video src={videoPreview} controls className="rounded-md w-full object-cover" />
-                </div>
-              )}
-              <FormMessage />
-            </FormItem>
-
+            
             <div className="space-y-4">
                 <FormLabel>Communication Options</FormLabel>
                 <FormDescription>Select how customers can connect with you.</FormDescription>
