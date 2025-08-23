@@ -1,3 +1,4 @@
+
 // =================================================================================================
 // IMPORTANT: ACTION REQUIRED FOR FILE UPLOADS TO WORK
 // =================================================================================================
@@ -25,13 +26,20 @@
 //   }
 // ]
 //
-// 2. Run this gcloud command in your terminal or in the Google Cloud Shell to apply the rules:
+// 2. Find your correct bucket name by running this command in the Google Cloud Shell:
 //
-//    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
+//    gsutil ls
 //
-// 3. To verify the settings were applied correctly, run:
+//    Look for the URL that ends in .appspot.com. It will look similar to gs://<your-project-id>.appspot.com
 //
-//    gsutil cors get gs://localpulse-9e3lz.appspot.com
+// 3. Run this gcloud command in your terminal or in the Google Cloud Shell to apply the rules,
+//    replacing <YOUR_BUCKET_NAME> with the name you found in the previous step:
+//
+//    gsutil cors set cors.json gs://<YOUR_BUCKET_NAME>
+//
+// 4. To verify the settings were applied correctly, run:
+//
+//    gsutil cors get gs://<YOUR_BUCKET_NAME>
 //
 // After you run these commands, client-side uploads will be allowed from your live domain.
 // =================================================================================================
