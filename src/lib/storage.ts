@@ -12,13 +12,29 @@ export const uploadFile = async (file: File, path: string): Promise<string> => {
   const fileId = uuidv4();
   const fileToUpload = file;
 
+  // Use the Firebase SDK to get a reference, which correctly handles the bucket details.
+  // The actual upload will be done via a fetch request to our local proxy.
   const fileRef = ref(storage, `${path}/${fileId}-${fileToUpload.name}`);
+  const bucket = fileRef.bucket;
+
+  // Construct the proxied URL for the fetch request
+  const uploadUrl = `/firebase-storage/v0/b/${bucket}/o?name=${encodeURIComponent(fileRef.fullPath)}`;
   
-  // Upload the file
-  const snapshot = await uploadBytes(fileRef, fileToUpload);
+  // Upload the file using fetch to our proxy
+  const uploadResponse = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': fileToUpload.type,
+    },
+    body: fileToUpload,
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error('File upload failed.');
+  }
   
-  // Get the download URL
-  const downloadURL = await getDownloadURL(snapshot.ref);
+  // Get the download URL using the SDK, which still works as expected.
+  const downloadURL = await getDownloadURL(fileRef);
   
   return downloadURL;
 };

@@ -23,6 +23,14 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/firebase-storage/:path*',
+        destination: `https://firebasestorage.googleapis.com/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
