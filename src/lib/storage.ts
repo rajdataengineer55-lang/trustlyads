@@ -1,10 +1,19 @@
-// IMPORTANT: To make this client-side upload work, you MUST configure CORS on your Google Cloud Storage bucket.
-// Run the following commands in your local terminal (with gcloud/gsutil installed) or in the Cloud Shell.
+// =================================================================================================
+// IMPORTANT: ACTION REQUIRED FOR FILE UPLOADS TO WORK
+// =================================================================================================
+// Client-side file uploads to Firebase Storage require a CORS configuration on your Google Cloud
+// Storage bucket. This is a one-time setup.
 //
 // 1. Create a file named `cors.json` with the following content:
+//
 // [
 //   {
-//     "origin": ["http://localhost:9002", "https://*.firebaseapp.com", "https://*.web.app", "https://*.cloudworkstations.dev"],
+//     "origin": [
+//       "http://localhost:9002",
+//       "https://localpulse-9e3lz.web.app",
+//       "https://localpulse-9e3lz.firebaseapp.com",
+//       "https://6000-firebase-studio-1755798338059.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev"
+//     ],
 //     "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 //     "responseHeader": [
 //       "Content-Type",
@@ -16,13 +25,16 @@
 //   }
 // ]
 //
-// 2. Run this command to apply the CORS configuration to your bucket:
+// 2. Run this gcloud command in your terminal or in the Google Cloud Shell to apply the rules:
+//
 //    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
 //
-// 3. To verify the settings, run:
+// 3. To verify the settings were applied correctly, run:
+//
 //    gsutil cors get gs://localpulse-9e3lz.appspot.com
 //
-// You only need to do this once. After that, client-side uploads will be allowed.
+// After you run these commands, client-side uploads will be allowed and this feature will work.
+// =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';

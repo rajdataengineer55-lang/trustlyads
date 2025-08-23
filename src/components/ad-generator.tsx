@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -214,7 +215,8 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             toast({
                 variant: "destructive",
                 title: "Image Upload Failed",
-                description: error.message || "Could not upload images. Please check your network and try again.",
+                description: "Uploads are failing. This is likely due to incorrect CORS settings on the Storage Bucket. Please see the instructions in src/lib/storage.ts to fix this.",
+                duration: 10000,
             });
             setIsLoading(false);
             return;
