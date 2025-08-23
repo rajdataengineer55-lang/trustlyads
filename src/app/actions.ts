@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getStorage } from 'firebase-admin/storage';
@@ -8,8 +7,6 @@ import { getApps, initializeApp } from 'firebase-admin/app';
 // Ensure Firebase Admin is initialized
 if (!getApps().length) {
   initializeApp({
-    // By explicitly providing the project ID and storage bucket, we ensure
-    // the Admin SDK can authenticate and access the correct storage resource.
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
@@ -17,6 +14,7 @@ if (!getApps().length) {
 
 /**
  * Uploads multiple files to Firebase Storage using the Admin SDK on the server.
+ * This version uses bucket.save() which is more reliable for handling buffers.
  * @param formData The FormData object containing the files to upload.
  * @returns A promise that resolves with an array of download URLs.
  */
@@ -27,7 +25,6 @@ export const uploadFiles = async (formData: FormData): Promise<string[]> => {
     return [];
   }
 
-  // Get the default bucket associated with the initialized app.
   const bucket = getStorage().bucket();
   const uploadPromises: Promise<string>[] = [];
 
@@ -40,18 +37,12 @@ export const uploadFiles = async (formData: FormData): Promise<string[]> => {
     const fileBuffer = Buffer.from(await file.arrayBuffer());
 
     const promise = new Promise<string>((resolve, reject) => {
-      const stream = fileRef.createWriteStream({
+      // Use bucket.save() which is simpler and more robust for buffers.
+      fileRef.save(fileBuffer, {
         metadata: {
           contentType: file.type,
         },
-      });
-
-      stream.on('error', (err) => {
-        console.error('Stream Error:', err);
-        reject(new Error('File upload failed.'));
-      });
-
-      stream.on('finish', async () => {
+      }).then(async () => {
         try {
           // Make the file public to get a downloadable URL
           await fileRef.makePublic();
@@ -61,9 +52,10 @@ export const uploadFiles = async (formData: FormData): Promise<string[]> => {
             console.error('Error making file public:', err);
             reject(new Error('Failed to get download URL.'));
         }
+      }).catch(err => {
+        console.error('File save error:', err);
+        reject(new Error('File upload failed during save.'));
       });
-
-      stream.end(fileBuffer);
     });
 
     uploadPromises.push(promise);
