@@ -217,9 +217,12 @@ export default function OfferDetailsPage() {
   const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean);
 
   const LocationInfo = () => (
-    <div className="flex items-center text-muted-foreground mb-4">
-      <MapPin className="h-5 w-5 mr-2 shrink-0" />
-      <span className="truncate">{offer.location}</span>
+    <div className="flex items-start text-muted-foreground mb-4">
+      <MapPin className="h-5 w-5 mr-2 shrink-0 mt-1" />
+      <div>
+        <p className="font-medium">{offer.location}</p>
+        {offer.nearbyLocation && <p className="text-sm">{offer.nearbyLocation}</p>}
+      </div>
     </div>
   );
 

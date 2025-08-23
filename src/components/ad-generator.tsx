@@ -26,6 +26,7 @@ const formSchema = z.object({
   business: z.string().min(2, { message: "Business name must be at least 2 characters." }),
   businessType: z.string({ required_error: "Please select a business type." }),
   location: z.string({ required_error: "Please select a location." }),
+  nearbyLocation: z.string().optional(),
   locationLink: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   offerTitle: z.string().min(5, { message: "Offer title must be at least 5 characters." }),
   offerCompleteDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
@@ -137,6 +138,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
       offerCompleteDetails: "",
       discount: "",
       tags: "",
+      nearbyLocation: "",
       locationLink: "",
       allowCall: false,
       phoneNumber: "",
@@ -153,6 +155,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         business: offerToEdit.business,
         businessType: offerToEdit.category,
         location: offerToEdit.location,
+        nearbyLocation: offerToEdit.nearbyLocation,
         locationLink: offerToEdit.locationLink,
         offerTitle: offerToEdit.title,
         offerCompleteDetails: offerToEdit.description,
@@ -212,10 +215,13 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             uploadedImageUrls.push(...newUrls);
         } catch (error: any) {
             console.error("Image upload failed:", error);
+            const isCorsError = error.message.includes('network') || (error.code && error.code.includes('storage/unauthorized'));
             toast({
                 variant: "destructive",
                 title: "Image Upload Failed",
-                description: "Uploads are failing. This is likely due to incorrect CORS settings on the Storage Bucket. Please see the instructions in src/lib/storage.ts to fix this.",
+                description: isCorsError
+                  ? "Uploads are failing. This is likely due to incorrect CORS settings on the Storage Bucket. Please see the instructions in src/lib/storage.ts to fix this."
+                  : "An unknown error occurred during upload. Please try again.",
                 duration: 10000,
             });
             setIsLoading(false);
@@ -245,6 +251,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         business: values.business,
         category: values.businessType,
         location: values.location,
+        nearbyLocation: values.nearbyLocation,
         locationLink: values.locationLink,
         image: mainImage,
         otherImages: otherImages,
@@ -368,6 +375,20 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                         )}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="nearbyLocation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nearby Location / Landmark</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Opposite the post office" {...field} />
+                  </FormControl>
+                  <FormDescription>Provide a well-known nearby place to help customers find you.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

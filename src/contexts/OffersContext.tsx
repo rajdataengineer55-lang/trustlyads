@@ -27,6 +27,7 @@ export interface Offer {
   business: string;
   category: string;
   location: string;
+  nearbyLocation?: string;
   locationLink?: string;
   image: string;
   otherImages?: string[];

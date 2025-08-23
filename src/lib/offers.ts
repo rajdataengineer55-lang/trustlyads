@@ -25,6 +25,7 @@ export interface OfferData {
   business: string;
   category: string;
   location: string;
+  nearbyLocation?: string;
   locationLink?: string;
   image: string;
   otherImages?: string[];
@@ -86,7 +87,7 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
 const cleanDataForFirestore = (data: any) => {
     const cleanedData: { [key: string]: any } = {};
     Object.keys(data).forEach(key => {
-        const value = data[key];
+        const value = (data as any)[key];
         if (value !== undefined) {
             cleanedData[key] = value;
         } else {
