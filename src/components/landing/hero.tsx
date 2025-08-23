@@ -19,6 +19,8 @@ export function Hero() {
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
+                id="search"
+                name="search"
                 type="search"
                 placeholder="Search in Tirupati, Vellore & more"
                 className="w-full pl-12 pr-4 py-5 rounded-full border-2 focus:border-primary focus:ring-primary"
