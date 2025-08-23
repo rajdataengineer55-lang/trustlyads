@@ -132,7 +132,7 @@ export function Header() {
           <Link href="/" className="flex items-center space-x-2">
               <Megaphone className="h-6 w-6 text-primary" />
               <span className="font-bold sm:inline-block font-headline">
-                LocalPulse
+                trustlyads.in
               </span>
           </Link>
         </div>
@@ -204,7 +204,7 @@ export function Header() {
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                     <Megaphone className="h-6 w-6 text-primary" />
                     <span className="font-bold sm:inline-block font-headline">
-                      LocalPulse
+                      trustlyads.in
                     </span>
                   </Link>
                 </SheetTitle>
