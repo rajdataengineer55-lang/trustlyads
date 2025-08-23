@@ -20,7 +20,7 @@ import { locations } from "@/lib/locations";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
 import { cn } from "@/lib/utils";
 import type { OfferData } from "@/lib/offers";
-import { uploadMultipleFiles } from "@/lib/storage";
+import { uploadFiles } from "@/app/actions";
 
 const formSchema = z.object({
   business: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -138,7 +138,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
       discount: "",
       tags: "",
       locationLink: "",
-      allowCall: true,
+      allowCall: false,
       phoneNumber: "",
       allowChat: false,
       chatLink: "",
@@ -188,10 +188,11 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             return;
         }
         
-        const existingDbImages = isEditMode && offerToEdit ? [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean) : [];
         const newFilePreviews = Array.from(files).map(file => URL.createObjectURL(file));
+        
+        const currentHttpPreviews = imagePreviews.filter(p => p.startsWith('http'));
 
-        setImagePreviews([...existingDbImages, ...newFilePreviews].slice(0,10));
+        setImagePreviews([...currentHttpPreviews, ...newFilePreviews].slice(0, 10));
         form.setValue('images', files);
     }
   };
@@ -207,18 +208,18 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     if (values.images && values.images.length > 0) {
         setLoadingMessage("Uploading...");
         try {
-            const newUrls = await uploadMultipleFiles(values.images, 'offers');
+            const formData = new FormData();
+            Array.from(values.images).forEach(file => {
+                formData.append('files', file);
+            });
+            const newUrls = await uploadFiles(formData);
             uploadedImageUrls.push(...newUrls);
         } catch (error: any) {
             console.error("Image upload failed:", error);
-            let description = "Could not upload images. Please check your network and try again.";
-            if (error.code === 'storage/unauthorized' || error.code === 'storage/retry-limit-exceeded') {
-                description = "Upload failed. Please check your Firebase Storage rules to ensure they allow writes for authenticated users."
-            }
             toast({
                 variant: "destructive",
                 title: "Image Upload Failed",
-                description: error.message || description,
+                description: error.message || "Could not upload images. Please check your network and try again.",
             });
             setIsLoading(false);
             return;
@@ -638,7 +639,3 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
-
-    
-
-    
