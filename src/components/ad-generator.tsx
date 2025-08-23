@@ -238,12 +238,16 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         try {
             const newUrls = await uploadMultipleFiles(values.images, 'offers');
             uploadedImageUrls = newUrls; // Replace old images with new ones if in edit mode
-        } catch (error) {
+        } catch (error: any) {
             console.error("Image upload failed:", error);
+            let description = "Could not upload images. Please check your network and try again.";
+            if (error.code === 'storage/unauthorized' || error.code === 'storage/retry-limit-exceeded') {
+                description = "Upload failed. Please check your Firebase Storage rules to ensure they allow writes for authenticated users."
+            }
             toast({
                 variant: "destructive",
                 title: "Image Upload Failed",
-                description: "Could not upload images. Please try again.",
+                description: description,
             });
             setIsLoading(false);
             return;
