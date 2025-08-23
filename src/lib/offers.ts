@@ -82,11 +82,26 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
   return unsubscribe; // Return the unsubscribe function for cleanup
 };
 
+// Helper function to clean data before sending to Firestore
+const cleanDataForFirestore = (data: any) => {
+    const cleanedData: { [key: string]: any } = {};
+    Object.keys(data).forEach(key => {
+        const value = data[key];
+        if (value !== undefined) {
+            cleanedData[key] = value;
+        } else {
+            cleanedData[key] = null; // Convert undefined to null for Firestore
+        }
+    });
+    return cleanedData;
+};
+
 
 // Add a new offer
 export const addOffer = async (offerData: OfferData) => {
+  const cleanedOfferData = cleanDataForFirestore(offerData);
   const offerWithTimestamp = {
-    ...offerData,
+    ...cleanedOfferData,
     createdAt: serverTimestamp()
   };
   await addDoc(offersCollection, offerWithTimestamp);
@@ -94,8 +109,9 @@ export const addOffer = async (offerData: OfferData) => {
 
 // Update an existing offer
 export const updateOffer = async (id: string, offerData: Partial<OfferData>) => {
+  const cleanedOfferData = cleanDataForFirestore(offerData);
   const offerDoc = doc(db, 'offers', id);
-  await updateDoc(offerDoc, offerData);
+  await updateDoc(offerDoc, cleanedOfferData);
 };
 
 // Delete an offer
