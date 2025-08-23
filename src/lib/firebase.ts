@@ -4,26 +4,17 @@ import { getAuth } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-// IMPORTANT: Create a .env.local file in the root of your project
-// and add your Firebase configuration there.
-// These variables will be loaded automatically by Next.js.
-// Example .env.local file:
-//
-// NEXT_PUBLIC_FIREBASE_API_KEY="your-api-key"
-// NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-auth-domain"
-// NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
-// NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-storage-bucket"
-// NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-sender-id"
-// NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
-
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: "AIzaSyCgJBVTnX0rl4GVTMIccw9IY6U9hzZKRvA",
+  authDomain: "localpulse-9e3lz.firebaseapp.com",
+  projectId: "localpulse-9e3lz",
+  storageBucket: "localpulse-9e3lz.appspot.com",
+  messagingSenderId: "542848805293",
+  appId: "1:542848805293:web:99ae91ab88f7723b1f5924",
+  measurementId: "G-5Y6R706M5Y"
 };
+
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
