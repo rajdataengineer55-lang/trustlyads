@@ -10,6 +10,7 @@
 //   {
 //     "origin": [
 //       "http://localhost:9002",
+//       "https://trustlyads.in",
 //       "https://trustlyads.in.web.app",
 //       "https://trustlyads.in.firebaseapp.com",
 //       "https://6000-firebase-studio-1755798338059.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev"
