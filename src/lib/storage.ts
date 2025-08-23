@@ -12,10 +12,10 @@ import imageCompression from 'browser-image-compression';
 export const uploadFile = async (file: File, path: string): Promise<string> => {
   const fileId = uuidv4();
   
-  // Image compression options
+  // More aggressive image compression options for faster uploads
   const options = {
-    maxSizeMB: 1, // Max file size in MB
-    maxWidthOrHeight: 1920, // Max width or height
+    maxSizeMB: 0.5, // Max file size in MB (500KB)
+    maxWidthOrHeight: 1280, // Max width or height
     useWebWorker: true,
   };
   

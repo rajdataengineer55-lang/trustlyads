@@ -234,7 +234,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
     // Check if new images were uploaded
     if (values.images && values.images.length > 0) {
-        setLoadingMessage("Compressing & uploading...");
+        setLoadingMessage("Compressing & Uploading...");
         try {
             const newUrls = await uploadMultipleFiles(values.images, 'offers');
             uploadedImageUrls = newUrls; // Replace old images with new ones if in edit mode
