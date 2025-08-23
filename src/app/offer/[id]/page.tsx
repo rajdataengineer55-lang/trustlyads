@@ -354,7 +354,7 @@ export default function OfferDetailsPage() {
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
-                              <p className="font-semibold">{review.author}</p>
+                              <p className="font-semibold">{review.author.substring(0,5)}</p>
                               <div className="flex items-center gap-1">
                                 {[...Array(5)].map((_, i) => (
                                   <Star key={i} className={cn("h-4 w-4", i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300')} />
