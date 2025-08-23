@@ -18,11 +18,12 @@ interface FeaturedOffersProps {
   selectedCategory: string | null;
   selectedLocation: string | null;
   sortOption: SortOption;
+  searchTerm: string;
 }
 
 const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
 
-export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption }: FeaturedOffersProps) {
+export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption, searchTerm }: FeaturedOffersProps) {
   const { offers, loading: offersLoading } = useOffers();
   const { user, loading: authLoading } = useAuth();
   
@@ -37,7 +38,15 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption 
     .filter(offer => {
       const categoryMatch = selectedCategory ? offer.category === selectedCategory : true;
       const locationMatch = selectedLocation ? offer.location === selectedLocation : true;
-      return categoryMatch && locationMatch;
+      const searchTermLower = searchTerm.toLowerCase();
+      const searchMatch = searchTerm
+        ? offer.title.toLowerCase().includes(searchTermLower) ||
+          offer.business.toLowerCase().includes(searchTermLower) ||
+          offer.location.toLowerCase().includes(searchTermLower) ||
+          offer.description.toLowerCase().includes(searchTermLower) ||
+          offer.tags.some(tag => tag.toLowerCase().includes(searchTermLower))
+        : true;
+      return categoryMatch && locationMatch && searchMatch;
     })
     .sort((a, b) => {
         if (sortOption === 'trending') {

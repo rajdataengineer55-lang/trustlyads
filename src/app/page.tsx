@@ -16,13 +16,17 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>('newest');
+  const [searchTerm, setSearchTerm] = useState('');
 
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
-        <Hero />
+        <Hero 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
         <Categories
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
@@ -35,11 +39,14 @@ export default function Home() {
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             categories={categoryData}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
         />
         <FeaturedOffers 
           selectedCategory={selectedCategory} 
           selectedLocation={selectedLocation}
           sortOption={sortOption}
+          searchTerm={searchTerm}
         />
         <HowItWorks />
       </main>

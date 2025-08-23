@@ -4,7 +4,13 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export function Hero() {
+interface HeroProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+}
+
+
+export function Hero({ searchTerm, setSearchTerm }: HeroProps) {
   return (
     <section id="hero" className="relative w-full py-12 md:py-20 lg:py-24 bg-background/50 overflow-hidden">
       <div className="container mx-auto px-4 md:px-6 text-center">
@@ -24,6 +30,8 @@ export function Hero() {
                 type="search"
                 placeholder="Search in Tirupati, Vellore & more"
                 className="w-full pl-12 pr-4 py-5 rounded-full border-2 focus:border-primary focus:ring-primary"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
