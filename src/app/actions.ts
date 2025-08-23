@@ -3,12 +3,13 @@
 
 import { getStorage } from 'firebase-admin/storage';
 import { v4 as uuidv4 } from 'uuid';
-import { auth } from '@/lib/firebase';
 import { getApps, initializeApp } from 'firebase-admin/app';
 
 // Ensure Firebase Admin is initialized
 if (!getApps().length) {
   initializeApp({
+    // By explicitly providing the project ID and storage bucket, we ensure
+    // the Admin SDK can authenticate and access the correct storage resource.
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
@@ -26,6 +27,7 @@ export const uploadFiles = async (formData: FormData): Promise<string[]> => {
     return [];
   }
 
+  // Get the default bucket associated with the initialized app.
   const bucket = getStorage().bucket();
   const uploadPromises: Promise<string>[] = [];
 
@@ -34,7 +36,7 @@ export const uploadFiles = async (formData: FormData): Promise<string[]> => {
     const destination = `offers/${fileId}-${file.name}`;
     const fileRef = bucket.file(destination);
     
-    // Convert file to buffer
+    // Convert file to buffer to be uploaded
     const fileBuffer = Buffer.from(await file.arrayBuffer());
 
     const promise = new Promise<string>((resolve, reject) => {
