@@ -30,16 +30,17 @@
 //
 //    gsutil ls
 //
-//    Look for the URL that ends in .appspot.com. It will look similar to gs://<your-project-id>.appspot.com
+//    Look for the URL that starts with gs:// and ends with .app or .com. 
+//    It will look similar to gs://<your-project-id>.firebasestorage.app
 //
 // 3. Run this gcloud command in your terminal or in the Google Cloud Shell to apply the rules,
-//    replacing <YOUR_BUCKET_NAME> with the name you found in the previous step:
+//    replacing <YOUR_BUCKET_URL> with the name you found in the previous step:
 //
-//    gsutil cors set cors.json gs://<YOUR_BUCKET_NAME>
+//    gsutil cors set cors.json <YOUR_BUCKET_URL>
 //
 // 4. To verify the settings were applied correctly, run:
 //
-//    gsutil cors get gs://<YOUR_BUCKET_NAME>
+//    gsutil cors get <YOUR_BUCKET_URL>
 //
 // After you run these commands, client-side uploads will be allowed from your live domain.
 // =================================================================================================
