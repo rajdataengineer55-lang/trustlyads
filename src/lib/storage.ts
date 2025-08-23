@@ -10,8 +10,8 @@
 //   {
 //     "origin": [
 //       "http://localhost:9002",
-//       "https://localpulse-9e3lz.web.app",
-//       "https://localpulse-9e3lz.firebaseapp.com",
+//       "https://trustlyads.in.web.app",
+//       "https://trustlyads.in.firebaseapp.com",
 //       "https://6000-firebase-studio-1755798338059.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev"
 //     ],
 //     "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

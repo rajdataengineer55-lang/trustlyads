@@ -193,9 +193,12 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         
         const newFilePreviews = Array.from(files).map(file => URL.createObjectURL(file));
         
-        const currentHttpPreviews = imagePreviews.filter(p => p.startsWith('http'));
+        // This logic is for when a user is editing an offer. We want to combine
+        // the already-uploaded images (http... urls) with the newly selected local files (blob:... urls)
+        const existingHttpPreviews = imagePreviews.filter(p => p.startsWith('http'));
+        const newBlobPreviews = imagePreviews.filter(p => p.startsWith('blob')).concat(newFilePreviews);
 
-        setImagePreviews([...currentHttpPreviews, ...newFilePreviews].slice(0, 10));
+        setImagePreviews([...existingHttpPreviews, ...newBlobPreviews].slice(0, 10));
         form.setValue('images', files);
     }
   };

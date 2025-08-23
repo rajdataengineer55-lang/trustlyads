@@ -47,14 +47,9 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
           offer.tags.some(tag => tag.toLowerCase().includes(searchTermLower))
         : true;
       return categoryMatch && locationMatch && searchMatch;
-    })
-    .sort((a, b) => {
-        if (sortOption === 'trending') {
-            return (b.reviews?.length || 0) - (a.reviews?.length || 0);
-        }
-        // default sort is by creation date (newest first), which is handled by Firestore query.
-        return 0; 
     });
+    // Note: 'trending' sort was removed as it was not fully implemented.
+    // The default sort from Firestore (newest first) is used.
   
   if (loading) {
     return (
