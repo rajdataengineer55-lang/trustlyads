@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'trustlyads.in',
+  title: 'LocalPulse',
   description: 'Connect with Local Businesses. Find Best Offers Daily.',
 };
 

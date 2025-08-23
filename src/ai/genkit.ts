@@ -1,10 +1,9 @@
+
 'use server';
 
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import {genkitNext} from '@genkit-ai/next';
 import {initializeApp, getApps} from 'firebase-admin/app';
-import * as admin from 'firebase-admin';
 
 // Initialize Firebase Admin SDK if not already initialized.
 if (!getApps().length) {
@@ -14,9 +13,6 @@ if (!getApps().length) {
   });
 }
 
-export const ai = genkit(
-  genkitNext({
-    plugins: [googleAI()],
-    model: 'googleai/gemini-2.0-flash',
-  })
-);
+export const ai = genkit({
+  plugins: [googleAI()],
+});
