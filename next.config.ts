@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/firebase-storage/:path*',
-        destination: `https://firebasestorage.googleapis.com/:path*`,
+        destination: `https://www.googleapis.com/:path*`,
       },
     ];
   },
