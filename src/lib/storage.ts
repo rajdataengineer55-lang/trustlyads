@@ -22,7 +22,7 @@ export const uploadFile = async (file: File, path: string): Promise<string> => {
   const bucket = fileRef.bucket;
 
   // Construct the proxied URL for the fetch request
-  const uploadUrl = `/firebase-storage/v0/b/${bucket}/o?name=${encodeURIComponent(fileRef.fullPath)}`;
+  const uploadUrl = `/firebase-storage/upload/storage/v1/b/${bucket}/o?uploadType=media&name=${encodeURIComponent(fileRef.fullPath)}`;
   
   // Upload the file using fetch to our proxy, including the auth token
   const uploadResponse = await fetch(uploadUrl, {
@@ -38,7 +38,16 @@ export const uploadFile = async (file: File, path: string): Promise<string> => {
     // Log more detail to help debug if it fails again
     const errorBody = await uploadResponse.text();
     console.error("File upload failed with status:", uploadResponse.status, "and body:", errorBody);
-    throw new Error('File upload failed.');
+    let description = "Could not upload images. Please check your network and try again.";
+    try {
+        const errorJson = JSON.parse(errorBody);
+        if (errorJson?.error?.message?.includes('permission')) {
+             description = "Upload failed. Please check your Firebase Storage rules to ensure they allow writes for authenticated users."
+        }
+    } catch (e) {
+        // Not a json error, stick with default message
+    }
+    throw new Error(description);
   }
   
   // Get the download URL using the SDK, which still works as expected.
