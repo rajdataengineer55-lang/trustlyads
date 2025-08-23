@@ -11,7 +11,6 @@ import { HowItWorks } from "@/components/landing/how-it-works";
 import { Footer } from "@/components/landing/footer";
 import { Filters, SortOption } from "@/components/landing/filters";
 import { categories as categoryData } from "@/lib/categories";
-import { Testimonials } from "@/components/landing/testimonials";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -43,7 +42,6 @@ export default function Home() {
           sortOption={sortOption}
         />
         <HowItWorks />
-        <Testimonials />
       </main>
       <Footer />
     </div>
