@@ -1,5 +1,5 @@
-import { storage } from './firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage, auth } from './firebase';
+import { ref, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -9,27 +9,35 @@ import { v4 as uuidv4 } from 'uuid';
  * @returns A promise that resolves with the public download URL of the uploaded file.
  */
 export const uploadFile = async (file: File, path: string): Promise<string> => {
+  if (!auth.currentUser) {
+    throw new Error("User must be authenticated to upload files.");
+  }
+  
+  const token = await auth.currentUser.getIdToken();
   const fileId = uuidv4();
   const fileToUpload = file;
 
   // Use the Firebase SDK to get a reference, which correctly handles the bucket details.
-  // The actual upload will be done via a fetch request to our local proxy.
   const fileRef = ref(storage, `${path}/${fileId}-${fileToUpload.name}`);
   const bucket = fileRef.bucket;
 
   // Construct the proxied URL for the fetch request
   const uploadUrl = `/firebase-storage/v0/b/${bucket}/o?name=${encodeURIComponent(fileRef.fullPath)}`;
   
-  // Upload the file using fetch to our proxy
+  // Upload the file using fetch to our proxy, including the auth token
   const uploadResponse = await fetch(uploadUrl, {
     method: 'POST',
     headers: {
       'Content-Type': fileToUpload.type,
+      'Authorization': `Bearer ${token}`,
     },
     body: fileToUpload,
   });
 
   if (!uploadResponse.ok) {
+    // Log more detail to help debug if it fails again
+    const errorBody = await uploadResponse.text();
+    console.error("File upload failed with status:", uploadResponse.status, "and body:", errorBody);
     throw new Error('File upload failed.');
   }
   
