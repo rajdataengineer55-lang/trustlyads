@@ -135,6 +135,7 @@ export function ManageOffers() {
                       width={64}
                       height={48}
                       className="rounded-md object-cover hidden sm:block"
+                      style={{ width: "auto", height: "auto" }}
                       data-ai-hint={offer.hint}
                     />
                     <div>
