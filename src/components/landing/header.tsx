@@ -32,8 +32,12 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (loading) {
       setIsFollowLoading(true);
+      return;
+    }
+
+    if (user) {
       isFollowing(user.uid).then(following => {
         setUserIsFollowing(following);
         setIsFollowLoading(false);
@@ -42,7 +46,7 @@ export function Header() {
       setUserIsFollowing(false);
       setIsFollowLoading(false);
     }
-  }, [user]);
+  }, [user, loading]);
 
   const handleFollowToggle = async () => {
     if (!user) {
