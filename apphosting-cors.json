@@ -1,0 +1,12 @@
+[
+  {
+    "origin": ["http://localhost:9002", "https://localpulse-9e3lz.web.app"],
+    "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "responseHeader": [
+      "Content-Type",
+      "Authorization",
+      "X-Goog-Resumable"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]

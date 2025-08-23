@@ -264,6 +264,14 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     const mainImage = uploadedImageUrls[selectedMainImageIndex] || uploadedImageUrls[0];
     const otherImages = uploadedImageUrls.filter((_, index) => index !== selectedMainImageIndex);
 
+    // Dynamically generate hint based on offer content
+    const generatedHint = [
+      values.offerTitle,
+      values.businessName,
+      values.businessType,
+      values.tags?.split(',').map(tag => tag.trim()).filter(Boolean).join(' ')
+    ].filter(Boolean).join(' ').toLowerCase();
+
     const offerData: OfferData = {
         title: values.offerTitle,
         description: values.offerCompleteDetails,
@@ -273,7 +281,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         locationLink: values.locationLink,
         image: mainImage,
         otherImages: otherImages,
-        hint: 'food biryani',
+        hint: generatedHint, // Use the dynamically generated hint
         discount: values.discount,
         tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
         allowCall: values.allowCall ?? false,
