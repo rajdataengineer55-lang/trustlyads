@@ -4,11 +4,16 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**",
-      "public/**"
+      "**/node_modules/**"
     ],
-    "frameworksBackend": {
-      "region": "us-central1"
-    }
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "app",
+          "region": "us-central1"
+        }
+      }
+    ]
   }
 }
