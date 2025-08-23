@@ -28,7 +28,7 @@ export const uploadFile = async (file: File, path: string): Promise<string> => {
   // 2. Select your bucket: "localpulse-9e3lz.appspot.com"
   // 3. Go to the "Permissions" tab, then click "Edit" in the CORS section.
   // 4. Add a new entry with these values:
-  //    - Origins: * (or your specific domain for production)
+  //    - Origins: * (or your specific domain for production, e.g., https://your-app-url.web.app)
   //    - Methods: GET, POST, PUT, DELETE, OPTIONS
   //    - Headers: Content-Type, Authorization, X-Goog-Resumable
   // 5. Save the configuration.
@@ -53,6 +53,8 @@ export const uploadFile = async (file: File, path: string): Promise<string> => {
         const errorJson = JSON.parse(errorBody);
         if (errorJson?.error?.message?.includes('permission') || errorJson?.error?.message?.includes('CORS')) {
              description = "Upload failed. Please check your Firebase Storage CORS configuration in the Google Cloud Console."
+        } else if (errorJson?.error?.code === 401) {
+            description = "Authentication failed. Please sign out and sign back in.";
         }
     } catch (e) {
         // Not a json error, stick with default message
