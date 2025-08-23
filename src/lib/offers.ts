@@ -51,7 +51,7 @@ const mapDocToOffer = (doc: any): Offer => {
     id: doc.id,
     ...data,
     createdAt: (data.createdAt as Timestamp)?.toDate() || new Date(),
-    reviews: data.reviews || [] // Reviews are now a subcollection, this can be removed or adapted
+    reviews: data.reviews || [] // Initialize with empty array
   } as Offer;
 };
 
@@ -60,23 +60,37 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
   const q = query(offersCollection, orderBy('createdAt', 'desc'));
 
   const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-    const offersWithReviews: Offer[] = [];
-    
-    for (const doc of querySnapshot.docs) {
+    // Map offers and initialize reviews array
+    const offersById: Record<string, Offer> = {};
+    querySnapshot.docs.forEach(doc => {
       const offer = mapDocToOffer(doc);
-      
-      const reviewsCollection = collection(db, 'offers', doc.id, 'reviews');
-      const reviewsQuery = query(reviewsCollection, orderBy('createdAt', 'desc'));
-      const reviewsSnapshot = await getDocs(reviewsQuery);
-      
-      offer.reviews = reviewsSnapshot.docs.map(reviewDoc => ({
+      offersById[offer.id] = offer;
+    });
+
+    // Get all reviews from the 'reviews' subcollection group
+    const reviewsQuery = query(collectionGroup(db, 'reviews'), orderBy('createdAt', 'desc'));
+    const reviewsSnapshot = await getDocs(reviewsQuery);
+    
+    reviewsSnapshot.forEach(reviewDoc => {
+      const review = {
         id: reviewDoc.id,
         ...reviewDoc.data(),
         createdAt: (reviewDoc.data().createdAt as Timestamp)?.toDate() || new Date()
-      })) as Review[];
+      } as Review;
+      
+      // The parent offer document reference
+      const offerRef = reviewDoc.ref.parent.parent;
+      if (offerRef && offersById[offerRef.id]) {
+        if (!offersById[offerRef.id].reviews) {
+          offersById[offerRef.id].reviews = [];
+        }
+        offersById[offerRef.id].reviews?.push(review);
+      }
+    });
 
-      offersWithReviews.push(offer);
-    }
+    // Convert the map back to an array, maintaining the original sort order
+    const offersWithReviews = querySnapshot.docs.map(doc => offersById[doc.id]);
+
     callback(offersWithReviews);
   });
 
