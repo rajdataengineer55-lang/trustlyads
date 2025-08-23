@@ -21,10 +21,20 @@ export const uploadFile = async (file: File, path: string): Promise<string> => {
   const fileRef = ref(storage, `${path}/${fileId}-${fileToUpload.name}`);
   const bucket = fileRef.bucket;
 
-  // Construct the proxied URL for the fetch request
-  const uploadUrl = `/firebase-storage/upload/storage/v1/b/${bucket}/o?uploadType=media&name=${encodeURIComponent(fileRef.fullPath)}`;
+  // *** IMPORTANT ***
+  // The request is now sent directly to the Google Cloud Storage API.
+  // For this to work, you MUST configure CORS on your storage bucket.
+  // 1. Go to your Google Cloud Console -> Cloud Storage -> Buckets.
+  // 2. Select your bucket: "localpulse-9e3lz.appspot.com"
+  // 3. Go to the "Permissions" tab, then click "Edit" in the CORS section.
+  // 4. Add a new entry with these values:
+  //    - Origins: * (or your specific domain for production)
+  //    - Methods: GET, POST, PUT, DELETE, OPTIONS
+  //    - Headers: Content-Type, Authorization, X-Goog-Resumable
+  // 5. Save the configuration.
+  const uploadUrl = `https://www.googleapis.com/upload/storage/v1/b/${bucket}/o?uploadType=media&name=${encodeURIComponent(fileRef.fullPath)}`;
   
-  // Upload the file using fetch to our proxy, including the auth token
+  // Upload the file using fetch, including the auth token
   const uploadResponse = await fetch(uploadUrl, {
     method: 'POST',
     headers: {
@@ -41,8 +51,8 @@ export const uploadFile = async (file: File, path: string): Promise<string> => {
     let description = "Could not upload images. Please check your network and try again.";
     try {
         const errorJson = JSON.parse(errorBody);
-        if (errorJson?.error?.message?.includes('permission')) {
-             description = "Upload failed. Please check your Firebase Storage rules to ensure they allow writes for authenticated users."
+        if (errorJson?.error?.message?.includes('permission') || errorJson?.error?.message?.includes('CORS')) {
+             description = "Upload failed. Please check your Firebase Storage CORS configuration in the Google Cloud Console."
         }
     } catch (e) {
         // Not a json error, stick with default message
