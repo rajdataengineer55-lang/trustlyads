@@ -1,12 +1,7 @@
 
 [
   {
-    "origin": [
-      "http://localhost:9002",
-      "https://localpulse-9e3lz.web.app",
-      "https://*.cloudworkstations.dev",
-      "https://*.firebase-studio.dap.google.com"
-    ],
+    "origin": ["*"],
     "method": [
       "GET",
       "POST",
