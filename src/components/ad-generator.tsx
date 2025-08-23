@@ -20,6 +20,7 @@ import { locations } from "@/lib/locations";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
 import { cn } from "@/lib/utils";
 import type { OfferData } from "@/lib/offers";
+import { uploadMultipleFiles } from "@/lib/storage";
 
 const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -121,7 +122,7 @@ interface AdGeneratorProps {
 export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [selectedMainImage, setSelectedMainImage] = useState(0);
+  const [selectedMainImageIndex, setSelectedMainImageIndex] = useState(0);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
   const { toast } = useToast();
@@ -165,10 +166,10 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         allowSchedule: offerToEdit.allowSchedule,
         scheduleLink: offerToEdit.scheduleLink,
       });
-
-      const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])];
+      
+      const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean);
       setImagePreviews(allImages);
-      setSelectedMainImage(0);
+      setSelectedMainImageIndex(0);
     }
   }, [offerToEdit, isEditMode, form]);
 
@@ -178,21 +179,25 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      if ((imagePreviews.length + files.length) > 10) {
-        toast({
-          variant: "destructive",
-          title: "Image Limit Exceeded",
-          description: "You can upload a maximum of 10 images.",
-        });
-        return;
-      }
-      const newPreviews = Array.from(files).map(file => URL.createObjectURL(file));
-      setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 10));
-      form.setValue('images', files);
+    if (files) {
+        if ((imagePreviews.length + files.length) > 10) {
+            toast({
+                variant: "destructive",
+                title: "Image Limit Exceeded",
+                description: "You can upload a maximum of 10 images.",
+            });
+            return;
+        }
+        
+        // When new files are selected, we should clear old previews that are not from the DB
+        const existingDbImages = isEditMode && offerToEdit ? [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean) : [];
+        const newFilePreviews = Array.from(files).map(file => URL.createObjectURL(file));
+
+        setImagePreviews([...existingDbImages, ...newFilePreviews].slice(0,10));
+        form.setValue('images', files);
     }
   };
-
+  
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -221,10 +226,33 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
-    // Note: Image and video uploads are not implemented to a storage backend.
-    // Previews are shown, but for persistence, you'd need to upload these to a service like Firebase Storage.
-    const mainImage = imagePreviews[selectedMainImage] || 'https://placehold.co/600x400.png';
-    const otherImages = imagePreviews.filter((_, index) => index !== selectedMainImage);
+    let uploadedImageUrls: string[] = isEditMode && offerToEdit 
+        ? [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean) 
+        : [];
+
+    // Check if new images were uploaded
+    if (values.images && values.images.length > 0) {
+        try {
+            const newUrls = await uploadMultipleFiles(values.images, 'offers');
+            uploadedImageUrls = newUrls; // Replace old images with new ones if in edit mode
+        } catch (error) {
+            console.error("Image upload failed:", error);
+            toast({
+                variant: "destructive",
+                title: "Image Upload Failed",
+                description: "Could not upload images. Please try again.",
+            });
+            setIsLoading(false);
+            return;
+        }
+    }
+    
+    if (uploadedImageUrls.length === 0) {
+        uploadedImageUrls.push('https://placehold.co/600x400.png');
+    }
+
+    const mainImage = uploadedImageUrls[selectedMainImageIndex] || uploadedImageUrls[0];
+    const otherImages = uploadedImageUrls.filter((_, index) => index !== selectedMainImageIndex);
 
     const offerData: OfferData = {
         title: values.offerTitle,
@@ -235,7 +263,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         locationLink: values.locationLink,
         image: mainImage,
         otherImages: otherImages,
-        hint: 'new offer', // In a real app, this might be dynamically generated.
+        hint: 'new offer',
         discount: values.discount,
         tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
         allowCall: values.allowCall ?? false,
@@ -267,7 +295,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
       } else {
           form.reset();
           setImagePreviews([]);
-          setSelectedMainImage(0);
+          setSelectedMainImageIndex(0);
           setVideoPreview(null);
       }
     } catch (error) {
@@ -429,28 +457,34 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
               )}
             />
 
-            <FormItem>
-              <FormLabel>Offer Images</FormLabel>
-              <FormControl>
-                <Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
-              </FormControl>
-              <FormDescription>Upload up to 10 images. Click on an image below to select it as the main cover image.</FormDescription>
-              {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
-                  {imagePreviews.map((src, i) => (
-                    <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImage(i)}>
-                      <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImage === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")}/>
-                      {selectedMainImage === i && (
-                        <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1">
-                          <Star className="h-3 w-3" />
+            <FormField
+              control={form.control}
+              name="images"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Offer Images</FormLabel>
+                  <FormControl>
+                    <Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+                  </FormControl>
+                  <FormDescription>Upload up to 10 images. Click on an image below to select it as the main cover image.</FormDescription>
+                  {imagePreviews.length > 0 && (
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
+                      {imagePreviews.map((src, i) => (
+                        <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}>
+                          <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")}/>
+                          {selectedMainImageIndex === i && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1">
+                              <Star className="h-3 w-3" />
+                            </div>
+                          )}
                         </div>
-                      )}
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
               )}
-              <FormMessage />
-            </FormItem>
+            />
 
             <FormItem>
               <FormLabel>Offer Video</FormLabel>

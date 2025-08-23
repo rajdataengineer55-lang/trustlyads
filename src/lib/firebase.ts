@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // IMPORTANT: Create a .env.local file in the root of your project
 // and add your Firebase configuration there.
@@ -27,6 +28,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Enable Firestore persistence
 if (typeof window !== 'undefined') {
@@ -44,5 +46,5 @@ if (typeof window !== 'undefined') {
 }
 
 export const auth = getAuth(app);
-export { db };
+export { db, storage };
 export default app;
