@@ -23,7 +23,7 @@ import type { OfferData } from "@/lib/offers";
 import { uploadMultipleFiles } from "@/lib/storage";
 
 const formSchema = z.object({
-  businessName: z.string().min(2, { message: "Business name must be at least 2 characters." }),
+  business: z.string().min(2, { message: "Business name must be at least 2 characters." }),
   businessType: z.string({ required_error: "Please select a business type." }),
   location: z.string({ required_error: "Please select a location." }),
   locationLink: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
@@ -132,7 +132,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      businessName: "",
+      business: "",
       offerTitle: "",
       offerCompleteDetails: "",
       discount: "",
@@ -150,7 +150,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   useEffect(() => {
     if (isEditMode && offerToEdit) {
       form.reset({
-        businessName: offerToEdit.business,
+        business: offerToEdit.business,
         businessType: offerToEdit.category,
         location: offerToEdit.location,
         locationLink: offerToEdit.locationLink,
@@ -236,7 +236,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
     const generatedHint = [
       values.offerTitle,
-      values.businessName,
+      values.business,
       values.businessType,
       values.tags?.split(',').map(tag => tag.trim()).filter(Boolean).join(' ')
     ].filter(Boolean).join(' ').toLowerCase();
@@ -244,7 +244,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     const offerData: OfferData = {
         title: values.offerTitle,
         description: values.offerCompleteDetails,
-        business: values.businessName,
+        business: values.business,
         category: values.businessType,
         location: values.location,
         locationLink: values.locationLink,
@@ -254,10 +254,10 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         discount: values.discount,
         tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
         allowCall: values.allowCall ?? false,
-        allowChat: values.allowChat ?? false,
-        allowSchedule: values.allowSchedule ?? false,
         phoneNumber: values.phoneNumber,
+        allowChat: values.allowChat ?? false,
         chatLink: values.chatLink,
+        allowSchedule: values.allowSchedule ?? false,
         scheduleLink: values.scheduleLink,
         isHidden: isEditMode ? offerToEdit.isHidden : false,
     };
@@ -301,7 +301,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
             control={form.control}
-            name="businessName"
+            name="business"
             render={({ field }) => (
                 <FormItem>
                 <FormLabel>Business Name</FormLabel>
@@ -638,3 +638,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
