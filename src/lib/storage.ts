@@ -4,16 +4,15 @@
 // Client-side file uploads to Firebase Storage require a CORS configuration on your Google Cloud
 // Storage bucket. This is a one-time setup.
 //
-// 1. Create a file named `cors.json` with the following content:
+// 1. Create a file named `cors.json` with the following content. This configuration allows uploads
+//    from your live domain, your firebase-provided domain, and your local development environment.
 //
 // [
 //   {
 //     "origin": [
-//       "http://localhost:9002",
 //       "https://trustlyads.in",
-//       "https://trustlyads.in.web.app",
-//       "https://trustlyads.in.firebaseapp.com",
-//       "https://6000-firebase-studio-1755798338059.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev"
+//       "https://localpulse-9e3lz.web.app",
+//       "http://localhost:9002"
 //     ],
 //     "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 //     "responseHeader": [
@@ -34,7 +33,7 @@
 //
 //    gsutil cors get gs://localpulse-9e3lz.appspot.com
 //
-// After you run these commands, client-side uploads will be allowed and this feature will work.
+// After you run these commands, client-side uploads will be allowed from your live domain.
 // =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
