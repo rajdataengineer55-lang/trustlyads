@@ -121,6 +121,7 @@ interface AdGeneratorProps {
 
 export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Posting...");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [selectedMainImageIndex, setSelectedMainImageIndex] = useState(0);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
@@ -225,6 +226,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
+    setLoadingMessage(isEditMode ? "Updating..." : "Posting...");
 
     let uploadedImageUrls: string[] = isEditMode && offerToEdit 
         ? [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean) 
@@ -232,6 +234,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
     // Check if new images were uploaded
     if (values.images && values.images.length > 0) {
+        setLoadingMessage("Uploading images...");
         try {
             const newUrls = await uploadMultipleFiles(values.images, 'offers');
             uploadedImageUrls = newUrls; // Replace old images with new ones if in edit mode
@@ -250,6 +253,8 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     if (uploadedImageUrls.length === 0) {
         uploadedImageUrls.push('https://placehold.co/600x400.png');
     }
+
+    setLoadingMessage(isEditMode ? "Saving changes..." : "Finalizing post...");
 
     const mainImage = uploadedImageUrls[selectedMainImageIndex] || uploadedImageUrls[0];
     const otherImages = uploadedImageUrls.filter((_, index) => index !== selectedMainImageIndex);
@@ -610,7 +615,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             {isLoading ? (
                 <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isEditMode ? 'Updating...' : 'Posting...'}
+                {loadingMessage}
                 </>
             ) : (
                 <>
