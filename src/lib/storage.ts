@@ -1,10 +1,10 @@
 // IMPORTANT: To make this client-side upload work, you MUST configure CORS on your Google Cloud Storage bucket.
-// Open a gcloud shell or your local terminal with gcloud CLI installed and run the following commands:
+// Run the following commands in your local terminal (with gcloud/gsutil installed) or in the Cloud Shell.
 //
-// 1. Create a cors.json file with the following content:
+// 1. Create a file named `cors.json` with the following content:
 // [
 //   {
-//     "origin": ["*"],
+//     "origin": ["http://localhost:9002", "https://*.firebaseapp.com", "https://*.web.app", "https://*.cloudworkstations.dev"],
 //     "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 //     "responseHeader": [
 //       "Content-Type",
@@ -16,8 +16,11 @@
 //   }
 // ]
 //
-// 2. Run this gcloud command to apply the CORS configuration to your bucket:
-//    gcloud storage buckets update gs://localpulse-9e3lz.appspot.com --cors-file=cors.json
+// 2. Run this command to apply the CORS configuration to your bucket:
+//    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
+//
+// 3. To verify the settings, run:
+//    gsutil cors get gs://localpulse-9e3lz.appspot.com
 //
 // You only need to do this once. After that, client-side uploads will be allowed.
 
