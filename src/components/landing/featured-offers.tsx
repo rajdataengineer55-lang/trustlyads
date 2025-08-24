@@ -111,7 +111,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
                          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                             <h3 className="text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
                         </div>
-                        <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3 animate-blink">
+                        <Badge variant="default" className="absolute top-4 right-4 bg-black text-white font-bold py-1 px-3 animate-blink">
                           {offer.discount}
                         </Badge>
                          {offer.isHidden && (
