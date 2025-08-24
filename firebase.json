@@ -1,12 +1,15 @@
 
 {
-  "hosting": [
-    {
-      "target": "localpulse",
-      "source": ".",
-      "frameworksBackend": {
-        "region": "us-central1"
+  "hosting": {
+    "public": "public",
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "app",
+          "region": "us-central1"
+        }
       }
-    }
-  ]
+    ]
+  }
 }
