@@ -1,16 +1,21 @@
 rules_version = '2';
 
+// Defines the security rules for Firebase Storage
 service firebase.storage {
+
+  // The {bucket} wildcard matches the default bucket for this project
   match /b/{bucket}/o {
-    // Rules for the 'offers' folder
+
+    // Rules for all files in the 'offers' folder
     match /offers/{allPaths=**} {
-      // Allow anyone to read images in the offers folder.
-      // This is necessary for visitors to see the offer pictures.
+
+      // Allow anyone to read files from the 'offers' directory.
+      // This is necessary so that visitors can see the offer images on the website.
       allow read: if true;
-      
-      // Allow only authenticated users (i.e., the admin) to upload,
-      // update, or delete files in the offers folder.
-      allow write: if request.auth != null;
+
+      // Allow write (upload, update, delete) operations only if the user is
+      // authenticated and their email matches the admin's email.
+      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
     }
   }
 }
