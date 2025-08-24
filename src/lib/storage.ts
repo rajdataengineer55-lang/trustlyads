@@ -29,9 +29,7 @@
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
-import app from './firebase';
-
-const storage = getStorage(app);
+import { storage } from './firebase';
 
 /**
  * Uploads multiple files to Firebase Storage using the client-side JS SDK.

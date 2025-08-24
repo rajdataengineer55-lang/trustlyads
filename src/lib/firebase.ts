@@ -22,7 +22,8 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const db = getFirestore(app);
 
-const storage = getStorage(app);
+// Explicitly set the correct storage bucket.
+const storage = getStorage(app, "gs://localpulse-9e3lz.firebasestorage.app");
 
 export const auth = getAuth(app);
 export { db, storage };
