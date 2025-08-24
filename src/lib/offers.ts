@@ -61,52 +61,28 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
   const q = query(offersCollection, orderBy('createdAt', 'desc'));
 
   // Listen to changes in the main 'offers' collection
-  const unsubscribeOffers = onSnapshot(q, (offersSnapshot) => {
-    const offersById: Record<string, Offer> = {};
-    
-    offersSnapshot.docs.forEach(doc => {
-      const offer = mapDocToOffer(doc);
-      offersById[offer.id] = offer;
-    });
-
-    // Now, set up a listener for all reviews
-    const reviewsQuery = query(collectionGroup(db, 'reviews'), orderBy('createdAt', 'desc'));
-    
-    // This will be our combined data object that we update
-    let offersWithReviews = { ...offersById };
-
-    const unsubscribeReviews = onSnapshot(reviewsQuery, (reviewsSnapshot) => {
-        // Reset reviews for all offers to avoid duplication on updates
-        Object.keys(offersWithReviews).forEach(offerId => {
-            offersWithReviews[offerId].reviews = [];
-        });
-
-        reviewsSnapshot.forEach(reviewDoc => {
-            const review = {
-                id: reviewDoc.id,
-                ...reviewDoc.data(),
-                createdAt: (reviewDoc.data().createdAt as Timestamp)?.toDate() || new Date()
-            } as Review;
-
-            const offerRef = reviewDoc.ref.parent.parent;
-            if (offerRef && offersWithReviews[offerRef.id]) {
-                offersWithReviews[offerRef.id].reviews?.push(review);
-            }
-        });
+  const unsubscribe = onSnapshot(q, async (offersSnapshot) => {
+    const offers = await Promise.all(offersSnapshot.docs.map(async (offerDoc) => {
+        const offer = mapDocToOffer(offerDoc);
         
-        // Convert the map back to an array, maintaining the original sort order from the offers query
-        const sortedOffers = offersSnapshot.docs.map(doc => offersWithReviews[doc.id]).filter(Boolean);
-        callback(sortedOffers);
-    });
-
-    // Return a function that unsubscribes from both listeners
-    return () => {
-      unsubscribeOffers();
-      unsubscribeReviews();
-    };
+        const reviewsCollection = collection(db, 'offers', offer.id, 'reviews');
+        const reviewsQuery = query(reviewsCollection, orderBy('createdAt', 'desc'));
+        const reviewsSnapshot = await getDocs(reviewsQuery);
+        
+        const reviews = reviewsSnapshot.docs.map(reviewDoc => ({
+            id: reviewDoc.id,
+            ...reviewDoc.data(),
+            createdAt: (reviewDoc.data().createdAt as Timestamp)?.toDate() || new Date()
+        })) as Review[];
+        
+        offer.reviews = reviews;
+        return offer;
+    }));
+    
+    callback(offers);
   });
 
-  return unsubscribeOffers;
+  return unsubscribe;
 };
 
 

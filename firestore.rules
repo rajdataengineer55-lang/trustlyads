@@ -1,29 +1,26 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Offers can be read by anyone.
-    // Creating, updating, or deleting offers requires authentication.
+    
+    // Allow public read on offers, but only authenticated users can write.
     match /offers/{offerId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create, update, delete: if request.auth != null;
 
-      // Reviews can be read by anyone.
-      // Writing reviews requires authentication.
+      // Allow public read on reviews, but only authenticated users can write.
       match /reviews/{reviewId} {
         allow read: if true;
         allow create: if request.auth != null;
-        allow update, delete: if false; // Don't allow editing/deleting reviews for now
+        allow update, delete: if false; // Reviews generally shouldn't be editable
       }
     }
 
-    // Followers can only be managed by authenticated users.
-    // The documents can be read by anyone to get a public follower count.
+    // Allow public read on the followers collection to get the count.
+    // Only authenticated users can follow/unfollow (create/delete their own doc).
     match /followers/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow create, delete: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
