@@ -1,12 +1,19 @@
+
 [
   {
     "origin": [
-      "http://localhost:3000",
-      "https://6000-firebase-studio-175759838059.cloudworkstations.dev"
+      "https://trustlyads.in",
+      "https://www.trustlyads.in",
+      "https://localpulse-9e3lz.web.app",
+      "http://localhost:9002"
     ],
     "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    "allowedHeaders": ["*"],
-    "responseHeader": ["Content-Type", "Authorization", "Origin", "X-Requested-With"],
+    "responseHeader": [
+      "Content-Type",
+      "Authorization",
+      "X-Goog-Resumable",
+      "X-Goog-Meta-Goog-Firebasestorage-Original-Name"
+     ],
     "maxAgeSeconds": 3600
   }
 ]
