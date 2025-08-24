@@ -7,12 +7,19 @@
       "https://localpulse-9e3lz.web.app",
       "http://localhost:9002"
     ],
-    "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "method": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+      "OPTIONS"
+    ],
     "responseHeader": [
       "Content-Type",
       "Authorization",
-      "X-Goog-Resumable"
-     ],
+      "X-Goog-Resumable",
+      "*"
+    ],
     "maxAgeSeconds": 3600
   }
 ]
