@@ -1,7 +1,12 @@
 
 {
   "hosting": {
-    "site": "localpulse-9e3lz"
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
   },
   "firestore": {
     "rules": "firestore.rules"
