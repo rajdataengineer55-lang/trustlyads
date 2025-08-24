@@ -5,7 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,14 +23,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "./ui/badge";
-
 
 export function ManageOffers() {
   const { offers, deleteOffer, boostOffer, toggleOfferVisibility, loading } = useOffers();
@@ -89,11 +88,11 @@ export function ManageOffers() {
             <Skeleton className="h-10 w-1/2 mx-auto" />
             <Skeleton className="h-6 w-3/4 mx-auto mt-4" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Skeleton className="h-80 w-full" />
-            <Skeleton className="h-80 w-full" />
-            <Skeleton className="h-80 w-full" />
-        </div>
+        <Card>
+            <CardContent className="p-4">
+                <Skeleton className="h-80 w-full" />
+            </CardContent>
+        </Card>
       </div>
     );
   }
@@ -103,74 +102,88 @@ export function ManageOffers() {
       <div className="text-center mb-12">
         <h2 className="text-3xl font-headline font-bold">Manage Your Offers</h2>
         <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-          Here you can edit, delete, and boost your current offers.
+          Here you can edit, delete, and boost your current offers in a table format.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-        {offers.map((offer) => (
-          <Card key={offer.id} className={cn("flex flex-col transition-all duration-300", offer.isHidden && "bg-muted/50")}>
-            <CardHeader className="p-0">
-                <div className="relative aspect-[4/3]">
-                    <Image
-                      src={offer.image}
-                      alt={offer.title}
-                      fill
-                      className="object-cover rounded-t-lg"
-                      data-ai-hint={offer.hint}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                    />
-                      <Badge variant={offer.isHidden ? "secondary" : "default"} className="absolute top-2 left-2">
-                      {offer.isHidden ? (
-                          <><EyeOff className="mr-1.5 h-3 w-3" /> Hidden</>
-                      ) : (
-                            <><Eye className="mr-1.5 h-3 w-3" /> Visible</>
-                      )}
-                    </Badge>
-                </div>
-            </CardHeader>
-            <CardContent className="p-4 flex-grow">
-                <p className="text-sm text-muted-foreground">{offer.category}</p>
-                <p className="font-semibold text-lg leading-tight mt-1">{offer.title}</p>
-                <p className="text-sm text-muted-foreground">{offer.business}</p>
-            </CardContent>
-            <CardFooter className="p-4 pt-0">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full">
-                          <MoreHorizontal className="mr-2 h-4 w-4" /> Manage
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem onClick={() => handleBoostClick(offer)}>
-                        <Megaphone className="mr-2 h-4 w-4" />
-                        Boost
-                      </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleToggleVisibility(offer)}>
-                          {offer.isHidden ? (
-                              <><Eye className="mr-2 h-4 w-4" /> Make Visible</>
-                          ) : (
-                              <><EyeOff className="mr-2 h-4 w-4" /> Hide</>
-                          )}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} onClick={() => handleEditClick(offer)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleDeleteClick(offer)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+       <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-[300px]">Offer</TableHead>
+                        <TableHead>Business</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Location</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {offers.map((offer) => (
+                        <TableRow key={offer.id}>
+                            <TableCell>
+                                <div className="flex items-center gap-4">
+                                    <Image
+                                        src={offer.image}
+                                        alt={offer.title}
+                                        width={64}
+                                        height={48}
+                                        className="rounded-md object-cover"
+                                        data-ai-hint={offer.hint}
+                                    />
+                                    <span className="font-medium truncate">{offer.title}</span>
+                                </div>
+                            </TableCell>
+                            <TableCell className="truncate">{offer.business}</TableCell>
+                            <TableCell>{offer.category}</TableCell>
+                            <TableCell>{offer.location}</TableCell>
+                            <TableCell>
+                                <Badge variant={offer.isHidden ? "secondary" : "default"}>
+                                    {offer.isHidden ? (
+                                        <><EyeOff className="mr-1.5 h-3 w-3" /> Hidden</>
+                                    ) : (
+                                        <><Eye className="mr-1.5 h-3 w-3" /> Visible</>
+                                    )}
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                            <span className="sr-only">Manage Offer</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => handleBoostClick(offer)}>
+                                            <Megaphone className="mr-2 h-4 w-4" /> Boost
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => handleToggleVisibility(offer)}>
+                                            {offer.isHidden ? <Eye className="mr-2 h-4 w-4" /> : <EyeOff className="mr-2 h-4 w-4" />}
+                                            {offer.isHidden ? 'Make Visible' : 'Hide'}
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onSelect={() => handleEditClick(offer)}>
+                                            <Pencil className="mr-2 h-4 w-4" /> Edit
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            className="text-destructive focus:text-destructive"
+                                            onSelect={() => handleDeleteClick(offer)}
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
       
       <Dialog open={isEditDialogOpen} onOpenChange={(isOpen) => !isOpen && handleEditDialogClose()}>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
