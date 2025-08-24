@@ -10,7 +10,7 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, LogIn, EyeOff } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, LogIn, EyeOff, BarChart2, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -35,7 +35,7 @@ const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
 
 export default function OfferDetailsPage() {
   const params = useParams();
-  const { offers, getOfferById, addReview, loading: offersLoading } = useOffers();
+  const { getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick } = useOffers();
   const { user, loading: authLoading, signInWithGoogle } = useAuth();
   
   const [offer, setOffer] = useState<Offer | null>(null);
@@ -72,11 +72,19 @@ export default function OfferDetailsPage() {
         if (foundOffer.image) {
             setMainImage(foundOffer.image);
         }
+        
+        // Track view
+        const viewedKey = `viewed-${id}`;
+        if (!sessionStorage.getItem(viewedKey)) {
+          incrementOfferView(id);
+          sessionStorage.setItem(viewedKey, 'true');
+        }
+
       } else {
         notFound();
       }
     }
-  }, [id, getOfferById, offersLoading, offers, user]);
+  }, [id, getOfferById, offersLoading, user, incrementOfferView]);
 
 
   useEffect(() => {
@@ -85,8 +93,18 @@ export default function OfferDetailsPage() {
     }
   }, [user, form]);
 
+  const handleTrackedClick = (url: string, isExternal: boolean = true) => {
+    incrementOfferClick(id);
+    if(isExternal) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+        window.location.href = url;
+    }
+  };
+
   const handleShare = async () => {
     if (!offer) return;
+    incrementOfferClick(id); // Count sharing as a click
 
     const shareData = {
       title: offer.title,
@@ -186,6 +204,7 @@ export default function OfferDetailsPage() {
     return null;
   }
 
+  const { offers } = useOffers();
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
   const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean);
 
@@ -205,25 +224,19 @@ export default function OfferDetailsPage() {
             <Share2 className="mr-4" /> Share Offer
         </Button>
         {offer.allowCall && offer.phoneNumber && (
-        <a href={`tel:${offer.phoneNumber}`}>
-            <Button className="w-full justify-start text-base py-6" variant="outline">
+            <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(`tel:${offer.phoneNumber}`, false)}>
                 <Phone className="mr-4" /> Call Now
             </Button>
-        </a>
         )}
         {offer.allowChat && offer.chatLink && (
-        <a href={`https://${offer.chatLink}`} target="_blank" rel="noopener noreferrer">
-            <Button className="w-full justify-start text-base py-6" variant="outline">
+            <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(`https://${offer.chatLink}`)}>
                 <MessageSquare className="mr-4" /> Chat on WhatsApp
             </Button>
-        </a>
         )}
         {offer.allowSchedule && offer.scheduleLink && (
-        <a href={offer.scheduleLink} target="_blank" rel="noopener noreferrer">
-            <Button className="w-full justify-start text-base py-6" variant="outline">
+            <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(offer.scheduleLink!)}>
                 <CalendarIcon className="mr-4" /> Schedule a Meeting
             </Button>
-        </a>
         )}
     </div>
   );
@@ -256,6 +269,14 @@ export default function OfferDetailsPage() {
                                 <EyeOff className="mr-2 h-4 w-4" /> Hidden
                             </Badge>
                         )}
+                         <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-4">
+                            <Badge variant="secondary" className="font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm">
+                                <Eye className="mr-2 h-4 w-4" /> {offer.views || 0} Views
+                            </Badge>
+                             <Badge variant="secondary" className="font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm">
+                                <BarChart2 className="mr-2 h-4 w-4" /> {offer.clicks || 0} Clicks
+                            </Badge>
+                        </div>
                     </div>
                     {allImages.length > 1 && (
                       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
@@ -284,12 +305,12 @@ export default function OfferDetailsPage() {
                             <LocationInfo />
 
                              {offer.locationLink && (
-                                <a href={offer.locationLink} target="_blank" rel="noopener noreferrer" className="mb-6 block">
-                                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                                <div className="mb-6 block">
+                                    <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => handleTrackedClick(offer.locationLink!)}>
                                         <Navigation className="mr-2 h-4 w-4" />
                                         Get Directions
                                     </Button>
-                                </a>
+                                </div>
                              )}
 
 

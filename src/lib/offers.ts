@@ -14,7 +14,8 @@ import {
     serverTimestamp,
     Timestamp,
     collectionGroup,
-    writeBatch
+    writeBatch,
+    increment
 } from 'firebase/firestore';
 import type { Offer, Review } from '@/contexts/OffersContext';
 
@@ -40,6 +41,8 @@ export interface OfferData {
   chatLink?: string;
   scheduleLink?: string;
   isHidden?: boolean;
+  views?: number;
+  clicks?: number;
 }
 
 
@@ -52,7 +55,9 @@ const mapDocToOffer = (doc: any): Offer => {
     id: doc.id,
     ...data,
     createdAt: (data.createdAt as Timestamp)?.toDate() || new Date(),
-    reviews: data.reviews || [] // Initialize with empty array
+    reviews: data.reviews || [], // Initialize with empty array
+    views: data.views || 0,
+    clicks: data.clicks || 0,
   } as Offer;
 };
 
@@ -106,7 +111,9 @@ export const addOffer = async (offerData: OfferData) => {
   const cleanedOfferData = cleanDataForFirestore(offerData);
   const offerWithTimestamp = {
     ...cleanedOfferData,
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
+    views: 0,
+    clicks: 0,
   };
   await addDoc(offersCollection, offerWithTimestamp);
 };
@@ -138,4 +145,20 @@ export const addReview = async (offerId: string, reviewData: Omit<Review, 'id' |
 export const toggleOfferVisibility = async (id: string, isHidden: boolean) => {
     const offerDoc = doc(db, 'offers', id);
     await updateDoc(offerDoc, { isHidden });
+};
+
+// Increment the view count for an offer
+export const incrementOfferView = async (id: string) => {
+    const offerDoc = doc(db, 'offers', id);
+    await updateDoc(offerDoc, {
+        views: increment(1)
+    });
+};
+
+// Increment the click count for an offer
+export const incrementOfferClick = async (id: string) => {
+    const offerDoc = doc(db, 'offers', id);
+    await updateDoc(offerDoc, {
+        clicks: increment(1)
+    });
 };

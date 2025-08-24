@@ -9,6 +9,8 @@ import {
   deleteOffer as deleteOfferFromDb,
   addReview as addReviewToDb,
   toggleOfferVisibility as toggleVisibilityInDb,
+  incrementOfferView as incrementViewInDb,
+  incrementOfferClick as incrementClickInDb,
   type OfferData
 } from '@/lib/offers';
 
@@ -43,6 +45,8 @@ export interface Offer {
   reviews?: Review[];
   isHidden?: boolean;
   createdAt: Date;
+  views?: number;
+  clicks?: number;
 }
 
 interface OffersContextType {
@@ -55,6 +59,8 @@ interface OffersContextType {
   getOfferById: (id: string) => Offer | undefined;
   addReview: (offerId: string, review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
   toggleOfferVisibility: (id: string) => Promise<void>;
+  incrementOfferView: (id: string) => Promise<void>;
+  incrementOfferClick: (id: string) => Promise<void>;
 }
 
 const OffersContext = createContext<OffersContextType | undefined>(undefined);
@@ -111,8 +117,16 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const incrementOfferView = async (id: string) => {
+    await incrementViewInDb(id);
+  };
+
+  const incrementOfferClick = async (id: string) => {
+    await incrementClickInDb(id);
+  };
+
   return (
-    <OffersContext.Provider value={{ offers, loading, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility }}>
+    <OffersContext.Provider value={{ offers, loading, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility, incrementOfferView, incrementOfferClick }}>
       {children}
     </OffersContext.Provider>
   );

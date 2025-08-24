@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff, BarChart2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
@@ -114,9 +114,9 @@ export function ManageOffers() {
                     <TableRow>
                         <TableHead className="w-[300px]">Offer</TableHead>
                         <TableHead>Business</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Location</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Views</TableHead>
+                        <TableHead>Clicks</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -137,8 +137,6 @@ export function ManageOffers() {
                                 </div>
                             </TableCell>
                             <TableCell className="truncate">{offer.business}</TableCell>
-                            <TableCell>{offer.category}</TableCell>
-                            <TableCell>{offer.location}</TableCell>
                             <TableCell>
                                 <Badge variant={offer.isHidden ? "secondary" : "default"}>
                                     {offer.isHidden ? (
@@ -147,6 +145,18 @@ export function ManageOffers() {
                                         <><Eye className="mr-1.5 h-3 w-3" /> Visible</>
                                     )}
                                 </Badge>
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Eye className="h-4 w-4 text-muted-foreground" />
+                                  <span>{offer.views || 0}</span>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <BarChart2 className="h-4 w-4 text-muted-foreground" />
+                                  <span>{offer.clicks || 0}</span>
+                                </div>
                             </TableCell>
                             <TableCell className="text-right">
                                 <DropdownMenu>
