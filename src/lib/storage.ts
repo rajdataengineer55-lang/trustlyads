@@ -11,7 +11,7 @@
 // [
 //   {
 //     "origin": [
-//       "https://trustlyads.in",
+//       "https://www.trustlyads.in",
 //       "https://localpulse-9e3lz.web.app",
 //       "http://localhost:9002"
 //     ],
