@@ -1,43 +1,5 @@
 
 {
-  "hosting": [
-    {
-      "target": "site",
-      "public": "out",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "function": "server"
-        }
-      ]
-    },
-    {
-      "target": "localpulse",
-      "public": "out",
-      "rewrites": [
-        {
-          "source": "**",
-          "function": "server"
-        }
-      ],
-      "headers": [
-        {
-          "source": "**",
-          "headers": [
-            {
-              "key": "Access-Control-Allow-Origin",
-              "value": "*"
-            }
-          ]
-        }
-      ]
-    }
-  ],
   "firestore": {
     "rules": "firestore.rules"
   },
@@ -55,6 +17,12 @@
         "firebase-debug.*.log"
       ],
       "runtime": "nodejs20"
+    }
+  ],
+  "hosting": [
+    {
+      "target": "localpulse",
+      "source": "."
     }
   ]
 }
