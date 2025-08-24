@@ -54,7 +54,7 @@ const mapDocToOffer = (doc: any): Offer => {
   return {
     id: doc.id,
     ...data,
-    createdAt: (data.createdAt as Timestamp)?.toDate() || new Date(),
+    createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
     reviews: data.reviews || [], // Initialize with empty array
     views: data.views || 0,
     clicks: data.clicks || 0,
@@ -74,17 +74,23 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
         const reviewsQuery = query(reviewsCollection, orderBy('createdAt', 'desc'));
         const reviewsSnapshot = await getDocs(reviewsQuery);
         
-        const reviews = reviewsSnapshot.docs.map(reviewDoc => ({
-            id: reviewDoc.id,
-            ...reviewDoc.data(),
-            createdAt: (reviewDoc.data().createdAt as Timestamp)?.toDate() || new Date()
-        })) as Review[];
+        const reviews = reviewsSnapshot.docs.map(reviewDoc => {
+            const reviewData = reviewDoc.data();
+            return {
+              id: reviewDoc.id,
+              ...reviewData,
+              createdAt: reviewData.createdAt ? (reviewData.createdAt as Timestamp).toDate() : new Date()
+            } as Review;
+        });
         
         offer.reviews = reviews;
         return offer;
     }));
     
     callback(offers);
+  }, (error) => {
+    console.error("Error fetching offers: ", error);
+    callback([]);
   });
 
   return unsubscribe;

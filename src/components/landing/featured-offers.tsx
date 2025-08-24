@@ -100,7 +100,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
             {filteredOffers.map((offer) => {
               const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
               return (
-              <CarouselItem key={offer.id} className="pl-2 md:pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
+              <CarouselItem key={offer.id} className="pl-4 basis-4/5 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
                   <Card className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 h-full flex flex-col", offer.isHidden && "opacity-60")}>
                     <CardContent className="p-0 flex flex-col flex-grow">
                       <div className="relative aspect-[4/3] w-full">
@@ -111,7 +111,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
                           height={300}
                           className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                           data-ai-hint={offer.hint}
-                          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                          sizes="(max-width: 640px) 80vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
                         />
                          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                             <h3 className="text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
@@ -142,10 +142,12 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
                               {offer.nearbyLocation && <p className="truncate text-xs">{offer.nearbyLocation}</p>}
                             </div>
                          </div>
+                         {offer.createdAt && (
                          <div className="flex items-center text-xs text-muted-foreground mb-4 ml-1">
                              <Clock className="h-3 w-3 mr-1.5" />
                              <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
                          </div>
+                         )}
                         <div className="flex flex-wrap gap-2 mb-4 min-h-[24px]">
                           {offer.tags?.slice(0,3).map((tag) => (
                             <Badge key={tag} variant="secondary">{tag}</Badge>
