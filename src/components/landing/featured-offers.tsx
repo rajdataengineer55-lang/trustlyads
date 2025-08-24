@@ -6,13 +6,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, EyeOff, MapPin } from "lucide-react";
+import { ArrowRight, EyeOff, MapPin, Clock } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 import type { SortOption } from "./filters";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { formatDistanceToNow } from 'date-fns';
 
 interface FeaturedOffersProps {
   selectedCategory: string | null;
@@ -44,6 +45,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
           offer.business.toLowerCase().includes(searchTermLower) ||
           offer.location.toLowerCase().includes(searchTermLower) ||
           offer.description.toLowerCase().includes(searchTermLower) ||
+          (offer.nearbyLocation && offer.nearbyLocation.toLowerCase().includes(searchTermLower)) ||
           offer.tags.some(tag => tag.toLowerCase().includes(searchTermLower))
         : true;
       return categoryMatch && locationMatch && searchMatch;
@@ -95,7 +97,9 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
           className="w-full"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
-            {filteredOffers.map((offer) => (
+            {filteredOffers.map((offer) => {
+              const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
+              return (
               <CarouselItem key={offer.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                   <Card className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 h-full flex flex-col", offer.isHidden && "opacity-60")}>
                     <CardContent className="p-0 flex flex-col flex-grow">
@@ -119,11 +123,23 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
                               <EyeOff className="mr-2 h-4 w-4" /> Hidden
                             </Badge>
                          )}
+                         {isNew && !offer.isHidden && (
+                            <Badge variant="secondary" className="absolute top-4 left-4 font-bold py-1 px-3 bg-green-500 text-white">
+                               Just Listed
+                            </Badge>
+                          )}
                       </div>
                       <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
-                         <div className="flex items-start text-sm text-muted-foreground mb-3">
+                         <div className="flex items-start text-sm text-muted-foreground mb-1">
                             <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
-                            <span className="truncate">{offer.location}</span>
+                            <div>
+                              <p className="truncate font-medium text-foreground">{offer.location}</p>
+                              {offer.nearbyLocation && <p className="truncate text-xs">{offer.nearbyLocation}</p>}
+                            </div>
+                         </div>
+                         <div className="flex items-center text-xs text-muted-foreground mb-3 ml-1">
+                             <Clock className="h-3 w-3 mr-1.5" />
+                             <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
                          </div>
                         <div className="flex flex-wrap gap-2 mb-4">
                           {offer.tags?.map((tag) => (
@@ -141,7 +157,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
                     </CardContent>
                   </Card>
               </CarouselItem>
-            ))}
+            )})}
           </CarouselContent>
           <CarouselPrevious className="hidden sm:flex" />
           <CarouselNext className="hidden sm:flex" />
