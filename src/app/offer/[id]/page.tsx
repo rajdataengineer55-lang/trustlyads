@@ -186,33 +186,6 @@ export default function OfferDetailsPage() {
     return null;
   }
 
-  if (!user) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-1 bg-background/50 flex items-center justify-center">
-            <div className="text-center p-8 max-w-md mx-auto">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>View Offer Details</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground mb-6">
-                            Please sign in to view the full details of this offer and write a review.
-                        </p>
-                        <Button onClick={signInWithGoogle} className="w-full">
-                            <LogIn className="mr-2 h-4 w-4" />
-                            Sign in with Google
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
   const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean);
 
@@ -223,6 +196,35 @@ export default function OfferDetailsPage() {
         <p className="font-medium">{offer.location}</p>
         {offer.nearbyLocation && <p className="text-sm">{offer.nearbyLocation}</p>}
       </div>
+    </div>
+  );
+
+  const ContactActions = () => (
+    <div className="space-y-3">
+        <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
+            <Share2 className="mr-4" /> Share Offer
+        </Button>
+        {offer.allowCall && offer.phoneNumber && (
+        <a href={`tel:${offer.phoneNumber}`}>
+            <Button className="w-full justify-start text-base py-6" variant="outline">
+                <Phone className="mr-4" /> Call Now
+            </Button>
+        </a>
+        )}
+        {offer.allowChat && offer.chatLink && (
+        <a href={`https://${offer.chatLink}`} target="_blank" rel="noopener noreferrer">
+            <Button className="w-full justify-start text-base py-6" variant="outline">
+                <MessageSquare className="mr-4" /> Chat on WhatsApp
+            </Button>
+        </a>
+        )}
+        {offer.allowSchedule && offer.scheduleLink && (
+        <a href={offer.scheduleLink} target="_blank" rel="noopener noreferrer">
+            <Button className="w-full justify-start text-base py-6" variant="outline">
+                <CalendarIcon className="mr-4" /> Schedule a Meeting
+            </Button>
+        </a>
+        )}
     </div>
   );
 
@@ -297,32 +299,18 @@ export default function OfferDetailsPage() {
                             ))}
                             </div>
 
-                            <div className="space-y-3">
-                                <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
-                                    <Share2 className="mr-4" /> Share Offer
-                                </Button>
-                                {offer.allowCall && offer.phoneNumber && (
-                                <a href={`tel:${offer.phoneNumber}`}>
-                                    <Button className="w-full justify-start text-base py-6" variant="outline">
-                                        <Phone className="mr-4" /> Call Now
-                                    </Button>
-                                </a>
-                                )}
-                                {offer.allowChat && offer.chatLink && (
-                                <a href={`https://${offer.chatLink}`} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full justify-start text-base py-6" variant="outline">
-                                        <MessageSquare className="mr-4" /> Chat on WhatsApp
-                                    </Button>
-                                </a>
-                                )}
-                                {offer.allowSchedule && offer.scheduleLink && (
-                                <a href={offer.scheduleLink} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full justify-start text-base py-6" variant="outline">
-                                        <CalendarIcon className="mr-4" /> Schedule a Meeting
-                                    </Button>
-                                </a>
-                                )}
-                            </div>
+                             {user ? (
+                                <ContactActions />
+                             ) : (
+                                <div className="space-y-3">
+                                  <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
+                                      <Share2 className="mr-4" /> Share Offer
+                                  </Button>
+                                  <Button onClick={signInWithGoogle} className="w-full justify-center text-base py-6">
+                                      <LogIn className="mr-4" /> Sign in to Contact
+                                  </Button>
+                                </div>
+                             )}
                         </CardContent>
                     </Card>
                 </div>
@@ -376,6 +364,7 @@ export default function OfferDetailsPage() {
                         <CardTitle>Write a Review</CardTitle>
                     </CardHeader>
                     <CardContent>
+                      {user ? (
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onReviewSubmit)} className="space-y-4">
                                 <FormField
@@ -438,6 +427,15 @@ export default function OfferDetailsPage() {
                                 <Button type="submit">Submit Review</Button>
                             </form>
                         </Form>
+                      ) : (
+                        <div className="text-center">
+                          <p className="text-muted-foreground mb-4">You must be signed in to write a review.</p>
+                          <Button onClick={signInWithGoogle}>
+                            <LogIn className="mr-2 h-4 w-4"/>
+                            Sign in to Review
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                 </Card>
               </div>
