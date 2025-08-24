@@ -260,7 +260,7 @@ export default function OfferDetailsPage() {
                             data-ai-hint={offer.hint}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 33vw"
                         />
-                         <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-accent text-accent-foreground font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base">
+                         <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-accent text-accent-foreground font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base animate-blink">
                           {offer.discount}
                         </Badge>
                         {offer.isHidden && (
