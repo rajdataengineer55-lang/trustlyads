@@ -1,10 +1,15 @@
+rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow public read access to all files in the 'offers' directory.
-    // This allows anyone visiting the site to see the offer images.
-    // Restrict write access (upload, update, delete) to only authenticated users.
+    // Rules for the 'offers' folder
     match /offers/{allPaths=**} {
+      // Allow anyone to read images in the offers folder.
+      // This is necessary for visitors to see the offer pictures.
       allow read: if true;
+      
+      // Allow only authenticated users (i.e., the admin) to upload,
+      // update, or delete files in the offers folder.
       allow write: if request.auth != null;
     }
   }
