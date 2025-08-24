@@ -1,21 +1,13 @@
 
 {
   "hosting": {
-    "public": "public",
+    "source": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
-      {
-        "source": "**",
-        "run": {
-          "serviceId": "studio",
-          "region": "us-central1"
-        }
-      }
-    ]
+    "appAssociation": "AUTO"
   },
   "firestore": {
     "database": "(default)",
