@@ -5,42 +5,24 @@
 // Client-side file uploads to Firebase Storage require a CORS configuration on your Google Cloud
 // Storage bucket. This is a one-time setup.
 //
-// 1. Create a file named `cors.json` with the following content. This configuration allows uploads
-//    from your live domain, your firebase-provided domain, and your local development environment.
+// 1. You will need a file named `cors.json` in your project's root directory. The contents of that
+//    file determine which websites are allowed to upload files. You can edit this file
+//    at any time to add or remove domains.
 //
-// [
-//   {
-//     "origin": [
-//       "https://www.trustlyads.in",
-//       "https://localpulse-9e3lz.web.app",
-//       "http://localhost:9002"
-//     ],
-//     "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     "responseHeader": [
-//       "Content-Type",
-//       "Authorization",
-//       "X-Goog-Resumable",
-//       "X-Goog-Meta-Goog-Firebasestorage-Original-Name"
-//      ],
-//     "maxAgeSeconds": 3600
-//   }
-// ]
+//    See: `cors.json`
 //
-// 2. Find your correct bucket name by running this command in the Google Cloud Shell:
+// 2. Find your correct bucket name. For this project, it is:
 //
-//    gsutil ls
-//
-//    Look for the URL that starts with gs:// and ends with .app or .com. 
-//    It will look similar to gs://<your-project-id>.firebasestorage.app
+//    gs://localpulse-9e3lz.appspot.com
 //
 // 3. Run this gcloud command in your terminal or in the Google Cloud Shell to apply the rules,
 //    replacing <YOUR_BUCKET_URL> with the name you found in the previous step:
 //
-//    gsutil cors set cors.json <YOUR_BUCKET_URL>
+//    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
 //
 // 4. To verify the settings were applied correctly, run:
 //
-//    gsutil cors get <YOUR_BUCKET_URL>
+//    gsutil cors get gs://localpulse-9e3lz.appspot.com
 //
 // After you run these commands, client-side uploads will be allowed from your live domain.
 // =================================================================================================
