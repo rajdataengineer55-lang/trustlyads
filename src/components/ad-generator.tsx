@@ -42,6 +42,9 @@ const formSchema = z.object({
 });
 
 const businessTypes = {
+  "Agriculture & Farming": [
+    "Agriculture & Farming",
+  ],
   "Services": [
     "Electrical Works & Wiring Services",
     "Plumbing & Borewell Services",
