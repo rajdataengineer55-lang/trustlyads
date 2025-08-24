@@ -7,6 +7,9 @@ runConfig:
   maxInstances: 1
   minInstances: 0
   memoryMiB: 1024
+  # Pin the release to a specific version to ensure stability.
+  # It is recommended to update this to the latest LTS version periodically.
+  pinRelease: true
 entrypoint: npm run start
 cors:
   - origin:

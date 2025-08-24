@@ -1,21 +1,12 @@
 
 {
+  "hosting": {
+    "site": "localpulse-9e3lz"
+  },
   "firestore": {
     "rules": "firestore.rules"
   },
   "storage": {
     "rules": "storage.rules"
-  },
-  "hosting": {
-    "source": ".",
-    "rewrites": [
-      {
-        "source": "**",
-        "run": {
-          "serviceId": "app",
-          "region": "us-central1"
-        }
-      }
-    ]
   }
 }
