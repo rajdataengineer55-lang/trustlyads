@@ -1,28 +1,12 @@
 
 {
-  "firestore": {
-    "rules": "firestore.rules"
-  },
-  "storage": {
-    "rules": "storage.rules"
-  },
-  "functions": [
-    {
-      "source": ".",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log"
-      ],
-      "runtime": "nodejs20"
-    }
-  ],
   "hosting": [
     {
       "target": "localpulse",
-      "source": "."
+      "source": ".",
+      "frameworksBackend": {
+        "region": "us-central1"
+      }
     }
   ]
 }
