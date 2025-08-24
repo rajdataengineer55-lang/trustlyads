@@ -35,7 +35,7 @@ const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
 
 export default function OfferDetailsPage() {
   const params = useParams();
-  const { getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick } = useOffers();
+  const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick } = useOffers();
   const { user, loading: authLoading, signInWithGoogle } = useAuth();
   
   const [offer, setOffer] = useState<Offer | null>(null);
@@ -204,7 +204,6 @@ export default function OfferDetailsPage() {
     return null;
   }
 
-  const { offers } = useOffers();
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
   const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean);
 
