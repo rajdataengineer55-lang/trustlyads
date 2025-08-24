@@ -1,10 +1,29 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read and write access only for authenticated users
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    // Offers can be read by anyone.
+    // Creating, updating, or deleting offers requires authentication.
+    match /offers/{offerId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+
+      // Reviews can be read by anyone.
+      // Writing reviews requires authentication.
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if false; // Don't allow editing/deleting reviews for now
+      }
+    }
+
+    // Followers can only be managed by authenticated users.
+    // The documents can be read by anyone to get a public follower count.
+    match /followers/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
