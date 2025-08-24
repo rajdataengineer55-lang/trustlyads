@@ -103,12 +103,13 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
               <CarouselItem key={offer.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2">
                   <Card className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 h-full flex flex-col", offer.isHidden && "opacity-60")}>
                     <CardContent className="p-0 flex flex-col flex-grow">
-                      <div className="relative aspect-[4/3]">
+                      <div className="relative aspect-[4/3] w-full">
                         <Image
                           src={offer.image}
                           alt={offer.title}
-                          fill
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          width={400}
+                          height={300}
+                          className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                           data-ai-hint={offer.hint}
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
