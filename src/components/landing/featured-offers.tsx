@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, EyeOff, MapPin, Clock } from "lucide-react";
+import { ArrowRight, EyeOff, MapPin, Clock, Building } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 import type { SortOption } from "./filters";
@@ -131,23 +131,27 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
                           )}
                       </div>
                       <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
-                         <div className="flex items-start text-sm text-muted-foreground mb-1">
+                         <div className="flex items-center text-sm text-muted-foreground mb-2">
+                              <Building className="h-4 w-4 mr-2 shrink-0" />
+                              <p className="truncate font-medium text-foreground">{offer.business}</p>
+                         </div>
+                         <div className="flex items-start text-sm text-muted-foreground mb-2">
                             <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
                             <div>
                               <p className="truncate font-medium text-foreground">{offer.location}</p>
                               {offer.nearbyLocation && <p className="truncate text-xs">{offer.nearbyLocation}</p>}
                             </div>
                          </div>
-                         <div className="flex items-center text-xs text-muted-foreground mb-3 ml-1">
+                         <div className="flex items-center text-xs text-muted-foreground mb-4 ml-1">
                              <Clock className="h-3 w-3 mr-1.5" />
                              <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
                          </div>
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {offer.tags?.map((tag) => (
+                        <div className="flex flex-wrap gap-2 mb-4 min-h-[24px]">
+                          {offer.tags?.slice(0,3).map((tag) => (
                             <Badge key={tag} variant="secondary">{tag}</Badge>
                           ))}
                         </div>
-                        <div className="mt-auto">
+                        <div className="mt-auto pt-4">
                           <Link href={`/offer/${offer.id}`} passHref>
                             <Button className="w-full">
                                  View Details <ArrowRight className="ml-2 h-4 w-4" />
