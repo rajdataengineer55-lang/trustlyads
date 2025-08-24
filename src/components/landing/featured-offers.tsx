@@ -100,7 +100,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
             {filteredOffers.map((offer) => {
               const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
               return (
-              <CarouselItem key={offer.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2">
+              <CarouselItem key={offer.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                   <Card className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 h-full flex flex-col", offer.isHidden && "opacity-60")}>
                     <CardContent className="p-0 flex flex-col flex-grow">
                       <div className="relative aspect-[4/3] w-full">
