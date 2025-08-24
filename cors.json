@@ -11,8 +11,7 @@
     "responseHeader": [
       "Content-Type",
       "Authorization",
-      "X-Goog-Resumable",
-      "X-Goog-Meta-Goog-Firebasestorage-Original-Name"
+      "X-Goog-Resumable"
      ],
     "maxAgeSeconds": 3600
   }

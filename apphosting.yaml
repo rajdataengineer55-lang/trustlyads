@@ -21,6 +21,7 @@ cors:
       - DELETE
       - OPTIONS
     responseHeader:
+      - Origin
       - Content-Type
       - Authorization
       - X-Goog-Resumable
