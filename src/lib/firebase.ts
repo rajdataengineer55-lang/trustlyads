@@ -1,6 +1,6 @@
 
 // Import the functions you need from the SDKs you need
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -18,13 +18,12 @@ const firebaseConfig = {
 
 
 // Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
-
-// Explicitly set the correct storage bucket.
+const auth = getAuth(app);
+// Explicitly set the correct storage bucket as diagnosed.
 const storage = getStorage(app, "gs://localpulse-9e3lz.firebasestorage.app");
 
-export const auth = getAuth(app);
-export { db, storage };
+export { db, storage, auth };
 export default app;
