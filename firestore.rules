@@ -1,26 +1,28 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read access to offers and their reviews
+
+    // Rule for the `reviews` collection group query
+    match /{path=**}/reviews/{reviewId} {
+      allow read: if true;
+    }
+
+    // Rule for the `offers` collection
     match /offers/{offerId} {
       allow read: if true;
-      
-      // Allow create, update, delete only for authenticated users (admins)
-      allow create, update, delete: if request.auth != null;
+      allow write: if request.auth != null; // For admin functionality
 
-      // Allow authenticated users to add reviews
+      // Nested rule for direct access to reviews of a specific offer
       match /reviews/{reviewId} {
-        allow read: if true;
-        allow create: if request.auth != null;
-        allow update, delete: if request.auth != null;
+        allow create: if request.auth != null; // Only logged-in users can create reviews
+        allow update, delete: if false; // No one can edit or delete for now
       }
     }
     
-    // Allow public read for followers count
+    // Rule for the `followers` collection
     match /followers/{userId} {
-        allow read: if true;
-        // Allow users to follow/unfollow themselves
-        allow create, delete: if request.auth != null && request.auth.uid == userId;
+      allow list, get: if true; 
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

@@ -2,7 +2,7 @@
 {
   "hosting": [
     {
-      "target": "localpulse",
+      "target": "trustlyads",
       "public": "out",
       "rewrites": [
         {
@@ -43,4 +43,3 @@
     }
   ]
 }
-
