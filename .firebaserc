@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "localpulse-9e3lz"
+  },
+  "targets": {
+    "localpulse-9e3lz": {
+      "hosting": {
+        "site": [
+          "localpulse-9e3lz",
+          "trustlyads.in"
+        ]
+      }
+    }
   }
 }
