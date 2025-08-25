@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "preemulators": "npm --prefix functions run build",
     "emulators": "firebase emulators:start --only functions,firestore"
   },
   "dependencies": {
