@@ -1,5 +1,25 @@
 
 {
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "y"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "runtime": "nodejs20"
+    }
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  },
   "hosting": {
     "source": ".",
     "ignore": [
@@ -7,15 +27,8 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "appAssociation": "AUTO"
-  },
-  "firestore": {
-    "database": "(default)",
-    "location": "us-central1",
-    "rules": "firestore.rules",
-    "indexes": "y"
-  },
-  "storage": {
-    "rules": "storage.rules"
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
   }
 }
