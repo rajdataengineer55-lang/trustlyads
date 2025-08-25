@@ -1,3 +1,4 @@
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
@@ -15,22 +16,30 @@ const firebaseConfig = {
   measurementId: "G-5Y6R706M5Y"
 };
 
-// Initialize Firebase
-const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+let app: FirebaseApp;
+if (getApps().length === 0) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApp();
+}
 
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
 // If we are in a development environment, connect to the local emulators
-if (process.env.NODE_ENV === 'development') {
-    console.log("Development environment detected. Connecting to Firebase emulators.");
-    // Point Firestore to the local emulator
-    connectFirestoreEmulator(db, '127.0.0.1', 8080);
-    // Point Auth to the local emulator
-    connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-    // Point Storage to the local emulator
-    connectStorageEmulator(storage, '127.0.0.1', 9199);
+// This check ensures that this code only runs in the browser, and only once.
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    // This is a common trick to prevent HMR from re-connecting to the emulators on every file save.
+    // @ts-ignore
+    if (!globalThis._firebaseEmulatorsConnected) {
+        console.log("Development environment detected. Connecting to Firebase emulators.");
+        connectFirestoreEmulator(db, '127.0.0.1', 8080);
+        connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+        connectStorageEmulator(storage, '127.0.0.1', 9199);
+        // @ts-ignore
+        globalThis._firebaseEmulatorsConnected = true;
+    }
 }
 
 
