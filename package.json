@@ -12,7 +12,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "preemulators": "npm --prefix functions run build",
-    "emulators": "firebase emulators:start --only functions,firestore"
+    "emulators": "firebase emulators:start --only auth,firestore,storage,functions"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",
