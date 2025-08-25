@@ -7,7 +7,7 @@
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
-    "build": "typescript",
+    "build": "tsc",
     "deploy": "npm run build && firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
