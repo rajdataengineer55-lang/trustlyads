@@ -8,6 +8,9 @@ import { AuthProvider } from '@/contexts/AuthContext';
 export const metadata: Metadata = {
   title: 'trustlyads.in',
   description: 'Connect with Local Businesses. Find Best Offers Daily.',
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
