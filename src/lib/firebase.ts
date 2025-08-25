@@ -24,7 +24,7 @@ const storage = getStorage(app);
 
 // Connect to emulators in development environment.
 // This code will only run on the client-side.
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     // Point the SDKs to the emulators.
     // @ts-ignore - a temporary flag to ensure we only connect once.
     if (!globalThis._firebaseEmulatorsConnected) {
