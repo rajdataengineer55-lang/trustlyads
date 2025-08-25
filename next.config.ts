@@ -2,8 +2,22 @@
 import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Your existing Next.js configuration...
-
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
   // Add the following to allow cross-origin requests in development
   // This is necessary to allow the Firebase emulators to work correctly
   async headers() {
