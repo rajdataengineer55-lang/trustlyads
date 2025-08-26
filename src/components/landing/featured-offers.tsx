@@ -145,7 +145,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
                         <Badge key={tag} variant="secondary">{tag}</Badge>
                       ))}
                     </div>
-                    <div className="pt-4 mt-auto">
+                    <div className="mt-auto pt-4">
                       <Link href={`/offer/${offer.id}`} passHref>
                         <Button className="w-full">
                               View Details <ArrowRight className="ml-2 h-4 w-4" />
