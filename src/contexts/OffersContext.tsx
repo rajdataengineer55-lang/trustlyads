@@ -11,9 +11,7 @@ import {
   toggleOfferVisibility as toggleVisibilityInDb,
   incrementOfferView as incrementViewInDb,
   incrementOfferClick as incrementClickInDb,
-  addStory as addStoryToDb,
   type OfferData,
-  type Story
 } from '@/lib/offers';
 
 export interface Review {
@@ -45,7 +43,6 @@ export interface Offer {
   chatLink?: string;
   scheduleLink?: string;
   reviews?: Review[];
-  stories?: Story[];
   isHidden?: boolean;
   createdAt: Date;
   views?: number;
@@ -61,7 +58,6 @@ interface OffersContextType {
   boostOffer: (id: string) => void; // This will remain client-side for now
   getOfferById: (id: string) => Offer | undefined;
   addReview: (offerId: string, review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
-  addStory: (offerId: string, storyData: { mediaUrl: string; mediaType: 'image' | 'video' }) => Promise<void>;
   toggleOfferVisibility: (id: string) => Promise<void>;
   incrementOfferView: (id: string) => Promise<void>;
   incrementOfferClick: (id: string) => Promise<void>;
@@ -115,10 +111,6 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     await addReviewToDb(offerId, review);
   };
 
-  const addStory = async (offerId: string, storyData: { mediaUrl: string; mediaType: 'image' | 'video' }) => {
-    await addStoryToDb(offerId, storyData);
-  };
-
   const toggleOfferVisibility = async (id: string) => {
     const offer = getOfferById(id);
     if(offer) {
@@ -135,7 +127,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <OffersContext.Provider value={{ offers, loading, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, addStory, toggleOfferVisibility, incrementOfferView, incrementOfferClick }}>
+    <OffersContext.Provider value={{ offers, loading, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility, incrementOfferView, incrementOfferClick }}>
       {children}
     </OffersContext.Provider>
   );

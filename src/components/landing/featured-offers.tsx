@@ -5,15 +5,14 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, EyeOff, MapPin, Clock, Building, Clapperboard } from "lucide-react";
-import { useOffers, type Offer } from "@/contexts/OffersContext";
+import { ArrowRight, EyeOff, MapPin, Clock, Building } from "lucide-react";
+import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
-import { StoryViewer } from "../story-viewer";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 
 
 interface FeaturedOffersProps {
@@ -29,8 +28,6 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
   const { offers, loading: offersLoading } = useOffers();
   const { user, loading: authLoading } = useAuth();
   
-  const [storyToView, setStoryToView] = useState<Offer | null>(null);
-
   const loading = offersLoading || authLoading;
   const isAdmin = user?.email === authorizedAdminEmail;
 
@@ -63,17 +60,6 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
       return filtered;
   }, [offers, isAdmin, selectedCategory, selectedLocation, searchTerm, sortOption]);
   
-  const handleOfferClick = (e: React.MouseEvent, offer: Offer) => {
-    // Only open story viewer if it's not a click on a button or link inside the card
-    if (e.target instanceof HTMLElement && e.target.closest('a, button')) {
-      return;
-    }
-    if (offer.stories && offer.stories.length > 0) {
-      e.preventDefault();
-      setStoryToView(offer);
-    }
-  };
-
   if (loading) {
     return (
       <section id="featured-offers" className="w-full py-16 sm:py-24">
@@ -115,27 +101,21 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAndSortedOffers.map((offer) => {
             const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
-            const hasStory = offer.stories && offer.stories.length > 0;
 
             return (
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
                   <CardContent className="p-0 flex flex-col flex-grow">
-                      <Link href={hasStory ? '#' : `/offer/${offer.id}`} onClick={(e) => hasStory && handleOfferClick(e, offer)} className="cursor-pointer block">
-                        <div className={cn("relative aspect-[4/3] w-full", hasStory && "ring-2 ring-offset-2 ring-primary rounded-lg")}>
+                      <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
+                        <div className="relative aspect-[4/3] w-full">
                           <Image
                             src={offer.image}
                             alt={offer.title}
                             width={400}
                             height={300}
-                            className={cn("object-cover w-full h-full transition-transform duration-300 group-hover:scale-105", hasStory && "rounded-lg")}
+                            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint={offer.hint}
                             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
                           />
-                         {hasStory && (
-                          <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1.5 flex items-center justify-center">
-                              <Clapperboard className="h-4 w-4" />
-                          </div>
-                         )}
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                             <h3 className="text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
                         </div>
@@ -147,7 +127,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                               <EyeOff className="mr-2 h-4 w-4" /> Hidden
                             </Badge>
                         )}
-                        {isNew && !offer.isHidden && !hasStory &&(
+                        {isNew && !offer.isHidden && (
                             <Badge variant="secondary" className="absolute top-4 left-4 font-bold py-1 px-3 bg-green-500 text-white">
                                 Just Listed
                             </Badge>
@@ -193,9 +173,6 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
         </div>
       </div>
     </section>
-    {storyToView && (
-      <StoryViewer offer={storyToView} onClose={() => setStoryToView(null)} />
-    )}
     </>
   );
 }

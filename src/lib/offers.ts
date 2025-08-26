@@ -46,15 +46,6 @@ export interface OfferData {
   clicks?: number;
 }
 
-export interface Story {
-    id: string;
-    mediaUrl: string;
-    mediaType: 'image' | 'video';
-    createdAt: Date;
-    expiresAt: Date;
-}
-
-
 const offersCollection = collection(db, 'offers');
 
 // Helper to convert Firestore timestamp to Date
@@ -65,7 +56,6 @@ const mapDocToOffer = (doc: any): Offer => {
     ...data,
     createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
     reviews: data.reviews || [], // Initialize with empty array
-    stories: data.stories || [], // Initialize with empty array
     views: data.views || 0,
     clicks: data.clicks || 0,
   } as Offer;
@@ -94,24 +84,6 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
             } as Review;
         });
         offer.reviews = reviews;
-
-        // --- Fetch Active Stories (Client-Side Filtering) ---
-        const storiesCollection = collection(db, 'offers', offer.id, 'stories');
-        const storiesQuery = query(storiesCollection, orderBy('createdAt', 'asc'));
-        const storiesSnapshot = await getDocs(storiesQuery);
-        
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        
-        offer.stories = storiesSnapshot.docs
-            .map(storyDoc => {
-                const storyData = storyDoc.data();
-                return {
-                    id: storyDoc.id,
-                    ...storyData,
-                    createdAt: (storyData.createdAt as Timestamp).toDate(),
-                } as Story;
-            })
-            .filter(story => story.createdAt > twentyFourHoursAgo); // Filter stories on the client
 
         return offer;
     }));
@@ -174,16 +146,6 @@ export const addReview = async (offerId: string, reviewData: Omit<Review, 'id' |
     };
     const reviewsCollection = collection(db, 'offers', offerId, 'reviews');
     await addDoc(reviewsCollection, reviewWithTimestamp);
-};
-
-// Add a story to an offer's subcollection
-export const addStory = async (offerId: string, storyData: { mediaUrl: string; mediaType: 'image' | 'video' }) => {
-    const storyWithTimestamp = {
-        ...storyData,
-        createdAt: serverTimestamp()
-    };
-    const storiesCollection = collection(db, 'offers', offerId, 'stories');
-    await addDoc(storiesCollection, storyWithTimestamp);
 };
 
 // Toggle offer visibility

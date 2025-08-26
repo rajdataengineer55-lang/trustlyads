@@ -24,13 +24,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff, BarChart2, Clapperboard } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff, BarChart2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "./ui/badge";
-import { AddStoryForm } from "./add-story-form";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 export function ManageOffers() {
@@ -38,7 +37,6 @@ export function ManageOffers() {
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isStoryDialogOpen, setIsStoryDialogOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
 
   const handleDeleteClick = (offer: Offer) => {
@@ -64,15 +62,9 @@ export function ManageOffers() {
     setSelectedOffer(offer);
     setIsEditDialogOpen(true);
   }
-
-  const handleAddStoryClick = (offer: Offer) => {
-    setSelectedOffer(offer);
-    setIsStoryDialogOpen(true);
-  }
   
   const handleDialogClose = () => {
     setIsEditDialogOpen(false);
-    setIsStoryDialogOpen(false);
     setSelectedOffer(null);
   }
 
@@ -146,7 +138,6 @@ export function ManageOffers() {
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /><span className="sr-only">Manage Offer</span></Button></DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onSelect={() => handleAddStoryClick(offer)}><Clapperboard className="mr-2 h-4 w-4" /> Add Story</DropdownMenuItem>
                                         <DropdownMenuItem onSelect={() => handleBoostClick(offer)}><Megaphone className="mr-2 h-4 w-4" /> Boost</DropdownMenuItem>
                                         <DropdownMenuItem onSelect={() => handleToggleVisibility(offer)}>{offer.isHidden ? <Eye className="mr-2 h-4 w-4" /> : <EyeOff className="mr-2 h-4 w-4" />}{offer.isHidden ? 'Make Visible' : 'Hide'}</DropdownMenuItem>
                                         <DropdownMenuItem onSelect={() => handleEditClick(offer)}><Pencil className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
@@ -165,10 +156,6 @@ export function ManageOffers() {
       
       <Dialog open={isEditDialogOpen} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
         <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>Edit Offer</DialogTitle></DialogHeader>{selectedOffer && <AdGenerator offerToEdit={selectedOffer} onFinished={handleDialogClose} />}</DialogContent>
-      </Dialog>
-      
-      <Dialog open={isStoryDialogOpen} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
-        <DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Add Story for "{selectedOffer?.title}"</DialogTitle></DialogHeader>{selectedOffer && <AddStoryForm offer={selectedOffer} onFinished={handleDialogClose} />}</DialogContent>
       </Dialog>
       
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
