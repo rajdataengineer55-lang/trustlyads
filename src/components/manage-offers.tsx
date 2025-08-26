@@ -175,9 +175,9 @@ export function ManageOffers() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={() => handleAddStoryClick(offer)}>
+                                        {/* <DropdownMenuItem onClick={() => handleAddStoryClick(offer)}>
                                             <Clapperboard className="mr-2 h-4 w-4" /> Add Story
-                                        </DropdownMenuItem>
+                                        </DropdownMenuItem> */}
                                         <DropdownMenuItem onClick={() => handleBoostClick(offer)}>
                                             <Megaphone className="mr-2 h-4 w-4" /> Boost
                                         </DropdownMenuItem>

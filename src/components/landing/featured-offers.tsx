@@ -105,15 +105,15 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm 
 
             return (
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
-                <Link href={`/offer/${offer.id}`} onClick={(e) => handleOfferClick(e, offer)} passHref className="flex flex-col flex-grow">
+                <Link href={`/offer/${offer.id}`} passHref className="flex flex-col flex-grow">
                   <CardContent className="p-0 flex flex-col flex-grow">
-                    <div className={cn("relative aspect-[4/3] w-full", hasStory && "p-1 bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600 rounded-t-lg")}>
+                    <div className={cn("relative aspect-[4/3] w-full")}>
                       <Image
                         src={offer.image}
                         alt={offer.title}
                         width={400}
                         height={300}
-                        className={cn("object-cover w-full h-full transition-transform duration-300 group-hover:scale-105", hasStory && "rounded-md")}
+                        className={cn("object-cover w-full h-full transition-transform duration-300 group-hover:scale-105")}
                         data-ai-hint={offer.hint}
                         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
                       />
@@ -132,11 +132,6 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm 
                           <Badge variant="secondary" className="absolute top-4 left-4 font-bold py-1 px-3 bg-green-500 text-white">
                               Just Listed
                           </Badge>
-                      )}
-                      {hasStory && (
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white rounded-full p-3 flex items-center gap-2">
-                           <Clapperboard className="h-6 w-6" />
-                        </div>
                       )}
                     </div>
                     <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
