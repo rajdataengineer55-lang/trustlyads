@@ -1,42 +1,39 @@
-rules_version = '2';
 
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Helper function to check for admin status
-    function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+
+    // Rule for the `reviews` collection group query
+    match /{path=**}/reviews/{reviewId} {
+      allow read: if true;
     }
-  
-    // Offers can be read by anyone, but only created, updated, or deleted by an admin.
+
+    // Rule for the `offers` collection
     match /offers/{offerId} {
       allow read: if true;
-      allow write: if isAdmin();
-      
-      // Reviews can be written by any authenticated user.
+      // Allow write access ONLY to the specific admin email.
+      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+
+      // Nested rule for direct access to reviews of a specific offer
       match /reviews/{reviewId} {
-        allow read: if true;
-        allow create: if request.auth != null;
-        allow update, delete: if isAdmin(); // Only admin can moderate reviews
+        allow create: if request.auth != null; // Only logged-in users can create reviews
+        allow update, delete: if false; // No one can edit or delete for now
       }
     }
-
-    // Followers can be created/deleted by any authenticated user for their own document.
-    // Reading the whole collection is restricted to admins.
-    match /followers/{userId} {
-      allow read, delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
-    }
-
-    // Admins can read the full list of followers.
-    match /followers/{followerId} {
-        allow list: if isAdmin();
-    }
     
-    // Meta collection can be read by anyone, but only written to by admin (for stats).
-    match /meta/{docId} {
-        allow read: if true;
-        allow write: if isAdmin();
+    // Rule for the `followers` collection
+    match /followers/{userId} {
+      // Allow reading follower documents (e.g., for counts)
+      allow get, list: if true;
+      // Allow a user to only write to their own follower document
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Rule for the `meta/stats` document for follower count
+    match /meta/stats {
+      allow get: if true;
+      // Only allow backend functions to update stats (for future use)
+      allow write: if false;
     }
   }
 }
