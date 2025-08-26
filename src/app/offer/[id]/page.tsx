@@ -87,13 +87,6 @@ export default function OfferDetailsPage() {
     }
   }, [id, getOfferById, offersLoading, user, incrementOfferView]);
 
-
-  useEffect(() => {
-    if (user) {
-        form.setValue("author", user.displayName || "Anonymous");
-    }
-  }, [user, form]);
-
   const handleTrackedClick = (url: string, isExternal: boolean = true) => {
     incrementOfferClick(id);
     if(isExternal) {
@@ -158,7 +151,7 @@ export default function OfferDetailsPage() {
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
     });
-    form.reset({ author: user.displayName || "Anonymous", rating: 0, comment: '' });
+    form.reset({ author: "", rating: 0, comment: '' });
   };
   
   if (authLoading || offersLoading) {
@@ -395,7 +388,7 @@ export default function OfferDetailsPage() {
                                         <FormItem>
                                             <FormLabel>Your Name</FormLabel>
                                             <FormControl>
-                                                <Input readOnly placeholder="Enter your name" {...field} />
+                                                <Input placeholder="Enter your name" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -517,5 +510,7 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    
 
     
