@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -13,12 +14,13 @@ import { LogIn, LogOut, ShieldAlert, Loader2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLoginForm } from '@/components/admin-login-form';
-import { UserManagement } from '@/components/user-management';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
 
 export default function AdminPage() {
-    const { user, loading, isAdmin, signOut } = useAuth();
+    const { user, loading, signOut } = useAuth();
+    const isAdmin = user?.email === ADMIN_EMAIL;
     
     // Show a loading skeleton if the auth state is still loading.
     if (loading) {
@@ -102,10 +104,9 @@ export default function AdminPage() {
             <main className="flex-1 bg-background/50">
                  <div className="container mx-auto px-4 md:px-6 py-12">
                      <Tabs defaultValue="post" className="w-full">
-                        <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
+                        <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto">
                             <TabsTrigger value="post">Post Offer</TabsTrigger>
                             <TabsTrigger value="manage">Manage Offers</TabsTrigger>
-                            <TabsTrigger value="users">Manage Users</TabsTrigger>
                         </TabsList>
                         <TabsContent value="post">
                             <section className="py-12 sm:py-16">
@@ -115,11 +116,6 @@ export default function AdminPage() {
                         <TabsContent value="manage">
                             <section className="py-12 sm:py-16">
                                 <ManageOffers />
-                            </section>
-                        </TabsContent>
-                        <TabsContent value="users">
-                             <section className="py-12 sm:py-16">
-                                <UserManagement />
                             </section>
                         </TabsContent>
                     </Tabs>

@@ -12,8 +12,8 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { doc, setDoc, onSnapshot, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+
+const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
 
 interface AuthContextType {
   user: User | null;
@@ -33,25 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setLoading(true);
       if (user) {
-        // When auth state changes, get a fresh ID token and check for admin claim.
-        const idTokenResult = await user.getIdTokenResult(true);
-        setIsAdmin(!!idTokenResult.claims.admin);
         setUser(user);
-
-        // Create or update the user document in Firestore
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (!userDoc.exists()) {
-          setDoc(userDocRef, {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-          }, { merge: true });
-        }
+        setIsAdmin(user.email === ADMIN_EMAIL);
       } else {
         setUser(null);
         setIsAdmin(false);
