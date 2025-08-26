@@ -1,15 +1,18 @@
 rules_version = '2';
 
+// By default, deny all reads and writes
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow public read access for all images in the 'offers' folder.
-    // This lets website visitors see the offer images.
-    match /offers/{allPaths=**} {
+    // Allow read access to everyone for all files.
+    // This allows the app to display images and other media.
+    match /{allPaths=**} {
       allow read: if true;
-      
-      // Allow write access (upload, update, delete) only to signed-in users.
-      // Since only the admin can access the upload page in the app, this is secure.
-      allow write: if request.auth != null;
+    }
+    
+    // Allow write access (uploads) only to authenticated users (i.e., the admin).
+    // This secures the bucket so that only the admin can upload new files.
+    match /{allPaths=**} {
+       allow write: if request.auth != null;
     }
   }
 }
