@@ -55,6 +55,10 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     });
   
   const handleOfferClick = (e: React.MouseEvent, offer: Offer) => {
+    // Only open story viewer if it's not a click on a button or link inside the card
+    if (e.target instanceof HTMLElement && e.target.closest('a, button')) {
+      return;
+    }
     if (offer.stories && offer.stories.length > 0) {
       e.preventDefault();
       setStoryToView(offer);
@@ -63,16 +67,16 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
 
   if (loading) {
     return (
-      <section id="featured-offers" className="w-full pt-16 sm:pt-24">
+      <section id="featured-offers" className="w-full py-16 sm:py-24">
         <div className="container mx-auto px-4 md:px-6">
            <h2 className="text-3xl font-headline font-bold text-center mb-12">
             Featured Offers
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Skeleton className="h-[400px] w-full" />
-            <Skeleton className="h-[400px] w-full" />
-            <Skeleton className="h-[400px] w-full" />
-            <Skeleton className="h-[400px] w-full" />
+            <Skeleton className="h-[420px] w-full" />
+            <Skeleton className="h-[420px] w-full" />
+            <Skeleton className="h-[420px] w-full" />
+            <Skeleton className="h-[420px] w-full" />
           </div>
         </div>
       </section>
@@ -94,7 +98,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
 
   return (
     <>
-    <section id="featured-offers" className="w-full pt-16 sm:pt-24">
+    <section id="featured-offers" className="w-full py-16 sm:py-24">
       <div className="container mx-auto px-4 md:px-6">
         <h2 className="text-3xl font-headline font-bold text-center mb-12">
           Featured Offers
@@ -106,18 +110,18 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
 
             return (
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
-                <div onClick={(e) => handleOfferClick(e, offer)} className="cursor-pointer flex flex-col flex-grow">
                   <CardContent className="p-0 flex flex-col flex-grow">
-                    <div className={cn("relative aspect-[4/3] w-full", hasStory && "ring-2 ring-offset-2 ring-primary rounded-lg")}>
-                      <Image
-                        src={offer.image}
-                        alt={offer.title}
-                        width={400}
-                        height={300}
-                        className={cn("object-cover w-full h-full transition-transform duration-300 group-hover:scale-105", hasStory && "rounded-lg")}
-                        data-ai-hint={offer.hint}
-                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                      />
+                    <Link href={hasStory ? '#' : `/offer/${offer.id}`} onClick={(e) => hasStory && handleOfferClick(e, offer)} className="cursor-pointer flex flex-col flex-grow">
+                      <div className={cn("relative aspect-[4/3] w-full", hasStory && "ring-2 ring-offset-2 ring-primary rounded-lg")}>
+                        <Image
+                          src={offer.image}
+                          alt={offer.title}
+                          width={400}
+                          height={300}
+                          className={cn("object-cover w-full h-full transition-transform duration-300 group-hover:scale-105", hasStory && "rounded-lg")}
+                          data-ai-hint={offer.hint}
+                          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                        />
                        {hasStory && (
                         <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1.5 flex items-center justify-center">
                             <Clapperboard className="h-4 w-4" />
@@ -139,14 +143,15 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                               Just Listed
                           </Badge>
                       )}
-                    </div>
+                      </div>
+                    </Link>
                     <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
-                      <div className="flex-grow">
-                        <div className="flex items-center text-sm text-muted-foreground mb-2">
+                      <div className="flex-grow space-y-3">
+                        <div className="flex items-center text-sm text-muted-foreground">
                             <Building className="h-4 w-4 mr-2 shrink-0" />
                             <p className="truncate font-medium text-foreground">{offer.business}</p>
                         </div>
-                        <div className="flex items-start text-sm text-muted-foreground mb-2">
+                        <div className="flex items-start text-sm text-muted-foreground">
                           <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
                           <div>
                             <p className="truncate font-medium text-foreground">{offer.location}</p>
@@ -154,18 +159,18 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                           </div>
                         </div>
                         {offer.createdAt && (
-                        <div className="flex items-center text-xs text-muted-foreground mb-4 ml-1">
+                        <div className="flex items-center text-xs text-muted-foreground">
                             <Clock className="h-3 w-3 mr-1.5" />
                             <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
                         </div>
                         )}
-                        <div className="flex flex-wrap gap-2 mb-4 min-h-[24px]">
+                        <div className="flex flex-wrap gap-2 min-h-[24px]">
                           {offer.tags?.slice(0,3).map((tag) => (
                             <Badge key={tag} variant="secondary">{tag}</Badge>
                           ))}
                         </div>
                       </div>
-                      <div className="pt-4">
+                      <div className="pt-4 mt-auto">
                           <Link href={`/offer/${offer.id}`} passHref>
                             <Button className="w-full">
                                     View Details <ArrowRight className="ml-2 h-4 w-4" />
@@ -174,7 +179,6 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                       </div>
                     </div>
                   </CardContent>
-                </div>
               </Card>
           )})}
         </div>

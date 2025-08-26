@@ -9,7 +9,7 @@ import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, LogIn, EyeOff, BarChart2, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -161,7 +161,7 @@ export default function OfferDetailsPage() {
             <main className="flex-1 bg-background/50 py-12">
                 <div className="container mx-auto px-4 md:px-6">
                     <Skeleton className="h-8 w-1/4 mb-8" />
-                    <div className="grid md:grid-cols-2 gap-8">
+                    <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
                         <div>
                             <Skeleton className="w-full aspect-[4/3] rounded-lg" />
                             <div className="grid grid-cols-4 gap-2 mt-2">
@@ -203,9 +203,9 @@ export default function OfferDetailsPage() {
 
   const LocationInfo = () => (
     <div className="flex items-start text-muted-foreground mb-4">
-      <MapPin className="h-5 w-5 mr-2 shrink-0 mt-1" />
+      <MapPin className="h-5 w-5 mr-3 shrink-0 mt-1" />
       <div>
-        <p className="font-medium">{offer.location}</p>
+        <p className="font-semibold text-foreground">{offer.location}</p>
         {offer.nearbyLocation && <p className="text-sm">{offer.nearbyLocation}</p>}
       </div>
     </div>
@@ -239,7 +239,7 @@ export default function OfferDetailsPage() {
       <Header />
       <main className="flex-1 bg-background/50 py-6 sm:py-12">
         <div className="container mx-auto px-4 md:px-6">
-            <Link href="/" className="inline-flex items-center text-primary mb-4 sm:mb-8 hover:underline">
+            <Link href="/" className="inline-flex items-center text-primary mb-6 sm:mb-8 hover:underline">
                  <ArrowLeft className="mr-2 h-4 w-4" />
                  Back to all offers
             </Link>
@@ -274,7 +274,7 @@ export default function OfferDetailsPage() {
                     {allImages.length > 1 && (
                       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
                           {allImages.map((img, i) => (
-                              <div key={i} className="relative aspect-[4/3] cursor-pointer" onClick={() => setMainImage(img)}>
+                              <div key={i} className="relative aspect-square cursor-pointer" onClick={() => setMainImage(img)}>
                                 <Image 
                                   src={img} 
                                   alt={`thumbnail ${i + 1}`} 
@@ -290,15 +290,15 @@ export default function OfferDetailsPage() {
                 </div>
 
                 <div className="lg:col-span-2">
-                    <Card>
-                        <CardContent className="p-4 sm:p-6">
-                            <h1 className="text-xl sm:text-2xl font-headline font-bold mb-2">{offer.title}</h1>
+                    <Card className="h-full">
+                        <CardContent className="p-4 sm:p-6 flex flex-col h-full">
+                            <h1 className="text-2xl sm:text-3xl font-headline font-bold mb-2">{offer.title}</h1>
                             <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>
                             
                             <LocationInfo />
 
                              {offer.locationLink && (
-                                <div className="mb-6 block">
+                                <div className="mb-6">
                                     <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => handleTrackedClick(offer.locationLink!)}>
                                         <Navigation className="mr-2 h-4 w-4" />
                                         Get Directions
@@ -312,7 +312,8 @@ export default function OfferDetailsPage() {
                                 <Badge key={tag} variant="secondary">{tag}</Badge>
                             ))}
                             </div>
-
+                            
+                            <div className="mt-auto">
                              {user ? (
                                 <ContactActions />
                              ) : (
@@ -325,19 +326,20 @@ export default function OfferDetailsPage() {
                                   </Button>
                                 </div>
                              )}
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
             </div>
 
-            <div className="mt-12 grid lg:grid-cols-2 gap-8 lg:gap-12">
-              <div className="space-y-8">
+            <div className="mt-12 grid lg:grid-cols-5 gap-8 lg:gap-12">
+              <div className="space-y-8 lg:col-span-3">
                 <Card>
                   <CardHeader>
                     <CardTitle>Offer Description</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground whitespace-pre-wrap">
                       {offer.description}
                     </p>
                   </CardContent>
@@ -346,13 +348,13 @@ export default function OfferDetailsPage() {
                 {offer.reviews && offer.reviews.length > 0 && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Customer Reviews</CardTitle>
+                      <CardTitle>Customer Reviews ({offer.reviews.length})</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       {offer.reviews.map((review) => (
                         <div key={review.id} className="flex gap-4">
                           <Avatar>
-                            <AvatarFallback>{review.author.charAt(0)}</AvatarFallback>
+                            <AvatarFallback>{review.author.charAt(0).toUpperCase()}</AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
@@ -372,10 +374,11 @@ export default function OfferDetailsPage() {
                 )}
               </div>
 
-              <div>
+              <div className="lg:col-span-2">
                 <Card>
                     <CardHeader>
                         <CardTitle>Write a Review</CardTitle>
+                        <CardDescription>Share your experience with this business.</CardDescription>
                     </CardHeader>
                     <CardContent>
                       {user ? (
@@ -432,7 +435,7 @@ export default function OfferDetailsPage() {
                                         <FormItem>
                                             <FormLabel>Your Review</FormLabel>
                                             <FormControl>
-                                                <Textarea placeholder="Share your experience..." {...field} />
+                                                <Textarea placeholder="Share your experience..." {...field} rows={4}/>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -442,7 +445,7 @@ export default function OfferDetailsPage() {
                             </form>
                         </Form>
                       ) : (
-                        <div className="text-center">
+                        <div className="text-center py-4">
                           <p className="text-muted-foreground mb-4">You must be signed in to write a review.</p>
                           <Button onClick={signInWithGoogle}>
                             <LogIn className="mr-2 h-4 w-4"/>
@@ -457,36 +460,38 @@ export default function OfferDetailsPage() {
             
             {similarOffers.length > 0 && (
               <div className="mt-16">
-                 <h2 className="text-2xl font-headline font-bold text-center mb-12">
+                 <h2 className="text-2xl font-headline font-bold text-center mb-8">
                   Similar Offers
                 </h2>
                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {similarOffers.map((similarOffer) => (
                     <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
                       <CardContent className="p-0">
-                        <div className="relative aspect-[4/3]">
-                          <Image
-                            src={similarOffer.image}
-                            alt={similarOffer.title}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            data-ai-hint={similarOffer.hint}
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          />
-                          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                              <h3 className="text-lg font-headline font-bold text-white truncate">{similarOffer.title}</h3>
+                        <Link href={`/offer/${similarOffer.id}`} passHref className="block">
+                          <div className="relative aspect-[4/3]">
+                            <Image
+                              src={similarOffer.image}
+                              alt={similarOffer.title}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              data-ai-hint={similarOffer.hint}
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                                <h3 className="text-lg font-headline font-bold text-white truncate">{similarOffer.title}</h3>
+                            </div>
+                            <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
+                              {similarOffer.discount}
+                            </Badge>
                           </div>
-                          <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
-                            {similarOffer.discount}
-                          </Badge>
-                        </div>
+                        </Link>
                         <div className="p-4 sm:p-6 bg-card">
                           <div className="flex items-center text-sm text-muted-foreground mb-3">
                               <MapPin className="h-4 w-4 mr-2 shrink-0" />
                               <span className="truncate">{similarOffer.location}</span>
                           </div>
                           <div className="flex flex-wrap gap-2 mb-4">
-                            {similarOffer.tags?.map((tag) => (
+                            {similarOffer.tags?.slice(0, 3).map((tag) => (
                               <Badge key={tag} variant="secondary">{tag}</Badge>                            
                             ))}
                           </div>
@@ -510,9 +515,3 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
