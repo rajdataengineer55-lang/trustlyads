@@ -98,9 +98,15 @@ function AdminLoginForm() {
 
 export default function AdminPage() {
     const { user, loading, signOut } = useAuth();
-
-    // The single source of truth for admin status.
-    const isAdmin = user?.email === ADMIN_EMAIL;
+    const [isAdmin, setIsAdmin] = useState(false);
+    
+    useEffect(() => {
+        if (!loading && user) {
+            setIsAdmin(user.email === ADMIN_EMAIL);
+        } else if (!loading && !user) {
+            setIsAdmin(false);
+        }
+    }, [user, loading]);
 
     // Show a loading skeleton if the auth state is still loading.
     if (loading) {
