@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -32,9 +31,11 @@ export default function AdminPage() {
             return;
         }
 
+        // Use onIdTokenChanged to listen for token refreshes.
+        // This ensures the custom claim is detected without needing a manual refresh.
         const unsubscribe = onIdTokenChanged(auth, async (user) => {
             if (user) {
-                const idTokenResult = await user.getIdTokenResult();
+                const idTokenResult = await user.getIdTokenResult(true); // Force refresh the token
                 const isAdminClaim = !!idTokenResult.claims.admin;
                 setIsAdmin(isAdminClaim);
             } else {
