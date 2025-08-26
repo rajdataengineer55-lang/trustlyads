@@ -5,6 +5,30 @@ import * as admin from "firebase-admin";
 admin.initializeApp();
 
 const db = admin.firestore();
+const auth = admin.auth();
+
+const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
+
+// This Cloud Function sets a custom 'admin' claim on a user's account
+// if their email matches the authorized admin email.
+export const setAdminClaim = functions.auth.user().onCreate(async (user) => {
+  if (user.email === authorizedAdminEmail) {
+    try {
+      await auth.setCustomUserClaims(user.uid, { admin: true });
+      functions.logger.info(`Custom claim 'admin' set for user: ${user.email}`);
+
+      // Optional: You could also add a record to Firestore to confirm.
+      await db.collection("admins").doc(user.uid).set({
+        email: user.email,
+        adminSince: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+    } catch (error) {
+      functions.logger.error(`Error setting custom claim for ${user.email}:`, error);
+    }
+  }
+});
+
 
 // This function triggers when a new offer is created in Firestore.
 export const onNewOfferSendNotification = functions.firestore

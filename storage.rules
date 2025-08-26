@@ -1,21 +1,16 @@
+
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // Helper function to check if the user is the authorized admin
+    
+    // Helper function to check if the user has the 'admin' custom claim.
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == "dandurajkumarworld24@gmail.com";
+      return request.auth != null && request.auth.token.admin == true;
     }
 
-    // Allow public read access to all offer and story images/videos.
-    // Restrict write access (uploads, deletes) to only the admin user.
-    match /offers/{allPaths=**} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /stories/{allPaths=**} {
+    // Public Read, Admin Write for offers and stories
+    match /{folder}/{allPaths=**} where folder == 'offers' || folder == 'stories' {
       allow read: if true;
       allow write: if isAdmin();
     }
