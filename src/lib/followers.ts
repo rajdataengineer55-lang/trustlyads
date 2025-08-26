@@ -30,14 +30,25 @@ export const isFollowing = async (userId: string): Promise<boolean> => {
   return docSnap.exists();
 };
 
-// Get the total count of followers with real-time updates
+// Get the total count of followers with real-time updates from the aggregated stats document
 export const getFollowersCount = (setCount: (count: number) => void): (() => void) => {
-  const q = query(followersCollection);
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    setCount(snapshot.size);
+  const metaDocRef = doc(db, 'meta', 'stats');
+
+  const unsubscribe = onSnapshot(metaDocRef, (doc) => {
+    if (doc.exists() && doc.data().followerCount !== undefined) {
+      setCount(doc.data().followerCount);
+    } else {
+      // If the document doesn't exist or has no count, assume 0
+      setCount(0);
+    }
+  }, (error) => {
+      console.error("Error fetching follower count:", error);
+      setCount(0);
   });
+  
   return unsubscribe; // Return the unsubscribe function to be called on cleanup
 };
+
 
 // Get all followers (for admin panel)
 export const getAllFollowers = async () => {
@@ -45,3 +56,4 @@ export const getAllFollowers = async () => {
     const followers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     return followers;
 }
+

@@ -74,6 +74,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Initial sort by createdAt is handled by the getOffers query in firebase.ts
     const unsubscribe = getOffers((offersFromDb) => {
       setOffers(offersFromDb);
       setLoading(false);

@@ -4,14 +4,28 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Helper function to check if the user has the 'admin' custom claim.
+    // Helper function to check if the user is the authorized admin via custom claims.
     function isAdmin() {
       return request.auth != null && request.auth.token.admin == true;
     }
 
-    // Public Read, Admin Write for offers and stories
-    match /{folder}/{allPaths=**} where folder == 'offers' || folder == 'stories' {
-      allow read: if true;
+    // Rules for the 'offers' folder
+    // This folder contains all the images for business offers.
+    match /offers/{allPaths=**} {
+      // Anyone can read (view) the offer images.
+      allow read;
+      
+      // Only the admin can write (upload, update, delete) offer images.
+      allow write: if isAdmin();
+    }
+    
+    // Rules for the 'stories' folder
+    // This folder contains the images and videos for 24-hour stories.
+    match /stories/{allPaths=**} {
+      // Anyone can read (view) the story media.
+      allow read;
+      
+      // Only the admin can write (upload, update, delete) story media.
       allow write: if isAdmin();
     }
   }

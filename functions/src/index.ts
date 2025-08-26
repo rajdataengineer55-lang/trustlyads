@@ -62,3 +62,26 @@ export const onNewOfferSendNotification = functions.firestore
 
     return;
   });
+
+
+// --- New Cloud Function to Aggregate Follower Count ---
+// This function triggers whenever a document in the 'followers' collection is created or deleted.
+// It updates a single document in a 'meta' collection with the new total count.
+// This is much more efficient for the app to read than counting all documents on the client-side.
+export const onFollowerChange = functions.firestore
+  .document("followers/{followerId}")
+  .onWrite(async () => {
+    // Get the current count of all documents in the 'followers' collection
+    const followersQuery = db.collection("followers");
+    const snapshot = await followersQuery.get();
+    const count = snapshot.size;
+
+    // Get a reference to the document where we store the count
+    const metaDocRef = db.collection("meta").doc("stats");
+
+    functions.logger.info(`Updating follower count to ${count}.`);
+
+    // Set or update the 'followerCount' field in the document
+    return metaDocRef.set({ followerCount: count }, { merge: true });
+  });
+

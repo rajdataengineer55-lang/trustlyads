@@ -46,8 +46,8 @@ export function Filters({
     return (
         <section id="filters" className="py-8 bg-background/50 border-t border-b">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 items-center">
-                    <div className="w-full lg:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-center">
+                    <div className="w-full lg:col-span-2 md:col-span-3 sm:col-span-2">
                          <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                             <Input
@@ -100,11 +100,23 @@ export function Filters({
                         </Select>
                     </div>
                     
+                    <div className="w-full">
+                         <Select onValueChange={(value: SortOption) => setSortOption(value)} value={sortOption}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Sort by" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="newest">Sort by Newest</SelectItem>
+                                <SelectItem value="trending">Sort by Trending</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    
                     {hasActiveFilters && (
-                        <div className="w-full text-center sm:col-span-2 md:col-span-1 lg:text-left">
+                        <div className="w-full text-center sm:col-span-2 md:col-span-3 lg:col-span-5">
                             <Button variant="ghost" onClick={handleClearFilters}>
                                 <X className="mr-2 h-4 w-4" />
-                                Clear Filters
+                                Clear All Filters
                             </Button>
                         </div>
                     )}

@@ -13,7 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
 import { StoryViewer } from "../story-viewer";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 
 interface FeaturedOffersProps {
@@ -34,25 +34,34 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
   const loading = offersLoading || authLoading;
   const isAdmin = user?.email === authorizedAdminEmail;
 
-  const filteredOffers = offers
-    .filter(offer => {
-      // Admin sees all offers, others only see non-hidden ones.
-      return isAdmin || !offer.isHidden;
-    })
-    .filter(offer => {
-      const categoryMatch = selectedCategory ? offer.category === selectedCategory : true;
-      const locationMatch = selectedLocation ? offer.location === selectedLocation : true;
-      const searchTermLower = searchTerm.toLowerCase();
-      const searchMatch = searchTerm
-        ? offer.title.toLowerCase().includes(searchTermLower) ||
-          offer.business.toLowerCase().includes(searchTermLower) ||
-          offer.location.toLowerCase().includes(searchTermLower) ||
-          offer.description.toLowerCase().includes(searchTermLower) ||
-          (offer.nearbyLocation && offer.nearbyLocation.toLowerCase().includes(searchTermLower)) ||
-          offer.tags.some(tag => tag.toLowerCase().includes(searchTermLower))
-        : true;
-      return categoryMatch && locationMatch && searchMatch;
-    });
+  const filteredAndSortedOffers = useMemo(() => {
+    const filtered = offers
+      .filter(offer => {
+        // Admin sees all offers, others only see non-hidden ones.
+        return isAdmin || !offer.isHidden;
+      })
+      .filter(offer => {
+        const categoryMatch = selectedCategory ? offer.category === selectedCategory : true;
+        const locationMatch = selectedLocation ? offer.location === selectedLocation : true;
+        const searchTermLower = searchTerm.toLowerCase();
+        const searchMatch = searchTerm
+          ? offer.title.toLowerCase().includes(searchTermLower) ||
+            offer.business.toLowerCase().includes(searchTermLower) ||
+            offer.location.toLowerCase().includes(searchTermLower) ||
+            offer.description.toLowerCase().includes(searchTermLower) ||
+            (offer.nearbyLocation && offer.nearbyLocation.toLowerCase().includes(searchTermLower)) ||
+            offer.tags.some(tag => tag.toLowerCase().includes(searchTermLower))
+          : true;
+        return categoryMatch && locationMatch && searchMatch;
+      });
+
+      if (sortOption === 'trending') {
+        return filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
+      }
+      
+      // Default sort is 'newest', which is the default from Firestore
+      return filtered;
+  }, [offers, isAdmin, selectedCategory, selectedLocation, searchTerm, sortOption]);
   
   const handleOfferClick = (e: React.MouseEvent, offer: Offer) => {
     // Only open story viewer if it's not a click on a button or link inside the card
@@ -83,7 +92,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     );
   }
 
-  if (filteredOffers.length === 0) {
+  if (filteredAndSortedOffers.length === 0) {
     return (
        <section id="featured-offers" className="w-full py-16 sm:py-24">
           <div className="container mx-auto px-4 md:px-6 text-center">
@@ -104,14 +113,13 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
           Featured Offers
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredOffers.map((offer) => {
+          {filteredAndSortedOffers.map((offer) => {
             const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
             const hasStory = offer.stories && offer.stories.length > 0;
 
             return (
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
                   <CardContent className="p-0 flex flex-col flex-grow">
-                    <div className="flex flex-col flex-grow">
                       <Link href={hasStory ? '#' : `/offer/${offer.id}`} onClick={(e) => hasStory && handleOfferClick(e, offer)} className="cursor-pointer block">
                         <div className={cn("relative aspect-[4/3] w-full", hasStory && "ring-2 ring-offset-2 ring-primary rounded-lg")}>
                           <Image
@@ -179,7 +187,6 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                             </Link>
                         </div>
                       </div>
-                    </div>
                   </CardContent>
               </Card>
           )})}
