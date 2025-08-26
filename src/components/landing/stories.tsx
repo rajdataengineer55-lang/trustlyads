@@ -72,10 +72,7 @@ export function Stories() {
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                                 <div className="absolute bottom-0 left-0 p-3 text-white w-full">
                                     <p className="text-sm font-bold truncate">{story.businessName}</p>
-                                    <div className="flex items-center text-xs">
-                                        <MapPin className="h-3 w-3 mr-1" />
-                                        <span className="truncate">{story.location}</span>
-                                    </div>
+                                    <p className="text-xs italic truncate">"{story.storyText}"</p>
                                     <div className="flex items-center text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1">
                                         View Offer <ArrowRight className="ml-1 h-3 w-3" />
                                     </div>
@@ -93,3 +90,5 @@ export function Stories() {
     </section>
   );
 }
+
+    

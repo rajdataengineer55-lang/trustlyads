@@ -14,7 +14,8 @@ export interface Story {
   imageUrl: string;
   businessName: string;
   location: string;
-  offerId: string; // Changed from link to offerId
+  storyText: string;
+  offerId: string; 
   createdAt: Date;
 }
 
@@ -62,3 +63,5 @@ export function useStories() {
   }
   return context;
 }
+
+    

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -21,7 +22,7 @@ import Link from "next/link";
 const formSchema = z.object({
   location: z.string({ required_error: "Please select a location." }),
   businessName: z.string({ required_error: "Please select a business." }),
-  offerId: z.string({ required_error: "Please select an offer." }),
+  storyText: z.string().min(1, "Please enter some text for the story."),
   image: z.custom<FileList>().refine((files) => files?.length > 0, "An image is required."),
 });
 
@@ -33,43 +34,26 @@ export function StoryGenerator() {
   const { offers } = useOffers();
 
   const [businessesInLocation, setBusinessesInLocation] = useState<string[]>([]);
-  const [offersForBusiness, setOffersForBusiness] = useState<Offer[]>([]);
-
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { location: "", businessName: "", offerId: "" },
+    defaultValues: { location: "", businessName: "", storyText: "" },
   });
 
   const selectedLocation = form.watch("location");
-  const selectedBusiness = form.watch("businessName");
-
+  
   useEffect(() => {
     if (selectedLocation) {
         const offersInLoc = offers.filter(offer => offer.location === selectedLocation);
         const uniqueBusinesses = [...new Set(offersInLoc.map(offer => offer.business))];
         setBusinessesInLocation(uniqueBusinesses);
         form.resetField("businessName");
-        form.resetField("offerId");
-        setOffersForBusiness([]);
+        form.resetField("storyText");
     } else {
         setBusinessesInLocation([]);
-        setOffersForBusiness([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLocation, offers]);
-
-  useEffect(() => {
-    if (selectedLocation && selectedBusiness) {
-        const filteredOffers = offers.filter(offer => offer.location === selectedLocation && offer.business === selectedBusiness);
-        setOffersForBusiness(filteredOffers);
-        form.resetField("offerId");
-    } else {
-        setOffersForBusiness([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedBusiness, selectedLocation, offers]);
-
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -86,19 +70,25 @@ export function StoryGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
-    const selectedOffer = offers.find(o => o.id === values.offerId);
-    if (!selectedOffer) {
-        toast({ variant: "destructive", title: "Post Failed", description: "Selected offer could not be found." });
+    const businessOffers = offers
+      .filter(o => o.business === values.businessName && o.location === values.location)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    if (businessOffers.length === 0) {
+        toast({ variant: "destructive", title: "Post Failed", description: "No offers found for this business to link to." });
         setIsLoading(false);
         return;
     }
+    
+    const latestOfferId = businessOffers[0].id;
 
     try {
       const imageUrl = await uploadFile(values.image[0], 'stories');
       await addStory({
-        offerId: selectedOffer.id,
-        businessName: selectedOffer.business,
-        location: selectedOffer.location,
+        offerId: latestOfferId,
+        businessName: values.businessName,
+        location: values.location,
+        storyText: values.storyText,
         imageUrl,
       });
 
@@ -131,7 +121,7 @@ export function StoryGenerator() {
             <Card>
                 <CardHeader>
                 <CardTitle>Post a New Story</CardTitle>
-                <CardDescription>Upload an image and link it to a specific offer.</CardDescription>
+                <CardDescription>Upload an image and link it to a business.</CardDescription>
                 </CardHeader>
                 <CardContent>
                 <Form {...form}>
@@ -207,7 +197,7 @@ export function StoryGenerator() {
                                                 <SelectItem key={business} value={business}>{business}</SelectItem>
                                             ))
                                         ) : (
-                                            <SelectItem value="no-business" disabled>No businesses found in this location</SelectItem>
+                                            <SelectItem value="no-business" disabled>No businesses found</SelectItem>
                                         )}
                                     </SelectContent>
                                 </Select>
@@ -217,28 +207,15 @@ export function StoryGenerator() {
                         />
                         <FormField
                             control={form.control}
-                            name="offerId"
+                            name="storyText"
                             render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Offer</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedBusiness || offersForBusiness.length === 0}>
+                                <FormItem>
+                                    <FormLabel>Story Text</FormLabel>
                                     <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder={!selectedBusiness ? "First select a business" : "Step 3: Select an offer"} />
-                                        </SelectTrigger>
+                                        <Input placeholder="e.g., Today's Special" {...field} />
                                     </FormControl>
-                                    <SelectContent>
-                                        {offersForBusiness.length > 0 ? (
-                                            offersForBusiness.map(offer => (
-                                                <SelectItem key={offer.id} value={offer.id}>{offer.title}</SelectItem>
-                                            ))
-                                        ) : (
-                                            <SelectItem value="no-offers" disabled>No offers found for this business</SelectItem>
-                                        )}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                         <Button type="submit" disabled={isLoading} className="w-full">
@@ -262,8 +239,9 @@ export function StoryGenerator() {
                             <div className="flex-grow">
                                 <p className="font-semibold">{story.businessName}</p>
                                 <p className="text-xs text-muted-foreground">{story.location}</p>
+                                <p className="text-xs text-foreground italic">"{story.storyText}"</p>
                                 <Link href={`/offer/${story.offerId}`} className="text-xs text-muted-foreground truncate hover:underline block w-full">
-                                  Links to offer
+                                  Links to offer ID: ...{story.offerId.slice(-6)}
                                 </Link>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => handleDelete(story)}>
@@ -278,3 +256,5 @@ export function StoryGenerator() {
     </div>
   );
 }
+
+    

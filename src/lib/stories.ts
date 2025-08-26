@@ -18,7 +18,8 @@ export interface StoryData {
   imageUrl: string;
   businessName: string;
   location: string;
-  offerId: string; // Changed from link to offerId
+  storyText: string;
+  offerId: string;
 }
 
 const storiesCollection = collection(db, 'stories');
@@ -62,3 +63,5 @@ export const deleteStory = async (id: string) => {
   const storyDoc = doc(db, 'stories', id);
   await deleteDoc(storyDoc);
 };
+
+    
