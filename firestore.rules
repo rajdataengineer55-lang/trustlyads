@@ -5,50 +5,39 @@ service cloud.firestore {
 
     // Helper function to check for admin custom claim
     function isAdmin() {
-      return request.auth.token.admin == true;
+      return request.auth != null && request.auth.token.admin == true;
     }
 
-    // Rules for the 'offers' collection
+    // Offers can be read by anyone, but only written by admins.
     match /offers/{offerId} {
-      // Anyone can read offers
       allow read: if true;
-      
-      // Only admins can create, update, or delete offers
       allow write: if isAdmin();
 
-      // Rules for the 'reviews' subcollection
+      // Reviews can be read by anyone.
+      // Any authenticated user can create a review.
       match /reviews/{reviewId} {
-        // Anyone can read reviews
         allow read: if true;
-        // Only authenticated users can create reviews
         allow create: if request.auth != null;
-        // Users cannot update or delete reviews
-        allow update, delete: if false;
+        allow update, delete: if isAdmin();
       }
       
-      // Rules for the 'stories' subcollection
+      // Stories can be read by anyone, but only written by admins.
       match /stories/{storyId} {
-          // Anyone can read stories
           allow read: if true;
-          // Only admins can write stories
           allow write: if isAdmin();
       }
     }
 
-    // Rules for the 'followers' collection
-    match /followers/{userId} {
-        // Anyone can read follower documents (for potential future use)
-        allow read: if true;
-        // A user can only create or delete their own follower document
-        allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Rules for the aggregated stats
+    // The follower count should be publicly readable.
     match /meta/stats {
-        // Anyone can get the stats document (for follower count)
-        allow get: if true;
-        // No one can list the meta collection or write to the stats doc from the client
-        allow list, write: if false;
+      allow get: if true;
+      allow list, write: if false; // Nobody can list or write to this collection directly
+    }
+
+    // Followers can only be created/deleted by the user themselves.
+    // This allows a user to follow and unfollow.
+    match /followers/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
