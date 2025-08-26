@@ -6,7 +6,7 @@
 //
 // ### Step 1: Create your Storage Bucket (MANDATORY FIRST STEP)
 //
-// The `gsutil` command failed because the bucket doesn't exist yet. You must create it first.
+// The `gsutil` command will fail if the bucket doesn't exist yet. You must create it first.
 //
 //    1. Go to the Firebase Console Storage section for your project:
 //       https://console.firebase.google.com/project/localpulse-9e3lz/storage
