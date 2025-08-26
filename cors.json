@@ -1,25 +1,7 @@
-
 [
   {
-    "origin": [
-      "https://trustlyads.in",
-      "https://www.trustlyads.in",
-      "https://trustlyads-in.web.app",
-      "http://localhost:9002"
-    ],
-    "method": [
-      "GET",
-      "POST",
-      "PUT",
-      "DELETE",
-      "OPTIONS"
-    ],
-    "responseHeader": [
-      "Content-Type",
-      "Authorization",
-      "X-Goog-Resumable",
-      "*"
-    ],
+    "origin": ["*"],
+    "method": ["GET", "HEAD", "PUT", "POST", "DELETE"],
     "maxAgeSeconds": 3600
   }
 ]
