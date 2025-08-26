@@ -1,30 +1,3 @@
-// =================================================================================================
-// ============================= HOW TO FIX THE FILE UPLOAD PERMISSION ERROR =============================
-// =================================================================================================
-// The "FirebaseError: Missing or insufficient permissions" error is happening because your
-// Firebase Storage bucket is not configured to allow file uploads from your website.
-//
-// This is a TWO-STEP process. You must do BOTH steps.
-//
-// ===> STEP 1: ENABLE FIREBASE STORAGE IN THE CONSOLE <===
-//
-// Based on the screenshot you provided, this step is already COMPLETE. Your bucket exists.
-//
-//
-// ===> STEP 2: APPLY THE UPLOAD PERMISSION (CORS) USING YOUR TERMINAL <===
-//
-// Now that the bucket exists, you must run the following command in your Cloud Shell terminal.
-// This command tells your bucket to accept uploads from your website.
-//
-// Copy and paste this exact command into your terminal and press Enter:
-//
-//     gsutil cors set cors.json gs://localpulse-9e3lz.firebasestorage.app
-//
-//
-// After you have completed this step, the "Missing or insufficient permissions"
-// error will be resolved.
-// =================================================================================================
-
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { storage } from './firebase';
@@ -51,7 +24,8 @@ export const uploadFile = async (file: File, destination: 'offers' | 'stories' |
     } catch (error) {
         console.error(`Upload failed for ${file.name}:`, error);
         // Re-throwing the original error to be handled by the caller.
-        // The error object from Firebase often contains useful codes like 'storage/unauthorized'.
+        // The error object from Firebase often contains useful codes like 'storage/unauthorized', 
+        // which can indicate problems with Storage Security Rules.
         throw error;
     }
 };
