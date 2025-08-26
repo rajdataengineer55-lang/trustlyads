@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -9,7 +8,6 @@ import { AdGenerator } from "@/components/ad-generator";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
 import { ManageOffers } from "@/components/manage-offers";
-import { UserManagement } from "@/components/user-management"; // Import new component
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,6 +24,8 @@ const loginSchema = z.object({
 });
 
 type AdminLoginData = z.infer<typeof loginSchema>;
+
+const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
 
 function AdminLoginForm() {
   const { signInWithEmail } = useAuth();
@@ -97,19 +97,8 @@ function AdminLoginForm() {
 
 export default function AdminPage() {
     const { user, loading, signOut } = useAuth();
-    const [isAdmin, setIsAdmin] = useState(false);
+    const isAdmin = !loading && user && user.email === ADMIN_EMAIL;
     
-    useEffect(() => {
-        if (!loading && user) {
-            user.getIdTokenResult().then(idTokenResult => {
-                const isAdminUser = !!idTokenResult.claims.admin;
-                setIsAdmin(isAdminUser);
-            });
-        } else if (!loading && !user) {
-            setIsAdmin(false);
-        }
-    }, [user, loading]);
-
     // Show a loading skeleton if the auth state is still loading.
     if (loading) {
         return (
@@ -131,67 +120,58 @@ export default function AdminPage() {
         );
     }
     
-    // After loading, if there's no user, show the login form.
-    if (!user) {
+    // After loading, if there's no user, or the user is not the admin, show the login form.
+    if (!user || !isAdmin) {
          return (
             <div className="flex flex-col min-h-screen">
                 <Header />
                 <main className="flex-1 bg-background/50 flex flex-col items-center justify-center text-center p-4">
-                    <Card className="max-w-md w-full">
-                        <CardHeader>
-                            <CardTitle className="flex items-center justify-center gap-2">
-                                <ShieldAlert className="h-6 w-6" /> Admin Login
-                            </CardTitle>
-                            <CardDescription>
-                                Please sign in to manage the website.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                           <AdminLoginForm />
-                        </CardContent>
-                    </Card>
+                     {user && !isAdmin ? (
+                         <Card className="max-w-md w-full">
+                            <CardHeader>
+                                <CardTitle className="flex items-center justify-center gap-2">
+                                    <ShieldAlert className="h-6 w-6" /> Unauthorized Access
+                                </CardTitle>
+                                <CardDescription>
+                                    This account does not have admin privileges. Please sign in with the admin account.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <p className="text-sm text-destructive">
+                                    Signed in as {user.email}.
+                                </p>
+                                <div className="flex justify-center items-center gap-4">
+                                    <Button variant="outline" onClick={signOut}>
+                                        <LogOut className="mr-2 h-4 w-4" />
+                                        Sign Out & Switch
+                                    </Button>
+                                    <Link href="/" passHref>
+                                        <Button>
+                                            Go to Homepage
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </CardContent>
+                        </Card>
+                     ) : (
+                        <Card className="max-w-md w-full">
+                            <CardHeader>
+                                <CardTitle className="flex items-center justify-center gap-2">
+                                    <ShieldAlert className="h-6 w-6" /> Admin Login
+                                </CardTitle>
+                                <CardDescription>
+                                    Please sign in to manage the website.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                               <AdminLoginForm />
+                            </CardContent>
+                        </Card>
+                     )}
                 </main>
                 <Footer />
             </div>
         );
-    }
-
-    // If a user is logged in but is not the admin, show the unauthorized message.
-    if (!isAdmin) {
-        return (
-            <div className="flex flex-col min-h-screen">
-                <Header />
-                <main className="flex-1 bg-background/50 flex flex-col items-center justify-center text-center p-4">
-                    <Card className="max-w-md w-full">
-                        <CardHeader>
-                            <CardTitle className="flex items-center justify-center gap-2">
-                                <ShieldAlert className="h-6 w-6" /> Unauthorized Access
-                            </CardTitle>
-                            <CardDescription>
-                                This account does not have admin privileges. Please contact the site owner if you believe this is an error.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <p className="text-sm text-destructive">
-                                Signed in as {user.email}.
-                            </p>
-                            <div className="flex justify-center items-center gap-4">
-                                <Button variant="outline" onClick={signOut}>
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    Sign Out
-                                </Button>
-                                <Link href="/" passHref>
-                                    <Button>
-                                        Go to Homepage
-                                    </Button>
-                                </Link>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </main>
-                <Footer />
-            </div>
-        )
     }
 
     // If all checks pass, render the admin dashboard.
@@ -208,12 +188,6 @@ export default function AdminPage() {
                 <section className="pb-12 sm:pb-16">
                      <div className="container mx-auto px-4 md:px-6">
                         <ManageOffers />
-                    </div>
-                </section>
-                <Separator className="my-8 sm:my-12" />
-                <section className="pb-12 sm:pb-16">
-                     <div className="container mx-auto px-4 md:px-6">
-                        <UserManagement />
                     </div>
                 </section>
             </main>

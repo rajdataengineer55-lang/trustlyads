@@ -31,6 +31,8 @@ const reviewSchema = z.object({
     comment: z.string().min(10, "Comment must be at least 10 characters."),
 });
 
+const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
+
 export default function OfferDetailsPage() {
   const params = useParams();
   const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick } = useOffers();
@@ -63,34 +65,25 @@ export default function OfferDetailsPage() {
         return;
       }
       
-      // Admin status should be checked via custom claims, not hardcoded emails.
-      // For this page, we only need to know if the user is an admin to show hidden offers.
-      // The `useAuth` hook handles the user state.
-      const isAdmin = async () => {
-        if (!user) return false;
-        const token = await user.getIdTokenResult();
-        return !!token.claims.admin;
-      };
+      const isAdmin = user?.email === ADMIN_EMAIL;
+      const isVisible = !foundOffer.isHidden || (foundOffer.isHidden && isAdmin);
 
-      isAdmin().then(isAdminUser => {
-        const isVisible = !foundOffer.isHidden || (foundOffer.isHidden && isAdminUser);
-        if (isVisible) {
-          setOffer(foundOffer);
-          if (foundOffer.image) {
-              setMainImage(foundOffer.image);
-          }
-          
-          // Track view
-          const viewedKey = `viewed-${id}`;
-          if (!sessionStorage.getItem(viewedKey)) {
-            incrementOfferView(id);
-            sessionStorage.setItem(viewedKey, 'true');
-          }
-
-        } else {
-          notFound();
+      if (isVisible) {
+        setOffer(foundOffer);
+        if (foundOffer.image) {
+            setMainImage(foundOffer.image);
         }
-      });
+        
+        // Track view
+        const viewedKey = `viewed-${id}`;
+        if (!sessionStorage.getItem(viewedKey)) {
+          incrementOfferView(id);
+          sessionStorage.setItem(viewedKey, 'true');
+        }
+
+      } else {
+        notFound();
+      }
     }
   }, [id, getOfferById, offersLoading, user, incrementOfferView]);
 
