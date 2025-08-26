@@ -6,15 +6,14 @@ admin.initializeApp();
 const auth = admin.auth();
 const db = admin.firestore();
 
-// --- Cloud Function to set admin claim on user creation ---
-// When a new user signs up, check if their email matches the admin email.
-// If it does, give them the `admin: true` custom claim.
+// This function assigns an admin role to a specific user upon their first sign-up.
 export const setAdminClaimOnCreate = functions.auth.user().onCreate(async (user) => {
   const adminEmail = "dandurajkumarworld24@gmail.com";
 
   if (user.email === adminEmail) {
     functions.logger.info(`Assigning admin role to new user: ${user.email}`);
     try {
+      // Set the custom claim 'admin' to true on the user's token
       await auth.setCustomUserClaims(user.uid, { admin: true });
       functions.logger.info(`Successfully assigned admin role to ${user.email}`);
 
@@ -38,6 +37,7 @@ export const setAdminClaimOnCreate = functions.auth.user().onCreate(async (user)
 
 
 // This function triggers when a new offer is created in Firestore.
+// It is intended for sending notifications to followers.
 export const onNewOfferSendNotification = functions.firestore
   .document("offers/{offerId}")
   .onCreate(async (snap) => {
@@ -56,11 +56,6 @@ export const onNewOfferSendNotification = functions.firestore
     const followers = followersSnapshot.docs.map((doc) => doc.data());
     functions.logger.info(`Found ${followers.length} followers to notify.`, followers.map((f) => f.email));
 
-    // --- TODO: Add notification logic here ---
-    // In the next step, we can integrate an email service (like SendGrid)
-    // or push notifications (FCM) to send a message to each follower.
-    // For example, we could create a batch write to a new 'notifications'
-    // collection that the app could then display to the user.
-
+    // This is where you would add logic to send emails or push notifications.
     return;
   });

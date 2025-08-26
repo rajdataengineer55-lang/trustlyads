@@ -4,63 +4,61 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Check if a user is an authenticated admin
+    // Helper function to check for admin custom claim
     function isAdmin() {
       return request.auth != null && request.auth.token.admin == true;
     }
 
-    // Check if a user is any authenticated user
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
     // Rules for the 'offers' collection
     match /offers/{offerId} {
-      // Anyone can read an offer
+      // Anyone can read a public offer.
       allow read;
-      
-      // Only an admin can create, update, or delete an offer
-      allow create, update, delete: if isAdmin();
-      
+      // Only an admin can create, update, or delete an offer.
+      allow write: if isAdmin();
+
       // Rules for the 'reviews' subcollection
       match /reviews/{reviewId} {
-        // Anyone can read reviews
+        // Anyone can read reviews.
         allow read;
-        // Only a signed-in user can create a review
-        allow create: if isSignedIn();
+        // Only authenticated users can create a review.
+        allow create: if request.auth != null;
+        // No one can update or delete reviews.
+        allow update, delete: if false;
       }
-
+      
       // Rules for the 'stories' subcollection
       match /stories/{storyId} {
-        // Anyone can read a story
+         // Anyone can read stories.
         allow read;
-        // Only an admin can create a story
+        // Only an admin can create a story.
         allow create: if isAdmin();
+        // No one can update or delete stories.
+        allow update, delete: if false;
       }
     }
-
-    // Rules for the 'followers' collection
-    match /followers/{userId} {
-        // A user can only manage their own follower document
-        allow read, create, delete: if isSignedIn() && request.auth.uid == userId;
+    
+    // Rules for the 'users' collection (where roles are stored)
+    match /users/{userId} {
+        // Only an admin can read the full list of users or update roles.
+        allow read, write: if isAdmin();
+        // A user can read their own document.
+        allow get: if request.auth.uid == userId;
     }
     
-    // Rules for the 'meta' collection (for follower count)
-    match /meta/stats {
-      // Anyone can read the stats document
-      allow read;
-      // No one can write to it directly from the client
-      allow write: if false;
+    // Rules for the 'followers' collection
+    match /followers/{userId} {
+        // A user can only manage their own follower document.
+        allow read, create, delete: if request.auth != null && request.auth.uid == userId;
+        // No one can list all followers directly (for security).
+        allow list: if false;
     }
-
-    // Rules for the 'users' collection (for role management)
-    match /users/{userId} {
-      // Anyone can read the public user roles
-      allow read;
-      // Only an admin can update user roles
-      allow update: if isAdmin();
-      // No one can create or delete user documents directly
-      allow create, delete: if false;
+    
+    // Rules for meta information, like follower counts
+    match /meta/stats {
+      // Allow public read access for follower count display.
+      allow get;
+      // Only backend functions (or admins) should write to this.
+      allow write: if false; // Block client-side writes for safety
     }
   }
 }

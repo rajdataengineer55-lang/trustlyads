@@ -38,7 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (user) {
         setUser(user);
         // Get the ID token result to check for the admin custom claim.
-        const idTokenResult = await user.getIdTokenResult(true); // Force refresh
+        // Force refresh the token to ensure we have the latest claims.
+        const idTokenResult = await user.getIdTokenResult(true); 
         setIsAdmin(!!idTokenResult.claims.admin);
       } else {
         setUser(null);
@@ -75,13 +76,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const idTokenResult = await userCredential.user.getIdTokenResult(true); // Force refresh token
+      // After signing in, we need to force a refresh of the token to get the latest claims.
+      const idTokenResult = await userCredential.user.getIdTokenResult(true); 
       setIsAdmin(!!idTokenResult.claims.admin);
 
-      toast({
-        title: "Admin Signed In",
-        description: "Welcome back, admin!",
-      });
+      if (!!idTokenResult.claims.admin) {
+        toast({
+            title: "Admin Signed In",
+            description: "Welcome back, admin!",
+        });
+      } else {
+        // This case handles if a non-admin user tries to use the email/password form.
+         toast({
+            variant: "destructive",
+            title: "Sign In Failed",
+            description: "This account does not have admin privileges.",
+        });
+        await firebaseSignOut(auth); // Sign them out as they are not an admin
+      }
       
     } catch (error: any) {
        console.error("Error signing in with email:", error);
