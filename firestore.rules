@@ -1,42 +1,41 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Offers are publicly readable.
-    // Only admins can create, update, or delete offers.
+  
+    // Allow public read access to offers, but only admins can write.
     match /offers/{offerId} {
-      allow read;
+      allow read: if true;
       allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
 
-      // Reviews are publicly readable.
-      // Any authenticated user can create a review.
-      // Only admins can delete reviews.
+      // Allow any authenticated user to create reviews.
       match /reviews/{reviewId} {
-        allow read;
+        allow read: if true;
         allow create: if request.auth != null;
-        allow delete: if request.auth != null && request.auth.token.admin == true;
+        allow update, delete: if request.auth != null && request.auth.token.admin == true;
       }
-
-      // Stories are publicly readable.
-      // Only admins can create or delete stories.
+      
+      // Allow any authenticated user to create stories for an offer
+      // Only admins should be able to delete stories (future implementation)
       match /stories/{storyId} {
-        allow read;
-        allow create, delete: if request.auth != null && request.auth.token.admin == true;
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth != null && request.auth.token.admin == true;
       }
     }
-
-    // Users can only manage their own follower document.
+    
+    // Allow users to follow/unfollow (manage their own document)
+    // Only admins or the user themselves can read follower info.
     match /followers/{userId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
       allow create, delete: if request.auth != null && request.auth.uid == userId;
+      allow update: if false; // Should not be updatable
     }
 
-    // The follower count is publicly readable.
-    // Writes are disallowed from the client (only backend functions can write).
-    match /meta/{docId} {
-      allow read;
-      allow write: if false;
+    // Allow public read access to the follower count stats document.
+    match /meta/stats {
+      allow get: if true;
+      allow list, write: if false;
     }
   }
 }
