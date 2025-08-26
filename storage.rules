@@ -2,25 +2,21 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow public read on user-generated content and stories.
-    match /{folder}/{userId}/{allPaths=**} {
+    
+    // Allow public read access for all images in the 'offers' folder.
+    // This lets website visitors see the offer images.
+    match /offers/{allPaths=**} {
       allow read: if true;
+      
+      // Allow write access (upload, update, delete) only to the authorized admin.
+      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
     }
-    
-    // Allow a user to write to their own folder.
-    match /users/{userId}/{allPaths=**} {
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Allow public read on offer images and stories
-    match /(offers|stories)/{allPaths=**} {
+
+    // Allow write access to the 'stories' folder only to the authorized admin.
+    // Allow public read for all stories.
+    match /stories/{allPaths=**} {
       allow read: if true;
-    }
-    
-    // Allow write access (upload, update, delete) only to signed-in users.
-    // In the app, this is controlled by the admin page, making it secure.
-    match /(offers|stories)/{allPaths=**} {
-      allow write: if request.auth != null;
+      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
     }
   }
 }

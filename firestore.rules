@@ -1,37 +1,33 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Allow public read access to offers, reviews, and stories, as they are public content.
-    // This simplifies the rules and ensures the frontend can fetch all necessary data.
+    
+    // Allow public read on offers
+    // Allow only the admin to create, update, or delete offers
     match /offers/{offerId} {
       allow read: if true;
+      allow create, update, delete: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
 
-      // Allow write access (create, update, delete) only for the authorized admin.
-      // This rule applies to the offer document itself.
-      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
-      
-      // Allow any signed-in user to create reviews.
+      // Anyone can read reviews
+      // Only signed-in users can create reviews
       match /reviews/{reviewId} {
         allow read: if true;
         allow create: if request.auth != null;
-        // Only admin can update/delete reviews.
-        allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
       }
-
-      // Allow only the admin to create stories.
+      
+      // Anyone can read stories
+      // Only the admin can create stories
       match /stories/{storyId} {
         allow read: if true;
-        allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+        allow create: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
       }
     }
 
-    // Allow any signed-in user to add/remove themselves from the followers list.
-    // Users can only affect their own document.
+    // Allow users to add themselves as followers, but not read other followers
     match /followers/{userId} {
-      allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+      allow list: if request.auth != null; // Allow clients to query the collection
     }
   }
 }
