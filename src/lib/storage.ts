@@ -5,26 +5,32 @@
 // Client-side file uploads to Firebase Storage require a CORS configuration on your Google Cloud
 // Storage bucket. This is a one-time setup.
 //
-// 1. You will need a file named `cors.json` in your project's root directory. The contents of that
-//    file determine which websites are allowed to upload files. You can edit this file
-//    at any time to add or remove domains.
+// 1. **Activate Cloud Storage:** First, you must enable Cloud Storage for your project.
+//    - Go to the Firebase Console: https://console.firebase.google.com/
+//    - Select your project (`localpulse-9e3lz`).
+//    - In the left-hand menu, go to **Build > Storage**.
+//    - Click the **"Get started"** button and follow the on-screen prompts to enable Storage.
+//      (You can use the default security rules for now).
+//
+// 2. **Apply CORS Configuration:** Once Storage is enabled, you can apply the CORS rules.
+//    You will need a file named `cors.json` in your project's root directory. The contents of that
+//    file determine which websites are allowed to upload files.
 //
 //    See: `cors.json`
 //
-// 2. Find your correct bucket name. For this project, it is:
+// 3. **Find your correct bucket name.** For this project, it is:
 //
 //    gs://localpulse-9e3lz.appspot.com
 //
-// 3. Run this gcloud command in your terminal or in the Google Cloud Shell to apply the rules,
-//    replacing <YOUR_BUCKET_URL> with the name you found in the previous step:
+// 4. **Run this gcloud command** in your terminal or in the Google Cloud Shell to apply the rules:
 //
 //    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
 //
-// 4. To verify the settings were applied correctly, run:
+// 5. To verify the settings were applied correctly, run:
 //
 //    gsutil cors get gs://localpulse-9e3lz.appspot.com
 //
-// After you run these commands, client-side uploads will be allowed from your live domain.
+// After you complete these steps, client-side uploads will be allowed.
 // =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
