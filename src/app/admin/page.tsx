@@ -9,6 +9,7 @@ import { AdGenerator } from "@/components/ad-generator";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
 import { ManageOffers } from "@/components/manage-offers";
+import { UserManagement } from "@/components/user-management"; // Import new component
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,8 +26,6 @@ const loginSchema = z.object({
 });
 
 type AdminLoginData = z.infer<typeof loginSchema>;
-
-const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
 
 function AdminLoginForm() {
   const { signInWithEmail } = useAuth();
@@ -102,7 +101,10 @@ export default function AdminPage() {
     
     useEffect(() => {
         if (!loading && user) {
-            setIsAdmin(user.email === ADMIN_EMAIL);
+            user.getIdTokenResult().then(idTokenResult => {
+                const isAdminUser = !!idTokenResult.claims.admin;
+                setIsAdmin(isAdminUser);
+            });
         } else if (!loading && !user) {
             setIsAdmin(false);
         }
@@ -166,7 +168,7 @@ export default function AdminPage() {
                                 <ShieldAlert className="h-6 w-6" /> Unauthorized Access
                             </CardTitle>
                             <CardDescription>
-                                This account is not authorized to view the admin page. The admin user is {ADMIN_EMAIL}.
+                                This account does not have admin privileges. Please contact the site owner if you believe this is an error.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -206,6 +208,12 @@ export default function AdminPage() {
                 <section className="pb-12 sm:pb-16">
                      <div className="container mx-auto px-4 md:px-6">
                         <ManageOffers />
+                    </div>
+                </section>
+                <Separator className="my-8 sm:my-12" />
+                <section className="pb-12 sm:pb-16">
+                     <div className="container mx-auto px-4 md:px-6">
+                        <UserManagement />
                     </div>
                 </section>
             </main>

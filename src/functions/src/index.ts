@@ -1,26 +1,74 @@
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+'use server';
+
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
 admin.initializeApp();
-
 const db = admin.firestore();
 
-// This Cloud Function sets a custom claim on a new user account if their
-// email matches the specified admin email. This is how we grant admin
-// privileges to the application.
-export const setAdminClaimOnCreate = functions.auth.user().onCreate(async (user) => {
-    if (user.email === "dandurajkumarworld24@gmail.com") {
-        try {
-            await admin.auth().setCustomUserClaims(user.uid, { admin: true });
-            functions.logger.info(`Custom claim 'admin' set for user: ${user.uid}`);
-            // Optional: You could also update a Firestore document to reflect this.
-            // await db.collection("users").doc(user.uid).set({ admin: true }, { merge: true });
-        } catch (error) {
-            functions.logger.error("Error setting custom claim:", error);
-        }
+/**
+ * Sets a custom claim on a new user account if their email matches a predefined admin email.
+ * This is a secure way to bootstrap the first admin user.
+ */
+export const setInitialAdminClaim = functions.auth.user().onCreate(async (user) => {
+  const adminEmails = ["dandurajkumarworld24@gmail.com"]; // Add more initial admins if needed
+
+  if (adminEmails.includes(user.email ?? '')) {
+    try {
+      await admin.auth().setCustomUserClaims(user.uid, { admin: true });
+      functions.logger.info(`Custom claim 'admin' set for initial admin: ${user.uid}`);
+      // Also create a user document for them in Firestore
+      await db.collection("users").doc(user.uid).set({
+        email: user.email,
+        displayName: user.displayName,
+        role: 'admin',
+        uid: user.uid,
+      }, { merge: true });
+    } catch (error) {
+      functions.logger.error("Error setting initial admin claim:", error);
     }
+  } else {
+     // For regular users, create a document in the 'users' collection with the 'user' role.
+     await db.collection("users").doc(user.uid).set({
+        email: user.email,
+        displayName: user.displayName,
+        role: 'user',
+        uid: user.uid,
+      }, { merge: true });
+  }
 });
+
+
+/**
+ * Firestore trigger that listens for changes on documents in the 'users' collection.
+ * If a user's 'role' field is changed, this function updates their custom claims.
+ */
+export const onUserRoleChange = functions.firestore
+  .document('users/{userId}')
+  .onUpdate(async (change, context) => {
+    const newData = change.after.data();
+    const oldData = change.before.data();
+    const userId = context.params.userId;
+
+    // Check if the role has actually changed
+    if (newData.role !== oldData.role) {
+      functions.logger.info(`Role changed for user ${userId} from '${oldData.role}' to '${newData.role}'`);
+      try {
+        if (newData.role === 'admin') {
+          // Set the admin custom claim
+          await admin.auth().setCustomUserClaims(userId, { admin: true });
+          functions.logger.info(`Successfully set 'admin' claim for user ${userId}`);
+        } else {
+          // If the role is anything else, remove the admin claim
+          await admin.auth().setCustomUserClaims(userId, { admin: false });
+          functions.logger.info(`Successfully removed 'admin' claim for user ${userId}`);
+        }
+      } catch (error) {
+        functions.logger.error(`Error updating custom claims for user ${userId}:`, error);
+      }
+    }
+  });
 
 
 // This function triggers when a new offer is created in Firestore.
@@ -33,7 +81,6 @@ export const onNewOfferSendNotification = functions.firestore
       structuredData: true,
     });
 
-    // 1. Get all followers from the 'followers' collection.
     const followersSnapshot = await db.collection("followers").get();
     if (followersSnapshot.empty) {
       functions.logger.info("No followers to notify.");
@@ -47,18 +94,11 @@ export const onNewOfferSendNotification = functions.firestore
       followers.map((f) => f.email)
     );
 
-    // --- TODO: Add notification logic here ---
-    // In the next step, we can integrate an email service (like SendGrid)
-    // or push notifications (FCM) to send a message to each follower.
-    // For example, we could create a batch write to a new 'notifications'
-    // collection that the app could then display to the user.
-
     return;
   });
 
 
 // This function triggers whenever a document in the 'followers' collection is created or deleted.
-// It keeps the total count updated in a separate document for efficient reading.
 export const onFollowerChange = functions.firestore
   .document("followers/{followerId}")
   .onWrite(async () => {
@@ -69,6 +109,6 @@ export const onFollowerChange = functions.firestore
     const metaDocRef = db.collection("meta").doc("stats");
     functions.logger.info(`Updating follower count to ${count}.`);
     
-    // Set the count in the 'meta/stats' document.
     return metaDocRef.set({ followerCount: count }, { merge: true });
   });
+
