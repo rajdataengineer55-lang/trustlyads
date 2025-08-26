@@ -1,4 +1,3 @@
-
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -62,7 +61,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = async ({ email, password }: AdminLoginData) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // **THIS IS THE FIX**: Force a token refresh to get custom claims immediately.
+      await userCredential.user.getIdToken(true); 
+      
       toast({
         title: "Admin Signed In",
         description: "Welcome back, admin!",

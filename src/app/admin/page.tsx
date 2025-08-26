@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { AdGenerator } from "@/components/ad-generator";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
@@ -10,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogIn, ShieldAlert, LogOut } from 'lucide-react';
+import { LogOut, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLoginForm } from '@/components/admin-login-form';
@@ -23,19 +22,20 @@ export default function AdminPage() {
     const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
     useEffect(() => {
-        if (loading) return;
-
-        if (!user) {
-            setIsCheckingAdmin(false);
-            setIsAdmin(false);
+        if (loading) {
+            setIsCheckingAdmin(true);
             return;
         }
 
-        // Use onIdTokenChanged to listen for token refreshes.
-        // This ensures the custom claim is detected without needing a manual refresh.
+        if (!user) {
+            setIsAdmin(false);
+            setIsCheckingAdmin(false);
+            return;
+        }
+
         const unsubscribe = onIdTokenChanged(auth, async (user) => {
             if (user) {
-                const idTokenResult = await user.getIdTokenResult(true); // Force refresh the token
+                const idTokenResult = await user.getIdTokenResult();
                 const isAdminClaim = !!idTokenResult.claims.admin;
                 setIsAdmin(isAdminClaim);
             } else {
