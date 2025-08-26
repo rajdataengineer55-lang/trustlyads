@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Loader2, LogIn } from "lucide-react";
+import { auth } from "@/lib/firebase";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -32,15 +33,22 @@ export function AdminLoginForm() {
 
   const onSubmit = async (data: AdminLoginData) => {
     setIsLoading(true);
-    // The signInWithEmail function in the AuthContext now handles forcing a token refresh.
-    // This form just needs to call it and the context will handle the rest.
-    await signInWithEmail(data.email, data.password);
-    
-    // We don't need to set loading to false immediately, because the page will
-    // navigate or re-render based on the updated auth state from the context.
-    // However, if the sign-in fails, the context will show a toast, and we should
-    // re-enable the button.
-    setIsLoading(false);
+    try {
+      // 1. Sign in the user.
+      await signInWithEmail(data.email, data.password);
+      
+      // 2. Force a refresh of the token to get the latest custom claims.
+      // This is the key step to ensure the admin claim is available immediately.
+      if (auth.currentUser) {
+        await auth.currentUser.getIdToken(true);
+      }
+      
+      // We don't need to set loading to false, as the parent page will re-render
+      // based on the updated auth state from the context.
+    } catch (error) {
+      // The signInWithEmail function in the context already shows a toast on failure.
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -26,13 +26,15 @@ export default function AdminPage() {
         const checkAdminStatus = async () => {
             // We don't proceed until the main auth state is no longer loading.
             if (loading) {
+                setIsCheckingClaim(true);
                 return;
             }
 
             // If there's a user, we check their claims.
             if (user) {
                 try {
-                    const idTokenResult = await user.getIdTokenResult(true); // Force refresh
+                    // Force refresh is handled by the login form, but we still need to get the result.
+                    const idTokenResult = await user.getIdTokenResult();
                     const isAdminClaim = !!idTokenResult.claims.admin;
                     setIsAdmin(isAdminClaim);
                 } catch (error) {
@@ -109,7 +111,7 @@ export default function AdminPage() {
                                 <ShieldAlert className="h-6 w-6" /> Unauthorized Access
                             </CardTitle>
                             <CardDescription>
-                                This account is not authorized to view the admin page. reason
+                                This account is not authorized to view the admin page. reason because dandurajkumarworld24@gmail.com is admin right
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">

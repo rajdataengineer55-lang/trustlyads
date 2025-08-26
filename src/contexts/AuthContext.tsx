@@ -31,7 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       // This listener handles auth state changes, such as when the page is reloaded.
-      // We don't need to force a refresh here, as the initial token load should be sufficient.
       setUser(user);
       setLoading(false);
     });
@@ -63,21 +62,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
-      // *** THIS IS THE CRITICAL FIX ***
-      // After login, we force a token refresh. This makes sure the client-side
-      // user object has the latest custom claims (like `admin: true`)
-      // that were set by the backend Cloud Function.
-      await userCredential.user.getIdToken(true); 
+      // The onAuthStateChanged listener will handle setting the user state.
+      // We just need to call the sign-in function. The login form will handle
+      // forcing the token refresh.
+      await signInWithEmailAndPassword(auth, email, password);
       
       toast({
         title: "Admin Signed In",
         description: "Welcome back, admin!",
       });
-
-      // The onAuthStateChanged listener will handle setting the user state.
-      // No need to manually call setUser here.
       
     } catch (error: any) {
        console.error("Error signing in with email:", error);
