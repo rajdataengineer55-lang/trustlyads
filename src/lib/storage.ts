@@ -25,31 +25,28 @@
 //
 //    gcloud config set project localpulse-9e3lz
 //
-// ### Step 4: Create your Storage Bucket (If you haven't already)
-//
-// The next command will fail if the bucket doesn't exist. You must create it first.
-//
-//    1. Go to the Firebase Console Storage section:
-//       https://console.firebase.google.com/project/localpulse-9e3lz/storage
-//
-//    2. Click "Get started" and follow the prompts if you see them. If you see a file list,
-//       your bucket already exists, and you can proceed.
-//
-// ### Step 5: Apply the CORS Configuration
+// ### Step 4: Apply the CORS Configuration
 //
 // This is the most important step. Your bucket name is `localpulse-9e3lz.appspot.com`.
-// Run this command from your project's root directory (the same directory where the `cors.json` file is).
+// Run this command from your project's root directory (the same directory where `cors.json` is).
 //
 //    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
 //
-// ### Step 6: Verify the Configuration
+// ### Step 5: Authorize the Domain for Firebase Authentication
 //
-// To confirm the settings were applied, run this command:
+// You must also authorize your domain to be used for signing users in.
 //
-//    gsutil cors get gs://localpulse-9e3lz.appspot.com
+//    1. Go to the Firebase Console Authentication settings:
+//       https://console.firebase.google.com/project/localpulse-9e3lz/authentication/settings
 //
-// It should output the contents of your `cors.json` file. Once you have successfully
-// completed these steps, the upload permission error will be resolved.
+//    2. Select the "Settings" tab and then "Authorized domains" from the side menu.
+//
+//    3. Click "Add domain" and enter: cloudworkstations.dev
+//
+//    4. Click "Add".
+//
+// After completing both the `gsutil` command and adding the authorized domain, the permission
+// errors for both file uploads and user sign-in will be resolved.
 // =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -62,7 +59,7 @@ import { storage } from './firebase';
  * @param destination The folder path in storage (e.g., 'offers', 'stories').
  * @returns A promise that resolves with the download URL.
  */
-export const uploadFile = async (file: File, destination: 'offers' | 'stories'): Promise<string> => {
+export const uploadFile = async (file: File, destination: 'offers' | 'stories' | string): Promise<string> => {
     if (!file) {
         throw new Error("File is required for upload.");
     }
