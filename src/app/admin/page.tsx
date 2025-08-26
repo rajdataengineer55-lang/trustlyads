@@ -115,15 +115,8 @@ export default function AdminPage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <p className="text-sm text-destructive">
-                                Signed in as <span className="font-medium">{user.email}</span>.
+                                {user.email}
                             </p>
-                            <Button onClick={signOut} variant="destructive" className="w-full">
-                                <LogOut className="mr-2 h-4 w-4" />
-                                Sign Out
-                            </Button>
-                             <Button variant="outline" asChild className="w-full">
-                                <Link href="/">Go to Homepage</Link>
-                            </Button>
                         </CardContent>
                     </Card>
                 </main>
