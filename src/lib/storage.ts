@@ -1,11 +1,9 @@
-
-
 // =================================================================================================
-// CRITICAL: FIX FOR THE "Missing or insufficient permissions" UPLOAD ERROR
+// CRITICAL FIX: "Missing or insufficient permissions" Upload Error
 // =================================================================================================
-// The persistent permission error you are seeing is almost certainly caused by a missing
-// CORS configuration on your project's Storage Bucket. This is a one-time setup that must
-// be performed from your command line.
+// This persistent error is almost certainly caused by a missing CORS configuration
+// on your project's Storage Bucket. This is a one-time setup that must be
+// performed from your command line.
 //
 // Please follow these steps carefully.
 //
@@ -39,16 +37,16 @@
 //
 // ### Step 5: Apply the CORS Configuration
 //
-// This is the most important step. Run this command from your project's root directory
-// (the same directory where the `cors.json` file is located).
+// This is the most important step. Your bucket name is `localpulse-9e3lz.appspot.com`.
+// Run this command from your project's root directory (the same directory where the `cors.json` file is).
 //
-//    gsutil cors set cors.json gs://trustlyads.in.appspot.com
+//    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
 //
 // ### Step 6: Verify the Configuration
 //
 // To confirm the settings were applied, run this command:
 //
-//    gsutil cors get gs://trustlyads.in.appspot.com
+//    gsutil cors get gs://localpulse-9e3lz.appspot.com
 //
 // It should output the contents of your `cors.json` file. Once you have successfully
 // completed these steps, the upload permission error will be resolved.
@@ -79,7 +77,9 @@ export const uploadFile = async (file: File, destination: 'offers' | 'stories'):
         return downloadURL;
     } catch (error) {
         console.error(`Upload failed for ${file.name}:`, error);
-        throw new Error(`Failed to upload ${file.name}. Please try again.`);
+        // Re-throwing the original error to be handled by the caller.
+        // The error object from Firebase often contains useful codes like 'storage/unauthorized'.
+        throw error;
     }
 };
 
