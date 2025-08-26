@@ -1,3 +1,4 @@
+
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -46,7 +47,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "You have successfully signed in.",
       });
     } catch (error: any) {
-      if (error.code === 'auth/popup-closed-by-user') {
+      // This is not a real error. It happens when the user closes the popup.
+      // We can safely ignore it and not show a toast message.
+      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         return;
       }
       
