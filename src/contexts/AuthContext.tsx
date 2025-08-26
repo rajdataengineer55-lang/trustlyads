@@ -33,11 +33,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setLoading(true);
       if (user) {
         setUser(user);
-        // Simple email check to determine admin status
         setIsAdmin(user.email === ADMIN_EMAIL);
       } else {
         setUser(null);
@@ -73,24 +72,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const userIsAdmin = userCredential.user.email === ADMIN_EMAIL;
-      setIsAdmin(userIsAdmin);
-
-      if (userIsAdmin) {
-        toast({
-            title: "Admin Signed In",
-            description: "Welcome back, admin!",
-        });
-      } else {
-         toast({
-            variant: "destructive",
-            title: "Sign In Failed",
-            description: "This account does not have admin privileges.",
-        });
-        await firebaseSignOut(auth); // Sign them out as they are not an admin
-      }
-      
+      await signInWithEmailAndPassword(auth, email, password);
+      // Auth state change will be handled by onAuthStateChanged listener
+      // which will in turn update the isAdmin state.
     } catch (error: any) {
        console.error("Error signing in with email:", error);
        let description = "An unknown error occurred. Please try again.";

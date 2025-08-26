@@ -16,24 +16,25 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
 // Connect to emulators in development environment.
-// This code will only run on the client-side.
-if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    // Point the SDKs to the emulators.
-    // @ts-ignore - a temporary flag to ensure we only connect once.
-    if (!globalThis._firebaseEmulatorsConnected) {
-        console.log("Connecting to Firebase emulators");
-        connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
-        connectFirestoreEmulator(db, "127.0.0.1", 8080);
-        connectStorageEmulator(storage, "127.0.0.1", 9199);
+if (process.env.NODE_ENV === 'development') {
+    // Check if running in the browser
+    if (typeof window !== 'undefined') {
         // @ts-ignore
-        globalThis._firebaseEmulatorsConnected = true;
+        if (!globalThis._firebaseEmulatorsConnected) {
+            console.log("Connecting to Firebase emulators");
+            connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+            connectFirestoreEmulator(db, "127.0.0.1", 8080);
+            connectStorageEmulator(storage, "127.0.0.1", 9199);
+            // @ts-ignore
+            globalThis._firebaseEmulatorsConnected = true;
+        }
     }
 }
 
