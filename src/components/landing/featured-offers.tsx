@@ -20,11 +20,12 @@ interface FeaturedOffersProps {
   selectedCategory: string | null;
   selectedLocation: string | null;
   searchTerm: string;
+  sortOption: string;
 }
 
 const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
 
-export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm }: FeaturedOffersProps) {
+export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm, sortOption }: FeaturedOffersProps) {
   const { offers, loading: offersLoading } = useOffers();
   const { user, loading: authLoading } = useAuth();
   
@@ -105,18 +106,23 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm 
 
             return (
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
-                <Link href={`/offer/${offer.id}`} passHref className="flex flex-col flex-grow">
+                <div onClick={(e) => handleOfferClick(e, offer)} className="cursor-pointer flex flex-col flex-grow">
                   <CardContent className="p-0 flex flex-col flex-grow">
-                    <div className={cn("relative aspect-[4/3] w-full")}>
+                    <div className={cn("relative aspect-[4/3] w-full", hasStory && "ring-2 ring-offset-2 ring-primary rounded-lg")}>
                       <Image
                         src={offer.image}
                         alt={offer.title}
                         width={400}
                         height={300}
-                        className={cn("object-cover w-full h-full transition-transform duration-300 group-hover:scale-105")}
+                        className={cn("object-cover w-full h-full transition-transform duration-300 group-hover:scale-105", hasStory && "rounded-lg")}
                         data-ai-hint={offer.hint}
                         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
                       />
+                       {hasStory && (
+                        <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1.5 flex items-center justify-center">
+                            <Clapperboard className="h-4 w-4" />
+                        </div>
+                       )}
                       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                           <h3 className="text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
                       </div>
@@ -128,7 +134,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm 
                             <EyeOff className="mr-2 h-4 w-4" /> Hidden
                           </Badge>
                       )}
-                      {isNew && !offer.isHidden && (
+                      {isNew && !offer.isHidden && !hasStory &&(
                           <Badge variant="secondary" className="absolute top-4 left-4 font-bold py-1 px-3 bg-green-500 text-white">
                               Just Listed
                           </Badge>
@@ -160,13 +166,15 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm 
                         </div>
                       </div>
                       <div className="pt-4">
-                          <Button className="w-full">
-                                View Details <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
+                          <Link href={`/offer/${offer.id}`} passHref>
+                            <Button className="w-full">
+                                    View Details <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
                       </div>
                     </div>
                   </CardContent>
-                </Link>
+                </div>
               </Card>
           )})}
         </div>

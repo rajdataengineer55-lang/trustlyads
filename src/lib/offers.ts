@@ -93,11 +93,33 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
               createdAt: reviewData.createdAt ? (reviewData.createdAt as Timestamp).toDate() : new Date()
             } as Review;
         });
-        
         offer.reviews = reviews;
-        // The story fetching logic is temporarily disabled to isolate the main feature.
-        offer.stories = [];
 
+        // --- Fetch Active Stories ---
+        // To prevent "Missing or insufficient permissions" errors, Firestore requires an index
+        // for this query. If you see that error, open your browser's developer console. 
+        // Firebase will provide a direct link to create the required index. Click it, wait
+        // for the index to build, and the error will be resolved.
+        const storiesCollection = collection(db, 'offers', offer.id, 'stories');
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const storiesQuery = query(storiesCollection, where('createdAt', '>', twentyFourHoursAgo), orderBy('createdAt', 'asc'));
+
+        try {
+            const storiesSnapshot = await getDocs(storiesQuery);
+            const stories = storiesSnapshot.docs.map(storyDoc => {
+                const storyData = storyDoc.data();
+                return {
+                    id: storyDoc.id,
+                    ...storyData,
+                    createdAt: (storyData.createdAt as Timestamp).toDate(),
+                    expiresAt: new Date((storyData.createdAt as Timestamp).toMillis() + 24 * 60 * 60 * 1000)
+                } as Story;
+            });
+            offer.stories = stories;
+        } catch (error) {
+            console.error(`Error fetching stories for offer ${offer.id}. This might be an index issue. See the comment in offers.ts.`, error);
+            offer.stories = [];
+        }
 
         return offer;
     }));
