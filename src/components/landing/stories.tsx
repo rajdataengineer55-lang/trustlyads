@@ -59,7 +59,7 @@ export function Stories() {
             <CarouselContent>
             {stories.map((story) => (
                 <CarouselItem key={story.id} className="basis-1/3 md:basis-1/4 lg:basis-1/6">
-                    <Link href={story.link} target="_blank" rel="noopener noreferrer" className="block group">
+                    <Link href={`/offer/${story.offerId}`} className="block group">
                         <Card className="overflow-hidden rounded-lg shadow-md transition-all duration-300 ease-in-out group-hover:shadow-xl group-hover:-translate-y-1">
                             <CardContent className="relative aspect-[9/16] w-full p-0">
                                 <Image
@@ -77,7 +77,7 @@ export function Stories() {
                                         <span className="truncate">{story.location}</span>
                                     </div>
                                     <div className="flex items-center text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1">
-                                        View Story <ArrowRight className="ml-1 h-3 w-3" />
+                                        View Offer <ArrowRight className="ml-1 h-3 w-3" />
                                     </div>
                                 </div>
                             </CardContent>

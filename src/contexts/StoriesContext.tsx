@@ -13,8 +13,8 @@ export interface Story {
   id: string;
   imageUrl: string;
   businessName: string;
-  link: string;
   location: string;
+  offerId: string; // Changed from link to offerId
   createdAt: Date;
 }
 

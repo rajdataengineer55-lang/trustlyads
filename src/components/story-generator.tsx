@@ -16,12 +16,11 @@ import { uploadFile } from "@/lib/storage";
 import { useStories, type Story } from "@/contexts/StoriesContext";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { locations } from "@/lib/locations";
-import { useOffers } from "@/contexts/OffersContext";
+import { useOffers, type Offer } from "@/contexts/OffersContext";
 
 const formSchema = z.object({
-  businessName: z.string({ required_error: "Please select a business." }),
   location: z.string({ required_error: "Please select a location." }),
-  link: z.string().url({ message: "Please enter a valid URL." }),
+  offerId: z.string({ required_error: "Please select an offer." }),
   image: z.custom<FileList>().refine((files) => files?.length > 0, "An image is required."),
 });
 
@@ -31,27 +30,23 @@ export function StoryGenerator() {
   const { toast } = useToast();
   const { addStory, deleteStory, stories } = useStories();
   const { offers } = useOffers();
-  const [businessesInLocation, setBusinessesInLocation] = useState<string[]>([]);
+  const [offersInLocation, setOffersInLocation] = useState<Offer[]>([]);
 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { link: "" },
+    defaultValues: { offerId: "" },
   });
 
   const selectedLocation = form.watch("location");
 
   useEffect(() => {
     if (selectedLocation) {
-        const uniqueBusinesses = [...new Set(
-            offers
-                .filter(offer => offer.location === selectedLocation)
-                .map(offer => offer.business)
-        )];
-        setBusinessesInLocation(uniqueBusinesses);
-        form.setValue("businessName", ""); // Reset business name when location changes
+        const filteredOffers = offers.filter(offer => offer.location === selectedLocation);
+        setOffersInLocation(filteredOffers);
+        form.setValue("offerId", ""); 
     } else {
-        setBusinessesInLocation([]);
+        setOffersInLocation([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLocation, offers]);
@@ -72,12 +67,19 @@ export function StoryGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
+    const selectedOffer = offers.find(o => o.id === values.offerId);
+    if (!selectedOffer) {
+        toast({ variant: "destructive", title: "Post Failed", description: "Selected offer could not be found." });
+        setIsLoading(false);
+        return;
+    }
+
     try {
       const imageUrl = await uploadFile(values.image[0], 'stories');
       await addStory({
-        businessName: values.businessName,
-        link: values.link,
-        location: values.location,
+        offerId: selectedOffer.id,
+        businessName: selectedOffer.business,
+        location: selectedOffer.location,
         imageUrl,
       });
 
@@ -110,7 +112,7 @@ export function StoryGenerator() {
             <Card>
                 <CardHeader>
                 <CardTitle>Post a New Story</CardTitle>
-                <CardDescription>Upload an image and link it to an offer or website.</CardDescription>
+                <CardDescription>Upload an image and link it to a specific offer.</CardDescription>
                 </CardHeader>
                 <CardContent>
                 <Form {...form}>
@@ -142,7 +144,7 @@ export function StoryGenerator() {
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select a location to find businesses" />
+                                                <SelectValue placeholder="Select a location to find offers" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
@@ -170,39 +172,26 @@ export function StoryGenerator() {
                         />
                         <FormField
                             control={form.control}
-                            name="businessName"
+                            name="offerId"
                             render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Business Name</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedLocation || businessesInLocation.length === 0}>
+                                <FormLabel>Offer</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedLocation || offersInLocation.length === 0}>
                                     <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder={!selectedLocation ? "Select a location first" : "Select a business"} />
+                                            <SelectValue placeholder={!selectedLocation ? "Select a location first" : "Select an offer"} />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {businessesInLocation.length > 0 ? (
-                                            businessesInLocation.map(business => (
-                                                <SelectItem key={business} value={business}>{business}</SelectItem>
+                                        {offersInLocation.length > 0 ? (
+                                            offersInLocation.map(offer => (
+                                                <SelectItem key={offer.id} value={offer.id}>{offer.title}</SelectItem>
                                             ))
                                         ) : (
-                                            <SelectItem value="no-business" disabled>No businesses found in this location</SelectItem>
+                                            <SelectItem value="no-offers" disabled>No offers found in this location</SelectItem>
                                         )}
                                     </SelectContent>
                                 </Select>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="link"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Link URL</FormLabel>
-                                <FormControl>
-                                <Input type="url" placeholder="https://...link-to-offer-or-site" {...field} />
-                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                             )}
@@ -228,7 +217,9 @@ export function StoryGenerator() {
                             <div className="flex-grow">
                                 <p className="font-semibold">{story.businessName}</p>
                                 <p className="text-xs text-muted-foreground">{story.location}</p>
-                                <a href={story.link} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground truncate hover:underline block w-full">{story.link}</a>
+                                <Link href={`/offer/${story.offerId}`} className="text-xs text-muted-foreground truncate hover:underline block w-full">
+                                  Links to offer
+                                </Link>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => handleDelete(story)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />

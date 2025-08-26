@@ -17,8 +17,8 @@ import type { Story } from '@/contexts/StoriesContext';
 export interface StoryData {
   imageUrl: string;
   businessName: string;
-  link: string;
   location: string;
+  offerId: string; // Changed from link to offerId
 }
 
 const storiesCollection = collection(db, 'stories');
