@@ -262,15 +262,17 @@ export default function OfferDetailsPage() {
                                 <EyeOff className="mr-2 h-4 w-4" /> Hidden
                             </Badge>
                         )}
-                         <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 flex items-center gap-4">
-                            <Badge variant="secondary" className="font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm">
-                                <Eye className="mr-2 h-4 w-4" /> {offer.views || 0} Views
-                            </Badge>
-                             <Badge variant="secondary" className="font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm">
-                                <BarChart2 className="mr-2 h-4 w-4" /> {offer.clicks || 0} Clicks
-                            </Badge>
-                        </div>
                     </div>
+
+                    <div className="flex items-center gap-4 mb-4">
+                        <Badge variant="secondary" className="font-bold py-1.5 px-3 text-sm">
+                            <Eye className="mr-2 h-4 w-4" /> {offer.views || 0} Views
+                        </Badge>
+                            <Badge variant="secondary" className="font-bold py-1.5 px-3 text-sm">
+                            <BarChart2 className="mr-2 h-4 w-4" /> {offer.clicks || 0} Clicks
+                        </Badge>
+                    </div>
+
                     {allImages.length > 1 && (
                       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
                           {allImages.map((img, i) => (

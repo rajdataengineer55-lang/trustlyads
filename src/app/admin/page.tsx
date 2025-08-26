@@ -53,10 +53,12 @@ export default function AdminPage() {
                 <Header />
                 <main className="flex-1 bg-background/50 py-16">
                     <div className="container mx-auto px-4 md:px-6">
-                        <Skeleton className="h-12 w-1/2 mx-auto mb-4" />
-                        <Skeleton className="h-8 w-3/4 mx-auto mb-12" />
-                        <div className="max-w-2xl mx-auto">
-                           <Skeleton className="h-[500px] w-full" />
+                        <div className="text-center mb-12">
+                          <Skeleton className="h-10 w-1/2 mx-auto" />
+                          <Skeleton className="h-6 w-3/4 mx-auto mt-4" />
+                        </div>
+                        <div className="max-w-3xl mx-auto">
+                           <Skeleton className="h-[600px] w-full" />
                         </div>
                     </div>
                 </main>

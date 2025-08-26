@@ -1,4 +1,3 @@
-
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
@@ -7,13 +6,13 @@ import { getStorage, connectStorageEmulator } from "firebase/storage";
 
 // Your production Firebase project configuration.
 const firebaseConfig = {
-  apiKey: "AIzaSyCgJBVTnX0rl4GVTMIccw9IY6U9hzZKRvA",
-  authDomain: "localpulse-9e3lz.firebaseapp.com",
-  projectId: "localpulse-9e3lz",
-  storageBucket: "localpulse-9e3lz.firebasestorage.app",
-  messagingSenderId: "542848805293",
-  appId: "1:542848805293:web:99ae91ab88f7723b1f5924",
-  measurementId: "G-5Y6R706M5Y"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
