@@ -18,6 +18,7 @@ export interface StoryData {
   imageUrl: string;
   businessName: string;
   link: string;
+  location: string;
 }
 
 const storiesCollection = collection(db, 'stories');

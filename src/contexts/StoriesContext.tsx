@@ -14,6 +14,7 @@ export interface Story {
   imageUrl: string;
   businessName: string;
   link: string;
+  location: string;
   createdAt: Date;
 }
 

@@ -13,7 +13,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { Card, CardContent } from '../ui/card';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
 
 
 export function Stories() {
@@ -70,9 +70,13 @@ export function Stories() {
                                     sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                                <div className="absolute bottom-0 left-0 p-3 text-white">
+                                <div className="absolute bottom-0 left-0 p-3 text-white w-full">
                                     <p className="text-sm font-bold truncate">{story.businessName}</p>
-                                    <div className="flex items-center text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div className="flex items-center text-xs">
+                                        <MapPin className="h-3 w-3 mr-1" />
+                                        <span className="truncate">{story.location}</span>
+                                    </div>
+                                    <div className="flex items-center text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1">
                                         View Story <ArrowRight className="ml-1 h-3 w-3" />
                                     </div>
                                 </div>

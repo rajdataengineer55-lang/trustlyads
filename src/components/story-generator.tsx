@@ -14,9 +14,12 @@ import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { uploadFile } from "@/lib/storage";
 import { useStories, type Story } from "@/contexts/StoriesContext";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { locations } from "@/lib/locations";
 
 const formSchema = z.object({
   businessName: z.string().min(2, { message: "Business name is required." }),
+  location: z.string({ required_error: "Please select a location." }),
   link: z.string().url({ message: "Please enter a valid URL." }),
   image: z.custom<FileList>().refine((files) => files?.length > 0, "An image is required."),
 });
@@ -52,6 +55,7 @@ export function StoryGenerator() {
       await addStory({
         businessName: values.businessName,
         link: values.link,
+        location: values.location,
         imageUrl,
       });
 
@@ -120,6 +124,41 @@ export function StoryGenerator() {
                             </FormItem>
                             )}
                         />
+                         <FormField
+                            control={form.control}
+                            name="location"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Location</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a location" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {locations.map((location) =>
+                                                location.subLocations ? (
+                                                <SelectGroup key={location.name}>
+                                                    <SelectLabel>{location.name}</SelectLabel>
+                                                    {location.subLocations.map((sub) => (
+                                                    <SelectItem key={`${location.name}-${sub}`} value={sub}>
+                                                        {sub}
+                                                    </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                                ) : (
+                                                <SelectItem key={location.name} value={location.name}>
+                                                    {location.name}
+                                                </SelectItem>
+                                                )
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name="link"
@@ -153,7 +192,8 @@ export function StoryGenerator() {
                             <Image src={story.imageUrl} alt={story.businessName} width={40} height={60} className="rounded-md object-cover" />
                             <div className="flex-grow">
                                 <p className="font-semibold">{story.businessName}</p>
-                                <a href={story.link} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground truncate hover:underline">{story.link}</a>
+                                <p className="text-xs text-muted-foreground">{story.location}</p>
+                                <a href={story.link} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground truncate hover:underline block w-full">{story.link}</a>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => handleDelete(story)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
