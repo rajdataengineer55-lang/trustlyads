@@ -110,7 +110,7 @@ export default function AdminPage() {
                                 <ShieldAlert className="h-6 w-6" /> Unauthorized Access
                             </CardTitle>
                             <CardDescription>
-                                This account is not authorized to view the admin page.
+                                This account is not authorized to view the admin page. reason
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
