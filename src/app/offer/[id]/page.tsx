@@ -26,7 +26,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 
 const reviewSchema = z.object({
-    author: z.string().min(2, "Name must be at least 2 characters.").optional(),
+    author: z.string().min(2, "Name must be at least 2 characters."),
     rating: z.number().min(1, "Please select a rating.").max(5),
     comment: z.string().min(10, "Comment must be at least 10 characters."),
 });
@@ -47,6 +47,7 @@ export default function OfferDetailsPage() {
   const form = useForm<z.infer<typeof reviewSchema>>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
+      author: "",
       rating: 0,
       comment: "",
     },
@@ -148,7 +149,7 @@ export default function OfferDetailsPage() {
   const onReviewSubmit = async (data: z.infer<typeof reviewSchema>) => {
     if (!offer || !user) return;
     const newReview: Omit<Review, 'id' | 'createdAt'> = {
-        author: user.displayName || "Anonymous",
+        author: data.author,
         rating: data.rating,
         comment: data.comment,
     };
@@ -157,7 +158,7 @@ export default function OfferDetailsPage() {
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
     });
-    form.reset({ rating: 0, comment: '' });
+    form.reset({ author: user.displayName || "Anonymous", rating: 0, comment: '' });
   };
   
   if (authLoading || offersLoading) {
@@ -362,7 +363,7 @@ export default function OfferDetailsPage() {
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
-                              <p className="font-semibold">{review.author.substring(0,5)}</p>
+                              <p className="font-semibold">{review.author}</p>
                               <div className="flex items-center gap-1">
                                 {[...Array(5)].map((_, i) => (
                                   <Star key={i} className={cn("h-4 w-4", i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300')} />
@@ -391,7 +392,7 @@ export default function OfferDetailsPage() {
                                     control={form.control}
                                     name="author"
                                     render={({ field }) => (
-                                        <FormItem className="hidden">
+                                        <FormItem>
                                             <FormLabel>Your Name</FormLabel>
                                             <FormControl>
                                                 <Input readOnly placeholder="Enter your name" {...field} />
@@ -516,3 +517,5 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    
