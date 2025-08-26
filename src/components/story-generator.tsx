@@ -17,6 +17,7 @@ import { useStories, type Story } from "@/contexts/StoriesContext";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { locations } from "@/lib/locations";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
+import Link from "next/link";
 
 const formSchema = z.object({
   location: z.string({ required_error: "Please select a location." }),
@@ -185,7 +186,7 @@ export function StoryGenerator() {
                                     <SelectContent>
                                         {offersInLocation.length > 0 ? (
                                             offersInLocation.map(offer => (
-                                                <SelectItem key={offer.id} value={offer.id}>{offer.title}</SelectItem>
+                                                <SelectItem key={offer.id} value={offer.id}>{offer.business} - {offer.title}</SelectItem>
                                             ))
                                         ) : (
                                             <SelectItem value="no-offers" disabled>No offers found in this location</SelectItem>
