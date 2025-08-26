@@ -1,36 +1,54 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow public read on the follower count, but secure writes.
-    match /meta/stats {
-      allow get: if true;
-      allow list, write: if request.auth != null && request.auth.token.admin == true;
+    // Helper function to check for admin custom claim
+    function isAdmin() {
+      return request.auth.token.admin == true;
     }
 
-    // Any logged-in user can follow/unfollow by creating/deleting their own doc.
-    match /followers/{userId} {
-      allow get: if true;
-      allow create, delete: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Offers are public to read, but only admins can modify them.
+    // Rules for the 'offers' collection
     match /offers/{offerId} {
-      allow get, list: if true;
-      allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
+      // Anyone can read offers
+      allow read: if true;
+      
+      // Only admins can create, update, or delete offers
+      allow write: if isAdmin();
 
-      // Any authenticated user can write a review.
+      // Rules for the 'reviews' subcollection
       match /reviews/{reviewId} {
-        allow get, list: if true;
+        // Anyone can read reviews
+        allow read: if true;
+        // Only authenticated users can create reviews
         allow create: if request.auth != null;
-        allow update, delete: if request.auth != null && request.auth.token.admin == true;
+        // Users cannot update or delete reviews
+        allow update, delete: if false;
       }
       
-      // Only admins can add stories.
+      // Rules for the 'stories' subcollection
       match /stories/{storyId} {
-        allow get, list: if true;
-        allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
+          // Anyone can read stories
+          allow read: if true;
+          // Only admins can write stories
+          allow write: if isAdmin();
       }
+    }
+
+    // Rules for the 'followers' collection
+    match /followers/{userId} {
+        // Anyone can read follower documents (for potential future use)
+        allow read: if true;
+        // A user can only create or delete their own follower document
+        allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Rules for the aggregated stats
+    match /meta/stats {
+        // Anyone can get the stats document (for follower count)
+        allow get: if true;
+        // No one can list the meta collection or write to the stats doc from the client
+        allow list, write: if false;
     }
   }
 }
