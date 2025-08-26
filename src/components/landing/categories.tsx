@@ -25,13 +25,13 @@ export function Categories({ selectedCategory, setSelectedCategory }: Categories
         <h2 className="text-3xl font-headline font-bold text-center mb-12">
           Explore by Category
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4">
           {categories.map((category) => (
             <Card 
               key={category.name} 
               onClick={() => handleCategoryClick(category.name)}
               className={cn(
-                "group flex flex-col items-center justify-center p-3 text-center transition-all duration-300 ease-in-out hover:bg-primary hover:text-primary-foreground hover:shadow-lg transform hover:-translate-y-1 cursor-pointer",
+                "group flex flex-col items-center justify-center p-2 text-center transition-all duration-300 ease-in-out hover:bg-primary hover:text-primary-foreground hover:shadow-lg transform hover:-translate-y-1 cursor-pointer",
                 selectedCategory === category.name && "bg-primary text-primary-foreground shadow-lg -translate-y-1"
               )}
             >
