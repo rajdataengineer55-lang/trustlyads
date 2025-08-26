@@ -1,4 +1,3 @@
-
 // =================================================================================================
 // ============================= HOW TO FIX THE FILE UPLOAD PERMISSION ERROR =============================
 // =================================================================================================
@@ -9,33 +8,20 @@
 //
 // ===> STEP 1: ENABLE FIREBASE STORAGE IN THE CONSOLE <===
 //
-// The error `NotFoundException: 404 The specified bucket does not exist` proves that
-// Firebase Storage has not been enabled for your project yet. You must enable it.
-//
-//    1. Open the Firebase Console for your project:
-//       https://console.firebase.google.com/project/localpulse-9e3lz/storage
-//
-//    2. In the "Storage" section, click the big "Get started" button.
-//
-//    3. A wizard will pop up. It will ask about Security Rules and Bucket Location.
-//       - For Security Rules, choose "Start in production mode". Click "Next".
-//       - For the Location, choose a region (the default is usually fine). Click "Done".
-//
-//    4. Wait for the bucket to be created. You will see an empty file browser when it's done.
-//       Your bucket is now created and exists at `gs://localpulse-9e3lz.appspot.com`.
+// Based on the screenshot you provided, this step is already COMPLETE. Your bucket exists.
 //
 //
 // ===> STEP 2: APPLY THE UPLOAD PERMISSION (CORS) USING YOUR TERMINAL <===
 //
-// Now that the bucket exists, you must run the following command in the same Cloud Shell
-// terminal you used before. This command tells your new bucket to accept uploads from your website.
+// Now that the bucket exists, you must run the following command in your Cloud Shell terminal.
+// This command tells your bucket to accept uploads from your website.
 //
 // Copy and paste this exact command into your terminal and press Enter:
 //
-//     gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
+//     gsutil cors set cors.json gs://localpulse-9e3lz.firebasestorage.app
 //
 //
-// After you have completed BOTH of these steps, the "Missing or insufficient permissions"
+// After you have completed this step, the "Missing or insufficient permissions"
 // error will be resolved.
 // =================================================================================================
 
