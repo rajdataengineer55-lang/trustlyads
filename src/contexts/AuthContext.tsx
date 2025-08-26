@@ -13,6 +13,8 @@ import {
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
+const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -35,10 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       if (user) {
         setUser(user);
-        // Get the ID token result to check for the admin custom claim.
-        // Force refresh the token to ensure we have the latest claims, especially after first login.
-        const idTokenResult = await user.getIdTokenResult(true); 
-        setIsAdmin(!!idTokenResult.claims.admin);
+        // Simple email check to determine admin status
+        setIsAdmin(user.email === ADMIN_EMAIL);
       } else {
         setUser(null);
         setIsAdmin(false);
@@ -74,9 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // After signing in, force a refresh of the token to get the latest claims.
-      const idTokenResult = await userCredential.user.getIdTokenResult(true); 
-      const userIsAdmin = !!idTokenResult.claims.admin;
+      const userIsAdmin = userCredential.user.email === ADMIN_EMAIL;
       setIsAdmin(userIsAdmin);
 
       if (userIsAdmin) {
@@ -85,7 +83,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             description: "Welcome back, admin!",
         });
       } else {
-        // This case handles if a non-admin user tries to use the email/password form.
          toast({
             variant: "destructive",
             title: "Sign In Failed",
