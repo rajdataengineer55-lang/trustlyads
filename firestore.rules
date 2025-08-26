@@ -1,31 +1,47 @@
-
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if the user has the 'admin' custom claim.
+    // Helper function to check if the user is the authorized admin
     function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+      return request.auth.token.admin == true;
     }
 
-    // Offers can be read by anyone, but only created, updated, or deleted by an admin.
+    // Offers can be read by anyone, but only created/updated/deleted by an admin.
     match /offers/{offerId} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
-      
-      // Reviews and Stories can be read by anyone.
-      // Writing is restricted to the admin.
-      match /{subcollection}/{docId} where subcollection == 'reviews' || subcollection == 'stories' {
+      allow write: if isAdmin();
+
+      // Reviews can be read by anyone.
+      // Any authenticated user can create a review.
+      // Only an admin can delete a review (for moderation).
+      match /reviews/{reviewId} {
         allow read: if true;
-        allow create, update, delete: if isAdmin();
+        allow create: if request.auth != null;
+        allow delete, update: if isAdmin();
+      }
+
+      // Stories can be read by anyone.
+      // Only an admin can create or delete stories.
+      match /stories/{storyId} {
+        allow read: if true;
+        allow write: if isAdmin();
       }
     }
-    
-    // Followers collection can be read by anyone (for follower count).
-    // A user can only follow/unfollow for themselves (document ID matches their UID).
+
+    // Followers can be read by anyone (for follower count).
+    // Any authenticated user can follow/unfollow (create/delete their own doc).
     match /followers/{userId} {
       allow read: if true;
-      allow create, delete: if request.auth != null && request.auth.uid == userId;
+      allow create, delete: if request.auth.uid == userId;
+    }
+    
+    // Admins collection can only be accessed by admins for reading.
+    // This collection is written to by the setAdminClaim Cloud Function.
+    match /admins/{userId} {
+        allow get: if isAdmin();
+        allow list, create, update, delete: if false;
     }
   }
 }

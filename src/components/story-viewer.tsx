@@ -1,12 +1,11 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { type Offer } from "@/contexts/OffersContext";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Progress } from "./ui/progress";
 import Link from "next/link";
 import { Button } from "./ui/button";
 
@@ -15,22 +14,23 @@ interface StoryViewerProps {
   onClose: () => void;
 }
 
-const STORY_DURATION = 5000; // 5 seconds per story
+const STORY_DURATION = 5000; // 5 seconds per image story
 
 export function StoryViewer({ offer, onClose }: StoryViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const stories = offer.stories || [];
   const currentStory = stories[currentIndex];
 
   const goToNext = () => {
     setCurrentIndex((prev) => {
-        if (prev + 1 >= stories.length) {
-            onClose();
-            return prev;
-        }
-        return prev + 1;
+      if (prev + 1 >= stories.length) {
+        onClose();
+        return prev;
+      }
+      return prev + 1;
     });
   };
 
@@ -40,37 +40,54 @@ export function StoryViewer({ offer, onClose }: StoryViewerProps) {
 
   useEffect(() => {
     if (!currentStory) {
-        onClose();
-        return;
-    }
-    
-    // Video type stories handle their own progress via the `onEnded` event on the video tag
-    if (currentStory.mediaType === 'video') {
-        setProgress(100); // Mark as complete for the progress bar
-        return;
+      onClose();
+      return;
     }
 
-    setProgress(0);
-    const timer = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          return 100;
+    setProgress(0); // Reset progress for new story
+
+    if (currentStory.mediaType === 'image') {
+      const timer = setInterval(() => {
+        setProgress(p => {
+          if (p >= 100) {
+            clearInterval(timer);
+            return 100;
+          }
+          return p + (100 / (STORY_DURATION / 100));
+        });
+      }, 100);
+
+      const autoAdvance = setTimeout(goToNext, STORY_DURATION);
+
+      return () => {
+        clearInterval(timer);
+        clearTimeout(autoAdvance);
+      };
+    } else if (currentStory.mediaType === 'video' && videoRef.current) {
+      const video = videoRef.current;
+      
+      const onTimeUpdate = () => {
+        if(video.duration) {
+            setProgress((video.currentTime / video.duration) * 100);
         }
-        return prev + (100 / (STORY_DURATION / 100));
-      });
-    }, 100);
-
-    const autoAdvance = setTimeout(() => {
+      };
+      
+      const onEnded = () => {
         goToNext();
-    }, STORY_DURATION);
+      };
+      
+      video.addEventListener('timeupdate', onTimeUpdate);
+      video.addEventListener('ended', onEnded);
+      
+      video.play().catch(e => console.error("Video play failed:", e));
 
-    return () => {
-      clearInterval(timer);
-      clearTimeout(autoAdvance);
-    };
+      return () => {
+        video.removeEventListener('timeupdate', onTimeUpdate);
+        video.removeEventListener('ended', onEnded);
+      }
+    }
   }, [currentIndex, stories, currentStory, onClose]);
-  
+
   if (!currentStory) return null;
 
   return (
@@ -87,12 +104,11 @@ export function StoryViewer({ offer, onClose }: StoryViewerProps) {
           />
         ) : (
           <video
+            ref={videoRef}
             src={currentStory.mediaUrl}
             className="w-full h-full object-cover"
-            autoPlay
             playsInline
             muted // Muted by default for a better UX
-            onEnded={goToNext}
           />
         )}
         
