@@ -15,7 +15,8 @@ import {
     Timestamp,
     collectionGroup,
     writeBatch,
-    increment
+    increment,
+    where
 } from 'firebase/firestore';
 import type { Offer, Review } from '@/contexts/OffersContext';
 
@@ -45,6 +46,14 @@ export interface OfferData {
   clicks?: number;
 }
 
+export interface Story {
+    id: string;
+    mediaUrl: string;
+    mediaType: 'image' | 'video';
+    createdAt: Date;
+    expiresAt: Date;
+}
+
 
 const offersCollection = collection(db, 'offers');
 
@@ -56,6 +65,7 @@ const mapDocToOffer = (doc: any): Offer => {
     ...data,
     createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
     reviews: data.reviews || [], // Initialize with empty array
+    stories: data.stories || [], // Initialize with empty array
     views: data.views || 0,
     clicks: data.clicks || 0,
   } as Offer;
@@ -67,6 +77,8 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
 
   // Listen to changes in the main 'offers' collection
   const unsubscribe = onSnapshot(q, async (offersSnapshot) => {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
     const offers = await Promise.all(offersSnapshot.docs.map(async (offerDoc) => {
         const offer = mapDocToOffer(offerDoc);
         
@@ -83,7 +95,25 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
             } as Review;
         });
         
+        const storiesCollection = collection(db, 'offers', offer.id, 'stories');
+        const storiesQuery = query(
+            storiesCollection, 
+            where('createdAt', '>', twentyFourHoursAgo),
+            orderBy('createdAt', 'desc')
+        );
+        const storiesSnapshot = await getDocs(storiesQuery);
+        const stories = storiesSnapshot.docs.map(storyDoc => {
+             const storyData = storyDoc.data();
+             return {
+                id: storyDoc.id,
+                ...storyData,
+                createdAt: storyData.createdAt ? (storyData.createdAt as Timestamp).toDate() : new Date(),
+             } as Story
+        });
+
         offer.reviews = reviews;
+        offer.stories = stories;
+
         return offer;
     }));
     
@@ -145,6 +175,16 @@ export const addReview = async (offerId: string, reviewData: Omit<Review, 'id' |
     };
     const reviewsCollection = collection(db, 'offers', offerId, 'reviews');
     await addDoc(reviewsCollection, reviewWithTimestamp);
+};
+
+// Add a story to an offer's subcollection
+export const addStory = async (offerId: string, storyData: { mediaUrl: string; mediaType: 'image' | 'video' }) => {
+    const storyWithTimestamp = {
+        ...storyData,
+        createdAt: serverTimestamp()
+    };
+    const storiesCollection = collection(db, 'offers', offerId, 'stories');
+    await addDoc(storiesCollection, storyWithTimestamp);
 };
 
 // Toggle offer visibility

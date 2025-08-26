@@ -5,28 +5,31 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, EyeOff, MapPin, Clock, Building } from "lucide-react";
-import { useOffers } from "@/contexts/OffersContext";
+import { ArrowRight, EyeOff, MapPin, Clock, Building, Clapperboard } from "lucide-react";
+import { useOffers, type Offer } from "@/contexts/OffersContext";
 import Link from "next/link";
-import type { SortOption } from "./filters";
 import { Skeleton } from "../ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
+import { StoryViewer } from "../story-viewer";
+import { useState } from "react";
+
 
 interface FeaturedOffersProps {
   selectedCategory: string | null;
   selectedLocation: string | null;
-  sortOption: SortOption;
   searchTerm: string;
 }
 
 const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
 
-export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption, searchTerm }: FeaturedOffersProps) {
+export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm }: FeaturedOffersProps) {
   const { offers, loading: offersLoading } = useOffers();
   const { user, loading: authLoading } = useAuth();
   
+  const [storyToView, setStoryToView] = useState<Offer | null>(null);
+
   const loading = offersLoading || authLoading;
   const isAdmin = user?.email === authorizedAdminEmail;
 
@@ -49,9 +52,14 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
         : true;
       return categoryMatch && locationMatch && searchMatch;
     });
-    // Note: 'trending' sort was removed as it was not fully implemented.
-    // The default sort from Firestore (newest first) is used.
   
+  const handleOfferClick = (e: React.MouseEvent, offer: Offer) => {
+    if (offer.stories && offer.stories.length > 0) {
+      e.preventDefault();
+      setStoryToView(offer);
+    }
+  };
+
   if (loading) {
     return (
       <section id="featured-offers" className="w-full pt-16 sm:pt-24">
@@ -84,6 +92,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
   }
 
   return (
+    <>
     <section id="featured-offers" className="w-full pt-16 sm:pt-24">
       <div className="container mx-auto px-4 md:px-6">
         <h2 className="text-3xl font-headline font-bold text-center mb-12">
@@ -92,72 +101,85 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredOffers.map((offer) => {
             const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
+            const hasStory = offer.stories && offer.stories.length > 0;
+
             return (
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
-                <CardContent className="p-0 flex flex-col flex-grow">
-                  <div className="relative aspect-[4/3] w-full">
-                    <Image
-                      src={offer.image}
-                      alt={offer.title}
-                      width={400}
-                      height={300}
-                      className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-                      data-ai-hint={offer.hint}
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                    />
+                <Link href={`/offer/${offer.id}`} onClick={(e) => handleOfferClick(e, offer)} passHref className="flex flex-col flex-grow">
+                  <CardContent className="p-0 flex flex-col flex-grow">
+                    <div className={cn("relative aspect-[4/3] w-full", hasStory && "p-1 bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600 rounded-t-lg")}>
+                      <Image
+                        src={offer.image}
+                        alt={offer.title}
+                        width={400}
+                        height={300}
+                        className={cn("object-cover w-full h-full transition-transform duration-300 group-hover:scale-105", hasStory && "rounded-md")}
+                        data-ai-hint={offer.hint}
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                      />
                       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                        <h3 className="text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
-                    </div>
-                    <Badge variant="default" className="absolute top-4 right-4 bg-black text-white font-bold py-1 px-3 animate-blink">
-                      {offer.discount}
-                    </Badge>
+                          <h3 className="text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
+                      </div>
+                      <Badge variant="default" className="absolute top-4 right-4 bg-black text-white font-bold py-1 px-3 animate-blink">
+                        {offer.discount}
+                      </Badge>
                       {offer.isHidden && (
-                        <Badge variant="destructive" className="absolute top-4 left-4 font-bold py-1 px-3">
-                          <EyeOff className="mr-2 h-4 w-4" /> Hidden
-                        </Badge>
+                          <Badge variant="destructive" className="absolute top-4 left-4 font-bold py-1 px-3">
+                            <EyeOff className="mr-2 h-4 w-4" /> Hidden
+                          </Badge>
                       )}
                       {isNew && !offer.isHidden && (
-                        <Badge variant="secondary" className="absolute top-4 left-4 font-bold py-1 px-3 bg-green-500 text-white">
-                            Just Listed
-                        </Badge>
+                          <Badge variant="secondary" className="absolute top-4 left-4 font-bold py-1 px-3 bg-green-500 text-white">
+                              Just Listed
+                          </Badge>
                       )}
-                  </div>
-                  <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
-                      <div className="flex items-center text-sm text-muted-foreground mb-2">
-                          <Building className="h-4 w-4 mr-2 shrink-0" />
-                          <p className="truncate font-medium text-foreground">{offer.business}</p>
-                      </div>
-                      <div className="flex items-start text-sm text-muted-foreground mb-2">
-                        <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
-                        <div>
-                          <p className="truncate font-medium text-foreground">{offer.location}</p>
-                          {offer.nearbyLocation && <p className="truncate text-xs">{offer.nearbyLocation}</p>}
+                      {hasStory && (
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white rounded-full p-3 flex items-center gap-2">
+                           <Clapperboard className="h-6 w-6" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
+                      <div className="flex-grow">
+                        <div className="flex items-center text-sm text-muted-foreground mb-2">
+                            <Building className="h-4 w-4 mr-2 shrink-0" />
+                            <p className="truncate font-medium text-foreground">{offer.business}</p>
+                        </div>
+                        <div className="flex items-start text-sm text-muted-foreground mb-2">
+                          <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
+                          <div>
+                            <p className="truncate font-medium text-foreground">{offer.location}</p>
+                            {offer.nearbyLocation && <p className="truncate text-xs">{offer.nearbyLocation}</p>}
+                          </div>
+                        </div>
+                        {offer.createdAt && (
+                        <div className="flex items-center text-xs text-muted-foreground mb-4 ml-1">
+                            <Clock className="h-3 w-3 mr-1.5" />
+                            <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
+                        </div>
+                        )}
+                        <div className="flex flex-wrap gap-2 mb-4 min-h-[24px]">
+                          {offer.tags?.slice(0,3).map((tag) => (
+                            <Badge key={tag} variant="secondary">{tag}</Badge>
+                          ))}
                         </div>
                       </div>
-                      {offer.createdAt && (
-                      <div className="flex items-center text-xs text-muted-foreground mb-4 ml-1">
-                          <Clock className="h-3 w-3 mr-1.5" />
-                          <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
+                      <div className="pt-4">
+                          <Button className="w-full">
+                                View Details <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
                       </div>
-                      )}
-                    <div className="flex flex-wrap gap-2 mb-4 min-h-[24px]">
-                      {offer.tags?.slice(0,3).map((tag) => (
-                        <Badge key={tag} variant="secondary">{tag}</Badge>
-                      ))}
                     </div>
-                    <div className="mt-auto pt-4">
-                      <Link href={`/offer/${offer.id}`} passHref>
-                        <Button className="w-full">
-                              View Details <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </CardContent>
+                  </CardContent>
+                </Link>
               </Card>
-            )})}
+          )})}
         </div>
       </div>
     </section>
+    {storyToView && (
+      <StoryViewer offer={storyToView} onClose={() => setStoryToView(null)} />
+    )}
+    </>
   );
 }

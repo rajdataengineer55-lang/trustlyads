@@ -1,4 +1,5 @@
 
+
 // =================================================================================================
 // IMPORTANT: ACTION REQUIRED FOR FILE UPLOADS TO WORK
 // =================================================================================================
@@ -39,6 +40,32 @@ import { v4 as uuidv4 } from 'uuid';
 import { storage } from './firebase';
 
 /**
+ * Uploads a single file to a specified destination in Firebase Storage.
+ * @param file The file to upload.
+ * @param destination The folder path in storage (e.g., 'offers', 'stories').
+ * @returns A promise that resolves with the download URL.
+ */
+export const uploadFile = async (file: File, destination: 'offers' | 'stories'): Promise<string> => {
+    if (!file) {
+        throw new Error("File is required for upload.");
+    }
+
+    const fileId = uuidv4();
+    const filePath = `${destination}/${fileId}-${file.name}`;
+    const fileRef = ref(storage, filePath);
+
+    try {
+        const snapshot = await uploadBytes(fileRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        return downloadURL;
+    } catch (error) {
+        console.error(`Upload failed for ${file.name}:`, error);
+        throw new Error(`Failed to upload ${file.name}. Please try again.`);
+    }
+};
+
+
+/**
  * Uploads multiple files to Firebase Storage using the client-side JS SDK.
  * @param files The FileList object from the file input.
  * @returns A promise that resolves with an array of download URLs.
@@ -48,26 +75,7 @@ export const uploadMultipleFiles = async (files: FileList): Promise<string[]> =>
     return [];
   }
 
-  const uploadPromises: Promise<string>[] = [];
-
-  for (const file of Array.from(files)) {
-    const fileId = uuidv4();
-    const destination = `offers/${fileId}-${file.name}`;
-    const fileRef = ref(storage, destination);
-
-    const promise = uploadBytes(fileRef, file)
-      .then(async (snapshot) => {
-        const downloadURL = await getDownloadURL(snapshot.ref);
-        return downloadURL;
-      })
-      .catch((error) => {
-        console.error(`Upload failed for ${file.name}:`, error);
-        // Throw a more specific error to be caught by the caller
-        throw new Error(`Failed to upload ${file.name}. Please try again.`);
-      });
-
-    uploadPromises.push(promise);
-  }
+  const uploadPromises: Promise<string>[] = Array.from(files).map(file => uploadFile(file, 'offers'));
 
   try {
     const urls = await Promise.all(uploadPromises);

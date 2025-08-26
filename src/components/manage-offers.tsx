@@ -24,18 +24,20 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff, BarChart2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff, BarChart2, Clapperboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "./ui/badge";
+import { AddStoryForm } from "./add-story-form";
 
 export function ManageOffers() {
   const { offers, deleteOffer, boostOffer, toggleOfferVisibility, loading } = useOffers();
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isStoryDialogOpen, setIsStoryDialogOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
 
   const handleDeleteClick = (offer: Offer) => {
@@ -67,9 +69,15 @@ export function ManageOffers() {
     setSelectedOffer(offer);
     setIsEditDialogOpen(true);
   }
+
+  const handleAddStoryClick = (offer: Offer) => {
+    setSelectedOffer(offer);
+    setIsStoryDialogOpen(true);
+  }
   
-  const handleEditDialogClose = () => {
+  const handleDialogClose = () => {
     setIsEditDialogOpen(false);
+    setIsStoryDialogOpen(false);
     setSelectedOffer(null);
   }
 
@@ -167,6 +175,9 @@ export function ManageOffers() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => handleAddStoryClick(offer)}>
+                                            <Clapperboard className="mr-2 h-4 w-4" /> Add Story
+                                        </DropdownMenuItem>
                                         <DropdownMenuItem onClick={() => handleBoostClick(offer)}>
                                             <Megaphone className="mr-2 h-4 w-4" /> Boost
                                         </DropdownMenuItem>
@@ -195,14 +206,26 @@ export function ManageOffers() {
         </CardContent>
       </Card>
       
-      <Dialog open={isEditDialogOpen} onOpenChange={(isOpen) => !isOpen && handleEditDialogClose()}>
+      <Dialog open={isEditDialogOpen} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
                 <DialogTitle>Edit Offer</DialogTitle>
             </DialogHeader>
               {selectedOffer && <AdGenerator 
               offerToEdit={selectedOffer} 
-              onFinished={handleEditDialogClose} 
+              onFinished={handleDialogClose} 
+            />}
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isStoryDialogOpen} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Add Story for "{selectedOffer?.title}"</DialogTitle>
+            </DialogHeader>
+              {selectedOffer && <AddStoryForm 
+              offer={selectedOffer}
+              onFinished={handleDialogClose} 
             />}
         </DialogContent>
       </Dialog>
