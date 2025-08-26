@@ -5,19 +5,21 @@
 // Client-side file uploads to Firebase Storage require a CORS configuration on your Google Cloud
 // Storage bucket. This is a one-time setup.
 //
-// ### Step 1: Create your Storage Bucket
+// ### Step 1: Create your Storage Bucket (MANDATORY FIRST STEP)
 //
-// The `gsutil` command failed because the bucket doesn't exist yet.
+// The `gsutil` command failed because the bucket doesn't exist yet. You must create it first.
 //
-//    - Go to the Firebase Console: https://console.firebase.google.com/
-//    - Select your project (`localpulse-9e3lz`).
-//    - In the left-hand menu, go to **Build > Storage**.
-//    - Click the **"Get started"** button and follow the on-screen prompts to enable Storage.
-//      (You can use the default security rules for now). This will create your bucket.
+//    1. Go to the Firebase Console Storage section for your project:
+//       https://console.firebase.google.com/project/localpulse-9e3lz/storage
+//
+//    2. Click the **"Get started"** button.
+//
+//    3. Follow the on-screen prompts to enable Storage. You can use the default security
+//       rules and location for now. This will create your bucket.
 //
 // ### Step 2: Apply CORS Configuration
 //
-// Once the bucket is created, you can apply the CORS rules.
+// Once the bucket has been created in the Firebase Console, you can apply the CORS rules.
 //
 //    - **Your bucket name is:** `gs://localpulse-9e3lz.appspot.com`
 //    - **Your config file is:** `cors.json` (already in your project)
