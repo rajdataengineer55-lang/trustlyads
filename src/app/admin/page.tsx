@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -17,32 +18,22 @@ import { AdminLoginForm } from '@/components/admin-login-form';
 export default function AdminPage() {
     const { user, loading, signOut } = useAuth();
     const [isAdmin, setIsAdmin] = useState(false);
-    const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
     useEffect(() => {
         // This effect now correctly checks the admin claim after the user state is confirmed.
         const checkAdminStatus = async () => {
-            if (loading) {
-                setIsCheckingAdmin(true);
-                return;
-            }
-
-            if (!user) {
-                setIsAdmin(false);
-                setIsCheckingAdmin(false);
-                return;
-            }
-
-            try {
-                // We get the latest token result which includes our custom claims.
-                const idTokenResult = await user.getIdTokenResult();
-                const isAdminClaim = !!idTokenResult.claims.admin;
-                setIsAdmin(isAdminClaim);
-            } catch (error) {
-                console.error("Error checking admin status:", error);
-                setIsAdmin(false);
-            } finally {
-                setIsCheckingAdmin(false);
+            if (!loading && user) {
+                try {
+                    // We get the latest token result which includes our custom claims.
+                    const idTokenResult = await user.getIdTokenResult(true); // Force refresh
+                    const isAdminClaim = !!idTokenResult.claims.admin;
+                    setIsAdmin(isAdminClaim);
+                } catch (error) {
+                    console.error("Error checking admin status:", error);
+                    setIsAdmin(false);
+                }
+            } else if (!user) {
+                 setIsAdmin(false);
             }
         };
 
@@ -50,7 +41,7 @@ export default function AdminPage() {
     }, [user, loading]);
 
     // 1. Show a loading state while we check for the user and their claims
-    if (isCheckingAdmin) {
+    if (loading) {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
