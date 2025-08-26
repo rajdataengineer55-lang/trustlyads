@@ -107,27 +107,28 @@ export default function OfferDetailsPage() {
     };
 
     try {
+      // Prioritize Web Share API but handle its absence or failure gracefully.
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast({
-          title: "Link Copied!",
-          description: "The offer link has been copied to your clipboard.",
-        });
+        // If navigator.share doesn't exist, fall back to clipboard.
+        throw new Error('Web Share API not supported');
       }
     } catch (err: any) {
+      // This block will catch errors from navigator.share (e.g., AbortError, NotAllowedError)
+      // or the manually thrown error if the API doesn't exist.
+      
+      // Don't show an error if the user simply closed the share sheet.
       if (err.name === 'AbortError') {
         return;
       }
       
-      console.error("Error sharing:", err);
+      console.error("Error sharing, falling back to clipboard:", err);
       try {
         await navigator.clipboard.writeText(window.location.href);
         toast({
-          variant: "default",
-          title: "Sharing not available, Link Copied!",
-          description: "The offer link has been copied to your clipboard instead.",
+          title: "Link Copied!",
+          description: "Sharing is not available, so the link was copied to your clipboard.",
         });
       } catch (copyError) {
         toast({
