@@ -2,25 +2,24 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-  
-    // Helper function to check for admin custom claim
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
-    }
-
-    // Allow public read access to all files
+    
+    // Rule 1: Allow public read access to all files in storage.
+    // This is necessary so that anyone visiting your site can see the
+    // offer images and stories.
     match /{allPaths=**} {
       allow read;
     }
 
-    // Allow admin writes to the 'offers' directory
+    // Rule 2: Allow authenticated admin users to write to the 'offers' directory.
+    // This allows the admin to upload cover photos and other images for offers.
     match /offers/{fileName} {
-      allow write: if isAdmin();
+      allow write: if request.auth != null && request.auth.token.admin == true;
     }
-    
-    // Allow admin writes to the 'stories' directory
+
+    // Rule 3: Allow authenticated admin users to write to the 'stories' directory.
+    // This allows the admin to upload images and videos for stories.
     match /stories/{fileName} {
-       allow write: if isAdmin();
+      allow write: if request.auth != null && request.auth.token.admin == true;
     }
   }
 }
