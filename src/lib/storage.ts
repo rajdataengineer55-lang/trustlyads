@@ -4,7 +4,8 @@
 // IMPORTANT: ACTION REQUIRED FOR FILE UPLOADS TO WORK
 // =================================================================================================
 // Client-side file uploads to Firebase Storage require a CORS configuration on your Google Cloud
-// Storage bucket. This is a one-time setup.
+// Storage bucket. This is a one-time setup. The persistent "Missing or insufficient permissions"
+// error you are seeing is the direct result of this configuration not being applied yet.
 //
 // ### Step 1: Create your Storage Bucket (MANDATORY FIRST STEP)
 //
@@ -21,10 +22,11 @@
 //
 // Once the bucket has been created in the Firebase Console, you can apply the CORS rules.
 //
-//    - **Your bucket name is:** `gs://trustlyads.in.appspot.com`
+//    - **Your bucket name is:** `trustlyads.in.appspot.com`
 //    - **Your config file is:** `cors.json` (already in your project)
 //
-//    - **Run this command** in your terminal or Cloud Shell to apply the rules:
+//    - **Run this exact command** in your terminal or Google Cloud Shell to apply the rules.
+//      This is the crucial step to fix the permission errors.
 //
 //      gsutil cors set cors.json gs://trustlyads.in.appspot.com
 //
@@ -32,7 +34,8 @@
 //
 //      gsutil cors get gs://trustlyads.in.appspot.com
 //
-// After you complete these two steps, client-side uploads will be allowed.
+// After you complete these two steps successfully, client-side uploads will be allowed and the
+// permission error will be resolved.
 // =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
