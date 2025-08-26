@@ -1,68 +1,36 @@
-
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check for admin custom claim
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+    // Allow public read on the follower count, but secure writes.
+    match /meta/stats {
+      allow get: if true;
+      allow list, write: if request.auth != null && request.auth.token.admin == true;
     }
 
-    // Helper function to check if a user is logged in
-    function isSignedIn() {
-      return request.auth != null;
+    // Any logged-in user can follow/unfollow by creating/deleting their own doc.
+    match /followers/{userId} {
+      allow get: if true;
+      allow create, delete: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Rules for the 'offers' collection
+    // Offers are public to read, but only admins can modify them.
     match /offers/{offerId} {
-      // Anyone can read offers
-      allow read: if true;
+      allow get, list: if true;
+      allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
 
-      // Only admins can create, update, or delete offers
-      allow write: if isAdmin();
-
-      // Rules for the 'reviews' subcollection
+      // Any authenticated user can write a review.
       match /reviews/{reviewId} {
-        // Anyone can read reviews
-        allow read: if true;
-
-        // Any signed-in user can create a review
-        allow create: if isSignedIn();
-
-        // No one can update or delete reviews for now
-        allow update, delete: if false;
+        allow get, list: if true;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth != null && request.auth.token.admin == true;
       }
       
-      // Rules for the 'stories' subcollection
+      // Only admins can add stories.
       match /stories/{storyId} {
-        // Anyone can read stories
-        allow read: if true;
-
-        // Only admins can create stories
-        allow create: if isAdmin();
-        
-        // No one can update or delete stories
-        allow update, delete: if false;
+        allow get, list: if true;
+        allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
       }
-    }
-
-    // Rules for the 'followers' collection
-    match /followers/{userId} {
-      // A user can only read, create, or delete their own follower document
-      allow read, create, delete: if request.auth.uid == userId;
-
-      // Users cannot update their follower doc (create/delete only)
-      allow update: if false;
-    }
-
-    // Rules for the 'meta' collection (for follower count)
-    match /meta/{docId} {
-        // Specifically allow public read on the 'stats' document
-        allow get: if docId == "stats";
-
-        // Nobody can list the meta collection or write to it from the client
-        allow list, write: if false;
     }
   }
 }
