@@ -96,7 +96,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
           }}
           className="w-full"
         >
-          <CarouselContent className="-ml-2 md:-ml-4">
+          <CarouselContent className="-ml-4">
             {filteredOffers.map((offer) => {
               const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
               return (
