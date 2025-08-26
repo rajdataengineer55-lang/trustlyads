@@ -95,35 +95,23 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
         });
         offer.reviews = reviews;
 
-        // --- Fetch Active Stories ---
-        // We only fetch stories created in the last 24 hours.
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        // --- Fetch Active Stories (Client-Side Filtering) ---
         const storiesCollection = collection(db, 'offers', offer.id, 'stories');
+        const storiesQuery = query(storiesCollection, orderBy('createdAt', 'asc'));
+        const storiesSnapshot = await getDocs(storiesQuery);
         
-        // IMPORTANT: This query requires a composite index in Firestore.
-        // If this query fails with a "Missing or insufficient permissions" error,
-        // Firebase will log an error in your BROWSER'S developer console containing a direct link
-        // to create the required index. Click that link and create the index.
-        const storiesQuery = query(
-          storiesCollection, 
-          where('createdAt', '>', twentyFourHoursAgo),
-          orderBy('createdAt', 'asc')
-        );
-
-        try {
-            const storiesSnapshot = await getDocs(storiesQuery);
-            offer.stories = storiesSnapshot.docs.map(storyDoc => {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        
+        offer.stories = storiesSnapshot.docs
+            .map(storyDoc => {
                 const storyData = storyDoc.data();
                 return {
                     id: storyDoc.id,
                     ...storyData,
                     createdAt: (storyData.createdAt as Timestamp).toDate(),
                 } as Story;
-            });
-        } catch (error) {
-            console.error(`Error fetching stories for offer ${offer.id}. This might be an index issue. Please check the browser console for an index creation link.`, error);
-            offer.stories = [];
-        }
+            })
+            .filter(story => story.createdAt > twentyFourHoursAgo); // Filter stories on the client
 
         return offer;
     }));
