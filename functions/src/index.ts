@@ -6,7 +6,8 @@ admin.initializeApp();
 const auth = admin.auth();
 const db = admin.firestore();
 
-// This function assigns an admin role to a specific user upon their first sign-up.
+// This Cloud Function triggers when a new user is created.
+// If their email matches the admin email, it assigns them a custom 'admin' claim.
 export const setAdminClaimOnCreate = functions.auth.user().onCreate(async (user) => {
   const adminEmail = "dandurajkumarworld24@gmail.com";
 
@@ -17,7 +18,7 @@ export const setAdminClaimOnCreate = functions.auth.user().onCreate(async (user)
       await auth.setCustomUserClaims(user.uid, { admin: true });
       functions.logger.info(`Successfully assigned admin role to ${user.email}`);
 
-      // Also create a document in the 'users' collection to reflect this role
+      // Optional: Create a document in the 'users' collection to reflect this role.
       await db.collection("users").doc(user.uid).set({
         email: user.email,
         role: "admin",
@@ -27,7 +28,7 @@ export const setAdminClaimOnCreate = functions.auth.user().onCreate(async (user)
       functions.logger.error(`Error setting custom claim for ${user.email}:`, error);
     }
   } else {
-    // For regular users, create a document in the 'users' collection with the 'user' role.
+    // For regular users, you can optionally create a document with a 'user' role.
      await db.collection("users").doc(user.uid).set({
         email: user.email,
         role: "user",
@@ -36,8 +37,8 @@ export const setAdminClaimOnCreate = functions.auth.user().onCreate(async (user)
 });
 
 
-// This function triggers when a new offer is created in Firestore.
-// It is intended for sending notifications to followers.
+// This function is intended for sending notifications when a new offer is created.
+// It is not related to the admin permissions fix.
 export const onNewOfferSendNotification = functions.firestore
   .document("offers/{offerId}")
   .onCreate(async (snap) => {
@@ -59,3 +60,4 @@ export const onNewOfferSendNotification = functions.firestore
     // This is where you would add logic to send emails or push notifications.
     return;
   });
+

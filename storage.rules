@@ -1,23 +1,25 @@
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
+
     // Helper function to check for admin custom claim
     function isAdmin() {
       return request.auth != null && request.auth.token.admin == true;
     }
 
-    // Public read access for all files in both folders.
-    // This allows anyone to see the images on your website.
-    match /offers/{fileName} {
+    // Allow public read access to all files in all folders.
+    // This allows anyone to view offer images, story media, etc.
+    match /{allPaths=**} {
       allow read;
-      // Only admins can upload files to the 'offers' folder.
+    }
+
+    // Allow admins to write (upload, update, delete) files in the 'offers' folder.
+    match /offers/{fileName} {
       allow write: if isAdmin();
     }
 
+    // Allow admins to write (upload, update, delete) files in the 'stories' folder.
     match /stories/{fileName} {
-      allow read;
-      // Only admins can upload files to the 'stories' folder.
       allow write: if isAdmin();
     }
   }

@@ -1,16 +1,14 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
 import { AdGenerator } from "@/components/ad-generator";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
 import { ManageOffers } from "@/components/manage-offers";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogIn, LogOut, ShieldAlert, Loader2, Users } from 'lucide-react';
+import { LogOut, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLoginForm } from '@/components/admin-login-form';
