@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -21,6 +20,7 @@ import Link from "next/link";
 
 const formSchema = z.object({
   location: z.string({ required_error: "Please select a location." }),
+  businessName: z.string({ required_error: "Please select a business." }),
   offerId: z.string({ required_error: "Please select an offer." }),
   image: z.custom<FileList>().refine((files) => files?.length > 0, "An image is required."),
 });
@@ -31,26 +31,44 @@ export function StoryGenerator() {
   const { toast } = useToast();
   const { addStory, deleteStory, stories } = useStories();
   const { offers } = useOffers();
-  const [offersInLocation, setOffersInLocation] = useState<Offer[]>([]);
+
+  const [businessesInLocation, setBusinessesInLocation] = useState<string[]>([]);
+  const [offersForBusiness, setOffersForBusiness] = useState<Offer[]>([]);
 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { offerId: "" },
+    defaultValues: { location: "", businessName: "", offerId: "" },
   });
 
   const selectedLocation = form.watch("location");
+  const selectedBusiness = form.watch("businessName");
 
   useEffect(() => {
     if (selectedLocation) {
-        const filteredOffers = offers.filter(offer => offer.location === selectedLocation);
-        setOffersInLocation(filteredOffers);
-        form.setValue("offerId", ""); 
+        const offersInLoc = offers.filter(offer => offer.location === selectedLocation);
+        const uniqueBusinesses = [...new Set(offersInLoc.map(offer => offer.business))];
+        setBusinessesInLocation(uniqueBusinesses);
+        form.resetField("businessName");
+        form.resetField("offerId");
+        setOffersForBusiness([]);
     } else {
-        setOffersInLocation([]);
+        setBusinessesInLocation([]);
+        setOffersForBusiness([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLocation, offers]);
+
+  useEffect(() => {
+    if (selectedLocation && selectedBusiness) {
+        const filteredOffers = offers.filter(offer => offer.location === selectedLocation && offer.business === selectedBusiness);
+        setOffersForBusiness(filteredOffers);
+        form.resetField("offerId");
+    } else {
+        setOffersForBusiness([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedBusiness, selectedLocation, offers]);
 
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,7 +163,7 @@ export function StoryGenerator() {
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select a location to find offers" />
+                                                <SelectValue placeholder="Step 1: Select a location" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
@@ -171,25 +189,51 @@ export function StoryGenerator() {
                                 </FormItem>
                             )}
                         />
+                         <FormField
+                            control={form.control}
+                            name="businessName"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Business Name</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedLocation || businessesInLocation.length === 0}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={!selectedLocation ? "First select a location" : "Step 2: Select a business"} />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {businessesInLocation.length > 0 ? (
+                                            businessesInLocation.map(business => (
+                                                <SelectItem key={business} value={business}>{business}</SelectItem>
+                                            ))
+                                        ) : (
+                                            <SelectItem value="no-business" disabled>No businesses found in this location</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name="offerId"
                             render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Offer</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedLocation || offersInLocation.length === 0}>
+                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedBusiness || offersForBusiness.length === 0}>
                                     <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder={!selectedLocation ? "Select a location first" : "Select an offer"} />
+                                            <SelectValue placeholder={!selectedBusiness ? "First select a business" : "Step 3: Select an offer"} />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {offersInLocation.length > 0 ? (
-                                            offersInLocation.map(offer => (
-                                                <SelectItem key={offer.id} value={offer.id}>{offer.business} - {offer.title}</SelectItem>
+                                        {offersForBusiness.length > 0 ? (
+                                            offersForBusiness.map(offer => (
+                                                <SelectItem key={offer.id} value={offer.id}>{offer.title}</SelectItem>
                                             ))
                                         ) : (
-                                            <SelectItem value="no-offers" disabled>No offers found in this location</SelectItem>
+                                            <SelectItem value="no-offers" disabled>No offers found for this business</SelectItem>
                                         )}
                                     </SelectContent>
                                 </Select>
