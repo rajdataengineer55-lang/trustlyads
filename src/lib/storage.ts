@@ -1,41 +1,57 @@
 
 
 // =================================================================================================
-// IMPORTANT: ACTION REQUIRED FOR FILE UPLOADS TO WORK
+// CRITICAL: FIX FOR THE "Missing or insufficient permissions" UPLOAD ERROR
 // =================================================================================================
-// Client-side file uploads to Firebase Storage require a CORS configuration on your Google Cloud
-// Storage bucket. This is a one-time setup. The persistent "Missing or insufficient permissions"
-// error you are seeing is the direct result of this configuration not being applied yet.
+// The persistent permission error you are seeing is almost certainly caused by a missing
+// CORS configuration on your project's Storage Bucket. This is a one-time setup that must
+// be performed from your command line.
 //
-// ### Step 1: Create your Storage Bucket (MANDATORY FIRST STEP)
+// Please follow these steps carefully.
 //
-// The `gsutil` command will fail if the bucket doesn't exist yet. You must create it first.
+// ### Step 1: Install the Google Cloud CLI
 //
-//    1. Go to the Firebase Console Storage section for your project by clicking this link:
+// If you don't have it, install it from here: https://cloud.google.com/sdk/docs/install
+//
+// ### Step 2: Log in to the gcloud CLI
+//
+// Open your terminal or command prompt and run this command. Follow the browser prompts to log in
+// with the same Google account that owns your Firebase project.
+//
+//    gcloud auth login
+//
+// ### Step 3: Set your active project
+//
+// Tell gcloud which project to work on. Your Firebase Project ID is `localpulse-9e3lz`.
+// Run this command:
+//
+//    gcloud config set project localpulse-9e3lz
+//
+// ### Step 4: Create your Storage Bucket (If you haven't already)
+//
+// The next command will fail if the bucket doesn't exist. You must create it first.
+//
+//    1. Go to the Firebase Console Storage section:
 //       https://console.firebase.google.com/project/localpulse-9e3lz/storage
 //
-//    2. If you see a "Get started" button, click it. Follow the on-screen prompts to enable
-//       Storage. This will create your bucket. If you don't see "Get started", your bucket
-//       already exists and you can proceed to the next step.
+//    2. Click "Get started" and follow the prompts if you see them. If you see a file list,
+//       your bucket already exists, and you can proceed.
 //
-// ### Step 2: Apply CORS Configuration
+// ### Step 5: Apply the CORS Configuration
 //
-// Once the bucket has been created in the Firebase Console, you can apply the CORS rules.
+// This is the most important step. Run this command from your project's root directory
+// (the same directory where the `cors.json` file is located).
 //
-//    - **Your bucket name is:** `trustlyads.in.appspot.com`
-//    - **Your config file is:** `cors.json` (already in your project)
+//    gsutil cors set cors.json gs://trustlyads.in.appspot.com
 //
-//    - **Run this exact command** in your terminal or Google Cloud Shell to apply the rules.
-//      This is the crucial step to fix the permission errors.
+// ### Step 6: Verify the Configuration
 //
-//      gsutil cors set cors.json gs://trustlyads.in.appspot.com
+// To confirm the settings were applied, run this command:
 //
-//    - To verify the settings were applied correctly, run:
+//    gsutil cors get gs://trustlyads.in.appspot.com
 //
-//      gsutil cors get gs://trustlyads.in.appspot.com
-//
-// After you complete these two steps successfully, client-side uploads will be allowed and the
-// permission error will be resolved.
+// It should output the contents of your `cors.json` file. Once you have successfully
+// completed these steps, the upload permission error will be resolved.
 // =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
