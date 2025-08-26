@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,9 +16,10 @@ import { uploadFile } from "@/lib/storage";
 import { useStories, type Story } from "@/contexts/StoriesContext";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { locations } from "@/lib/locations";
+import { useOffers } from "@/contexts/OffersContext";
 
 const formSchema = z.object({
-  businessName: z.string().min(2, { message: "Business name is required." }),
+  businessName: z.string({ required_error: "Please select a business." }),
   location: z.string({ required_error: "Please select a location." }),
   link: z.string().url({ message: "Please enter a valid URL." }),
   image: z.custom<FileList>().refine((files) => files?.length > 0, "An image is required."),
@@ -29,11 +30,32 @@ export function StoryGenerator() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { toast } = useToast();
   const { addStory, deleteStory, stories } = useStories();
+  const { offers } = useOffers();
+  const [businessesInLocation, setBusinessesInLocation] = useState<string[]>([]);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { businessName: "", link: "" },
+    defaultValues: { link: "" },
   });
+
+  const selectedLocation = form.watch("location");
+
+  useEffect(() => {
+    if (selectedLocation) {
+        const uniqueBusinesses = [...new Set(
+            offers
+                .filter(offer => offer.location === selectedLocation)
+                .map(offer => offer.business)
+        )];
+        setBusinessesInLocation(uniqueBusinesses);
+        form.setValue("businessName", ""); // Reset business name when location changes
+    } else {
+        setBusinessesInLocation([]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLocation, offers]);
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -111,19 +133,6 @@ export function StoryGenerator() {
                             </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="businessName"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Business Name</FormLabel>
-                                <FormControl>
-                                <Input placeholder="e.g., The Cozy Cafe" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
                          <FormField
                             control={form.control}
                             name="location"
@@ -133,7 +142,7 @@ export function StoryGenerator() {
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select a location" />
+                                                <SelectValue placeholder="Select a location to find businesses" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
@@ -157,6 +166,32 @@ export function StoryGenerator() {
                                     </Select>
                                     <FormMessage />
                                 </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="businessName"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Business Name</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedLocation || businessesInLocation.length === 0}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={!selectedLocation ? "Select a location first" : "Select a business"} />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {businessesInLocation.length > 0 ? (
+                                            businessesInLocation.map(business => (
+                                                <SelectItem key={business} value={business}>{business}</SelectItem>
+                                            ))
+                                        ) : (
+                                            <SelectItem value="no-business" disabled>No businesses found in this location</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
                             )}
                         />
                         <FormField
