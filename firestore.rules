@@ -1,33 +1,38 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Helper function to check if the user is the authorized admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == "dandurajkumarworld24@gmail.com";
+    }
     
-    // Allow public read on offers
-    // Allow only the admin to create, update, or delete offers
+    // Offers can be read by anyone, but only created/updated/deleted by an admin.
     match /offers/{offerId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+      allow write: if isAdmin();
 
-      // Anyone can read reviews
-      // Only signed-in users can create reviews
+      // Reviews can be read by anyone, but only created by a signed-in user.
+      // Admin can delete them if needed (cascades from offer deletion).
       match /reviews/{reviewId} {
         allow read: if true;
         allow create: if request.auth != null;
+        allow update, delete: if isAdmin();
       }
-      
-      // Anyone can read stories
-      // Only the admin can create stories
+
+      // Stories can be read by anyone, but only created, updated, or deleted by the admin.
       match /stories/{storyId} {
         allow read: if true;
-        allow create: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+        allow write: if isAdmin();
       }
     }
 
-    // Allow users to add themselves as followers, but not read other followers
+    // Followers can be read by anyone (for follower count).
+    // Users can only follow/unfollow themselves.
     match /followers/{userId} {
-      allow read, delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null;
-      allow list: if request.auth != null; // Allow clients to query the collection
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

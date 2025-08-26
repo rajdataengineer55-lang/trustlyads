@@ -2,21 +2,22 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Allow anyone to read from these folders
-    match /offers/{allPaths=**} {
-      allow read;
-    }
-    match /stories/{allPaths=**} {
-      allow read;
+
+    // Helper function to check if the user is the authorized admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == "dandurajkumarworld24@gmail.com";
     }
 
-    // Allow any authenticated user to upload to these folders
+    // Allow public read access to all offer and story images/videos.
+    // Restrict write access (uploads, deletes) to only the admin user.
     match /offers/{allPaths=**} {
-      allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if isAdmin();
     }
+
     match /stories/{allPaths=**} {
-      allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }
