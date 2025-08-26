@@ -1,19 +1,18 @@
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow public read access to all files
-    match /{allPaths=**} {
-      allow read: if true;
-    }
+    // Default rule: Allow public read access to all files
+    allow read: if true;
 
-    // Allow admin to write to the 'offers' folder
+    // Allow write access on the 'offers' path only for the admin
     match /offers/{allPaths=**} {
-      allow write: if request.auth != null && request.auth.email == 'dandurajkumarworld24@gmail.com';
+      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
     }
 
-    // Allow admin to write to the 'stories' folder
+    // Allow write access on the 'stories' path only for the admin
     match /stories/{allPaths=**} {
-      allow write: if request.auth != null && request.auth.email == 'dandurajkumarworld24@gmail.com';
+      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
     }
   }
 }
