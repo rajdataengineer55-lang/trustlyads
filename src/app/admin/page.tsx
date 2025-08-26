@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { AdGenerator } from "@/components/ad-generator";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
@@ -12,92 +9,16 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogIn, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
+import { LogIn, LogOut, ShieldAlert, Loader2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-
-const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(1, { message: "Password is required." }),
-});
-
-type AdminLoginData = z.infer<typeof loginSchema>;
-
-const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
-
-function AdminLoginForm() {
-  const { signInWithEmail } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const form = useForm<AdminLoginData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
-  });
-
-  const onSubmit = async (data: AdminLoginData) => {
-    setIsLoading(true);
-    try {
-      await signInWithEmail(data.email, data.password);
-    } catch (error) {
-      // Error is handled by the context's toast
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="admin@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? (
-                <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing In...
-                </>
-            ) : (
-                <>
-                <LogIn className="mr-2 h-4 w-4" />
-                Sign In
-                </>
-            )}
-        </Button>
-      </form>
-    </Form>
-  );
-}
+import { AdminLoginForm } from '@/components/admin-login-form';
+import { UserManagement } from '@/components/user-management';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 
 export default function AdminPage() {
-    const { user, loading, signOut } = useAuth();
-    const isAdmin = !loading && user && user.email === ADMIN_EMAIL;
+    const { user, loading, isAdmin, signOut } = useAuth();
     
     // Show a loading skeleton if the auth state is still loading.
     if (loading) {
@@ -133,7 +54,7 @@ export default function AdminPage() {
                                     <ShieldAlert className="h-6 w-6" /> Unauthorized Access
                                 </CardTitle>
                                 <CardDescription>
-                                    This account does not have admin privileges. Please sign in with the admin account.
+                                    This account does not have admin privileges. Please sign in with an admin account.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
@@ -179,17 +100,30 @@ export default function AdminPage() {
         <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-1 bg-background/50">
-                <section className="py-12 sm:py-16">
-                    <div className="container mx-auto px-4 md:px-6">
-                        <AdGenerator />
-                    </div>
-                </section>
-                <Separator className="my-8 sm:my-12" />
-                <section className="pb-12 sm:pb-16">
-                     <div className="container mx-auto px-4 md:px-6">
-                        <ManageOffers />
-                    </div>
-                </section>
+                 <div className="container mx-auto px-4 md:px-6 py-12">
+                     <Tabs defaultValue="post" className="w-full">
+                        <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
+                            <TabsTrigger value="post">Post Offer</TabsTrigger>
+                            <TabsTrigger value="manage">Manage Offers</TabsTrigger>
+                            <TabsTrigger value="users">Manage Users</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="post">
+                            <section className="py-12 sm:py-16">
+                                <AdGenerator />
+                            </section>
+                        </TabsContent>
+                        <TabsContent value="manage">
+                            <section className="py-12 sm:py-16">
+                                <ManageOffers />
+                            </section>
+                        </TabsContent>
+                        <TabsContent value="users">
+                             <section className="py-12 sm:py-16">
+                                <UserManagement />
+                            </section>
+                        </TabsContent>
+                    </Tabs>
+                </div>
             </main>
             <Footer />
         </div>

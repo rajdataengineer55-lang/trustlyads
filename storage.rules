@@ -2,26 +2,28 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-  
-  	// Helper function to check for admin custom claim
+
+    // Helper function to check for admin role
     function isAdmin() {
-    	return request.auth != null && request.auth.token.admin == true;
-    }
-  
-    // Allow anyone to read all files. This is necessary for images and videos to be
-    // publicly visible in the application.
-    match /{allPaths=**} {
-      allow read: true;
+      return request.auth != null && request.auth.token.admin == true;
     }
 
-    // Allow only admins to write (upload, update, delete) files in the 'offers' folder.
+    // Anyone can read files from these public folders
     match /offers/{allPaths=**} {
+      allow read: if true;
+      // Only admins can write (upload, update, delete) to the offers folder
       allow write: if isAdmin();
     }
     
-    // Allow only admins to write (upload, update, delete) files in the 'stories' folder.
     match /stories/{allPaths=**} {
-       allow write: if isAdmin();
+      allow read: if true;
+      // Only admins can write (upload, update, delete) to the stories folder
+      allow write: if isAdmin();
+    }
+    
+    // Disallow all other reads/writes by default
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

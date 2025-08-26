@@ -7,30 +7,49 @@ import * as admin from 'firebase-admin';
 admin.initializeApp();
 const db = admin.firestore();
 
-// This function triggers when a new offer is created in Firestore.
-export const onNewOfferSendNotification = functions.firestore
-  .document("offers/{offerId}")
-  .onCreate(async (snap) => {
-    const newOffer = snap.data();
+// This function triggers whenever a user document is created in Firestore.
+// It assigns a default 'user' role.
+export const onUserCreate = functions.firestore
+  .document('users/{userId}')
+  .onCreate(async (snap, context) => {
+    const { userId } = context.params;
+    functions.logger.info(`New user created: ${userId}, setting default role.`);
 
-    functions.logger.info(`New offer created: ${newOffer.title}`, {
-      structuredData: true,
-    });
+    const userDocRef = db.collection('users').doc(userId);
 
-    const followersSnapshot = await db.collection("followers").get();
-    if (followersSnapshot.empty) {
-      functions.logger.info("No followers to notify.");
-      return;
+    // Set the default role to 'user'
+    return userDocRef.set({ role: 'user' }, { merge: true });
+  });
+
+// This function triggers whenever a user's role is changed in their document.
+// It updates their custom authentication claim to match their new role.
+export const onUserRoleChange = functions.firestore
+  .document('users/{userId}')
+  .onUpdate(async (change, context) => {
+    const { userId } = context.params;
+    const newValue = change.after.data();
+    const previousValue = change.before.data();
+
+    if (newValue.role === previousValue.role) {
+      functions.logger.info(`Role for user ${userId} has not changed.`);
+      return null;
     }
 
-    const followers = followersSnapshot.docs.map((doc) => doc.data());
+    functions.logger.info(`Role for user ${userId} changed from ${previousValue.role} to ${newValue.role}.`);
 
-    functions.logger.info(
-      `Found ${followers.length} followers to notify.`,
-      followers.map((f) => f.email)
-    );
-
-    return;
+    try {
+      if (newValue.role === 'admin') {
+        await admin.auth().setCustomUserClaims(userId, { admin: true });
+        functions.logger.info(`Successfully set admin claim for ${userId}.`);
+      } else {
+        // If the role is anything other than admin, remove the claim.
+        await admin.auth().setCustomUserClaims(userId, { admin: false });
+        functions.logger.info(`Successfully removed admin claim for ${userId}.`);
+      }
+    } catch (error) {
+      functions.logger.error(`Error setting custom claim for user ${userId}:`, error);
+    }
+    return null;
   });
 
 

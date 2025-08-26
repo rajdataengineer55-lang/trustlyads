@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Megaphone, Star, Edit, Sparkles, AlertTriangle } from "lucide-react";
+import { Loader2, Megaphone, Star, Edit } from "lucide-react";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { locations } from "@/lib/locations";
@@ -20,8 +20,6 @@ import { useOffers, type Offer } from "@/contexts/OffersContext";
 import { cn } from "@/lib/utils";
 import type { OfferData } from "@/lib/offers";
 import { uploadMultipleFiles } from "@/lib/storage";
-import { generateAdCopy, GenerateAdCopyInput } from "@/ai/flows/generate-ad-flow";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   business: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -62,8 +60,6 @@ interface AdGeneratorProps {
 
 export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState("Posting...");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [selectedMainImageIndex, setSelectedMainImageIndex] = useState(0);
@@ -115,7 +111,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         const combinedPreviews = [...imagePreviews, ...newFilePreviews];
         setImagePreviews(combinedPreviews.slice(0, 10));
         
-        // This is a bit tricky with react-hook-form, we need to append to the FileList
         const dataTransfer = new DataTransfer();
         const existingFiles = form.getValues('images');
         if (existingFiles) {
@@ -124,27 +119,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         Array.from(files).forEach(file => dataTransfer.items.add(file));
 
         form.setValue('images', dataTransfer.files);
-    }
-  };
-
-  const handleGenerateAdCopy = async () => {
-    setIsAiLoading(true);
-    setAiError(null);
-    const { business, offerTitle, discount } = form.getValues();
-    if (!business || !offerTitle || !discount) {
-      toast({ variant: "destructive", title: "Missing Information", description: "Please provide Business Name, Offer Title, and Discount details to generate ad copy." });
-      setIsAiLoading(false);
-      return;
-    }
-    try {
-      const input: GenerateAdCopyInput = { business, title: offerTitle, discount };
-      const result = await generateAdCopy(input);
-      form.setValue('offerCompleteDetails', result.adCopy, { shouldValidate: true });
-    } catch (error) {
-      console.error("AI copy generation failed:", error);
-      setAiError("Failed to generate ad copy. The AI service may be temporarily unavailable. Please try again later.");
-    } finally {
-      setIsAiLoading(false);
     }
   };
   
@@ -227,13 +201,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             <FormField control={form.control} name="offerTitle" render={({ field }) => (<FormItem><FormLabel>Offer Title</FormLabel><FormControl><Input placeholder="e.g., Get 20% off all coffee" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="discount" render={({ field }) => (<FormItem><FormLabel>Discount / Price</FormLabel><FormControl><Input placeholder="e.g., 50% OFF, 2-for-1, ₹500" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="offerCompleteDetails" render={({ field }) => (<FormItem><FormLabel>Complete Offer Details</FormLabel><FormControl><Textarea placeholder="Describe your offer in detail..." {...field} rows={6} /></FormControl><FormMessage /></FormItem>)} />
-            <div className="pt-2">
-              <Button type="button" variant="outline" size="sm" onClick={handleGenerateAdCopy} disabled={isAiLoading}>
-                {isAiLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                Generate with AI
-              </Button>
-              {aiError && (<Alert variant="destructive" className="mt-4"><AlertTriangle className="h-4 w-4" /><AlertTitle>AI Error</AlertTitle><AlertDescription>{aiError}</AlertDescription></Alert>)}
-            </div>
             <FormField control={form.control} name="tags" render={({ field }) => (<FormItem><FormLabel>Tags</FormLabel><FormControl><Input placeholder="e.g., Today's Offer, Sale, New" {...field} /></FormControl><FormDescription>Separate tags with a comma.</FormDescription><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
