@@ -13,8 +13,6 @@ import { LogOut, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLoginForm } from '@/components/admin-login-form';
-import { onIdTokenChanged } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 
 export default function AdminPage() {
     const { user, loading, signOut } = useAuth();
@@ -22,33 +20,37 @@ export default function AdminPage() {
     const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
     useEffect(() => {
-        if (loading) {
-            setIsCheckingAdmin(true);
-            return;
-        }
+        // This effect now correctly checks the admin claim after the user state is confirmed.
+        const checkAdminStatus = async () => {
+            if (loading) {
+                setIsCheckingAdmin(true);
+                return;
+            }
 
-        if (!user) {
-            setIsAdmin(false);
-            setIsCheckingAdmin(false);
-            return;
-        }
+            if (!user) {
+                setIsAdmin(false);
+                setIsCheckingAdmin(false);
+                return;
+            }
 
-        const unsubscribe = onIdTokenChanged(auth, async (user) => {
-            if (user) {
+            try {
+                // We get the latest token result which includes our custom claims.
                 const idTokenResult = await user.getIdTokenResult();
                 const isAdminClaim = !!idTokenResult.claims.admin;
                 setIsAdmin(isAdminClaim);
-            } else {
+            } catch (error) {
+                console.error("Error checking admin status:", error);
                 setIsAdmin(false);
+            } finally {
+                setIsCheckingAdmin(false);
             }
-            setIsCheckingAdmin(false);
-        });
+        };
 
-        return () => unsubscribe();
+        checkAdminStatus();
     }, [user, loading]);
 
     // 1. Show a loading state while we check for the user and their claims
-    if (loading || isCheckingAdmin) {
+    if (isCheckingAdmin) {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
