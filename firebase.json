@@ -1,8 +1,7 @@
 
 {
   "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "[\n    {\n      \"collectionGroup\": \"stories\",\n      \"queryScope\": \"COLLECTION\",\n      \"fields\": [\n        {\n          \"fieldPath\": \"createdAt\",\n          \"order\": \"ASCENDING\"\n        }\n      ]\n    }\n  ]"
+    "rules": "firestore.rules"
   },
   "storage": {
     "rules": "storage.rules"
@@ -19,19 +18,6 @@
       "region": "us-central1"
     }
   },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log"
-      ],
-      "runtime": "nodejs20"
-    }
-  ],
   "emulators": {
     "auth": {
       "host": "127.0.0.1",

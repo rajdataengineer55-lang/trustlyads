@@ -2,47 +2,47 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Define the admin email address
+
+    // Helper function to check if the user is the specific admin
     function isAdmin() {
-      return request.auth.token.email == "dandurajkumarworld24@gmail.com";
+      return request.auth != null && request.auth.email == "dandurajkumarworld24@gmail.com";
     }
 
-    // Default deny all reads and writes
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // Allow anyone to read public-facing collections
+    // Offers can be read by anyone, but only written/deleted by an admin.
     match /offers/{offerId} {
       allow read: if true;
-      // Allow write only for the specific admin user
-      allow write: if request.auth != null && isAdmin();
-      
+      allow write, delete: if isAdmin();
+
+      // Reviews can be read by anyone.
+      // Any authenticated user can create a review.
+      // No one can update/delete reviews directly.
       match /reviews/{reviewId} {
         allow read: if true;
-        // Allow any authenticated user to create a review
         allow create: if request.auth != null;
         allow update, delete: if false;
       }
 
+      // Stories can be read by anyone.
+      // Only an admin can create a story.
+      // No one can update/delete stories directly.
       match /stories/{storyId} {
         allow read: if true;
-         // Allow write only for the specific admin user
-        allow write: if request.auth != null && isAdmin();
+        allow create: if isAdmin();
+        allow update, delete: if false;
       }
     }
-    
-    // Followers can be created by any authenticated user, but only they can manage their own document.
+
+    // Followers can be read by anyone (for follower count).
+    // Any authenticated user can follow (create their own doc).
+    // A user can only delete their own follower doc.
     match /followers/{userId} {
       allow read: if true;
       allow create, delete: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Meta collection is readable by all, but writable only by admin.
+    // Admin-only access for meta documents
     match /meta/{docId} {
-        allow read: if true;
-        allow write: if request.auth != null && isAdmin();
+       allow read, write: if isAdmin();
     }
   }
 }
