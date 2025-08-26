@@ -2,24 +2,22 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Public read access for offer images.
-    // Write access only for authenticated users (the admin).
+    
+    // Default deny all reads and writes
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // Allow public read on offer and story images
     match /offers/{allPaths=**} {
-      allow read: if true;
+      allow read;
       allow write: if request.auth != null;
     }
 
-    // Public read access for story media.
-    // Write access only for authenticated users (the admin).
     match /stories/{allPaths=**} {
-      allow read: if true;
+      allow read;
       allow write: if request.auth != null;
     }
 
-    // Allow users to read and write to their own folder.
-    // This is useful for user-specific content like profile pictures.
-    match /users/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
   }
 }
