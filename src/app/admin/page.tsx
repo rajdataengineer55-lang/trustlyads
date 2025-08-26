@@ -13,30 +13,27 @@ import { Button } from '@/components/ui/button';
 import { LogOut, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AdminLoginForm } from '@/components/admin-login-form';
+import { AdminLoginForm } from '@/admin-login-form';
 
 export default function AdminPage() {
     const { user, loading, signOut } = useAuth();
     const [isAdmin, setIsAdmin] = useState(false);
     
-    // We add a new state to specifically track if we have checked the admin claim.
-    // This prevents showing the "Unauthorized" message prematurely.
-    const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+    // This state tracks if we are waiting for the admin claim check to complete.
+    // It is separate from the main `loading` state.
+    const [isCheckingClaim, setIsCheckingClaim] = useState(true);
 
     useEffect(() => {
-        // This effect runs whenever the user or loading state changes.
-        // It's simpler and more reliable than the previous implementation.
         const checkAdminStatus = async () => {
+            // We don't proceed until the main auth state is no longer loading.
             if (loading) {
-                // If auth state is loading, we are definitely still checking.
-                setIsCheckingAdmin(true);
                 return;
             }
 
+            // If there's a user, we check their claims.
             if (user) {
-                // If we have a user, get their token and check for the admin claim.
                 try {
-                    const idTokenResult = await user.getIdTokenResult();
+                    const idTokenResult = await user.getIdTokenResult(true); // Force refresh
                     const isAdminClaim = !!idTokenResult.claims.admin;
                     setIsAdmin(isAdminClaim);
                 } catch (error) {
@@ -44,18 +41,19 @@ export default function AdminPage() {
                     setIsAdmin(false);
                 }
             } else {
-                // No user, so they can't be an admin.
+                // If there's no user, they are definitely not an admin.
                 setIsAdmin(false);
             }
-            // Once we have checked, we update the state.
-            setIsCheckingAdmin(false);
+            
+            // Once the check is done (or not needed), we are no longer checking.
+            setIsCheckingClaim(false);
         };
 
         checkAdminStatus();
     }, [user, loading]);
 
-    // 1. Show a loading skeleton while either the user is loading OR we are checking the admin claim.
-    if (loading || isCheckingAdmin) {
+    // Show a loading skeleton if the auth state is loading OR if we are still verifying the admin claim.
+    if (loading || isCheckingClaim) {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
@@ -75,7 +73,7 @@ export default function AdminPage() {
         );
     }
     
-    // 2. If NO user is logged in after loading, show the login form.
+    // After loading, if there's no user, show the login form.
     if (!user) {
          return (
             <div className="flex flex-col min-h-screen">
@@ -100,7 +98,7 @@ export default function AdminPage() {
         );
     }
 
-    // 3. If a user IS logged in, but is NOT an admin, show the unauthorized access message.
+    // If a user is logged in but is not an admin, show the unauthorized message.
     if (!isAdmin) {
         return (
             <div className="flex flex-col min-h-screen">
@@ -134,7 +132,7 @@ export default function AdminPage() {
         )
     }
 
-    // 4. If all checks pass, render the admin dashboard.
+    // If all checks pass, render the admin dashboard.
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
