@@ -1,6 +1,10 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AdGenerator } from "@/components/ad-generator";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
@@ -9,52 +13,97 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut, ShieldAlert } from 'lucide-react';
+import { LogIn, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AdminLoginForm } from '@/admin-login-form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+const loginSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  password: z.string().min(1, { message: "Password is required." }),
+});
+
+type AdminLoginData = z.infer<typeof loginSchema>;
+
+const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
+
+function AdminLoginForm() {
+  const { signInWithEmail } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<AdminLoginData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = async (data: AdminLoginData) => {
+    setIsLoading(true);
+    try {
+      await signInWithEmail(data.email, data.password);
+    } catch (error) {
+      // Error is handled by the context's toast
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="admin@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="••••••••" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? (
+                <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing In...
+                </>
+            ) : (
+                <>
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
+                </>
+            )}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
 
 export default function AdminPage() {
     const { user, loading, signOut } = useAuth();
-    const [isAdmin, setIsAdmin] = useState(false);
-    
-    // This state tracks if we are waiting for the admin claim check to complete.
-    // It is separate from the main `loading` state.
-    const [isCheckingClaim, setIsCheckingClaim] = useState(true);
 
-    useEffect(() => {
-        const checkAdminStatus = async () => {
-            // We don't proceed until the main auth state is no longer loading.
-            if (loading) {
-                setIsCheckingClaim(true);
-                return;
-            }
+    // The single source of truth for admin status.
+    const isAdmin = user?.email === ADMIN_EMAIL;
 
-            // If there's a user, we check their claims.
-            if (user) {
-                try {
-                    // Force refresh is handled by the login form, but we still need to get the result.
-                    const idTokenResult = await user.getIdTokenResult();
-                    const isAdminClaim = !!idTokenResult.claims.admin;
-                    setIsAdmin(isAdminClaim);
-                } catch (error) {
-                    console.error("Error checking admin status:", error);
-                    setIsAdmin(false);
-                }
-            } else {
-                // If there's no user, they are definitely not an admin.
-                setIsAdmin(false);
-            }
-            
-            // Once the check is done (or not needed), we are no longer checking.
-            setIsCheckingClaim(false);
-        };
-
-        checkAdminStatus();
-    }, [user, loading]);
-
-    // Show a loading skeleton if the auth state is loading OR if we are still verifying the admin claim.
-    if (loading || isCheckingClaim) {
+    // Show a loading skeleton if the auth state is still loading.
+    if (loading) {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
@@ -99,7 +148,7 @@ export default function AdminPage() {
         );
     }
 
-    // If a user is logged in but is not an admin, show the unauthorized message.
+    // If a user is logged in but is not the admin, show the unauthorized message.
     if (!isAdmin) {
         return (
             <div className="flex flex-col min-h-screen">
@@ -111,7 +160,7 @@ export default function AdminPage() {
                                 <ShieldAlert className="h-6 w-6" /> Unauthorized Access
                             </CardTitle>
                             <CardDescription>
-                                This account is not authorized to view the admin page. reason because dandurajkumarworld24@gmail.com is admin right
+                                This account is not authorized to view the admin page. The admin user is {ADMIN_EMAIL}.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
