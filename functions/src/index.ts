@@ -64,4 +64,3 @@ export const onNewOfferSendNotification = functions.firestore
 
     return;
   });
-
