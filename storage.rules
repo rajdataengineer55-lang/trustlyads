@@ -1,15 +1,14 @@
-
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // Helper function to check if the user is the designated admin
+  
+    // Helper function to check for admin custom claim
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+      return request.auth != null && request.auth.token.admin == true;
     }
-    
-    // Allow public read access to all files in all folders
+
+    // Allow public read access to all files
     match /{allPaths=**} {
       allow read;
     }
@@ -18,10 +17,10 @@ service firebase.storage {
     match /offers/{fileName} {
       allow write: if isAdmin();
     }
-
+    
     // Allow admin writes to the 'stories' directory
     match /stories/{fileName} {
-      allow write: if isAdmin();
+       allow write: if isAdmin();
     }
   }
 }

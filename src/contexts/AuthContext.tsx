@@ -12,8 +12,8 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-
-const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface AuthContextType {
   user: User | null;
@@ -33,11 +33,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
       if (user) {
         setUser(user);
-        setIsAdmin(user.email === ADMIN_EMAIL);
+        // Get the ID token result to check for the admin custom claim.
+        const idTokenResult = await user.getIdTokenResult(true); // Force refresh
+        setIsAdmin(!!idTokenResult.claims.admin);
       } else {
         setUser(null);
         setIsAdmin(false);
@@ -72,8 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const idTokenResult = await userCredential.user.getIdTokenResult(true); // Force refresh token
+      setIsAdmin(!!idTokenResult.claims.admin);
+
       toast({
         title: "Admin Signed In",
         description: "Welcome back, admin!",

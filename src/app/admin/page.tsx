@@ -16,11 +16,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AdminLoginForm } from '@/components/admin-login-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
-
 export default function AdminPage() {
-    const { user, loading, signOut } = useAuth();
-    const isAdmin = user?.email === ADMIN_EMAIL;
+    const { user, loading, signOut, isAdmin } = useAuth();
     
     // Show a loading skeleton if the auth state is still loading.
     if (loading) {
@@ -43,7 +40,7 @@ export default function AdminPage() {
         );
     }
     
-    // After loading, if there's no user, or the user is not the admin, show the login form.
+    // After loading, if there's no user, or the user is not an admin, show the login form or an error.
     if (!user || !isAdmin) {
          return (
             <div className="flex flex-col min-h-screen">
