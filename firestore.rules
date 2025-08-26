@@ -1,59 +1,37 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // =================================================================
-    //  Admin-Specific Rules
-    // =================================e================================
-    
-    // The admin user has god-mode access to all collections.
-    // This rule allows the admin to read and write to any document
-    // in the database, which is necessary for managing content.
-    function isAdmin() {
-      return request.auth.token.email == "dandurajkumarworld24@gmail.com";
-    }
-    
-    match /{document=**} {
-      allow read, write: if isAdmin();
-    }
-    
-    // =================================================================
-    //  Public & User-Specific Rules
-    // =================================================================
-    
-    // Offers Collection
-    match /offers/{offerId} {
-      // Anyone can read a publicly visible (not hidden) offer.
-      allow read: if resource.data.isHidden == false;
-      
-      // Allow authenticated users to create/update offers.
-      // The app logic restricts this to the admin, but this provides a fallback.
-      allow write: if request.auth != null;
 
-      // Reviews Subcollection
-      match /reviews/{reviewId} {
-        // Anyone can read reviews for a public offer.
-        allow read: if get(/databases/$(database)/documents/offers/$(offerId)).data.isHidden == false;
-        // Only authenticated users can write a review.
-        allow write: if request.auth != null;
-      }
+    // Allow public read access to offers, reviews, and stories, as they are public content.
+    // This simplifies the rules and ensures the frontend can fetch all necessary data.
+    match /offers/{offerId} {
+      allow read: if true;
+
+      // Allow write access (create, update, delete) only for the authorized admin.
+      // This rule applies to the offer document itself.
+      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
       
-      // Stories Subcollection
+      // Allow any signed-in user to create reviews.
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        // Only admin can update/delete reviews.
+        allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+      }
+
+      // Allow only the admin to create stories.
       match /stories/{storyId} {
-         // Anyone can read stories for a public offer.
-        allow read: if get(/databases/$(database)/documents/offers/$(offerId)).data.isHidden == false;
-        // Only authenticated users (specifically admin in-app) can create stories.
-        allow write: if request.auth != null;
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
       }
     }
-    
-    // Followers Collection
+
+    // Allow any signed-in user to add/remove themselves from the followers list.
+    // Users can only affect their own document.
     match /followers/{userId} {
-        // Anyone can read the list of followers (for follower count).
-        allow read: if true;
-        
-        // A user can only follow/unfollow themselves.
-        allow write: if request.auth != null && request.auth.uid == userId;
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

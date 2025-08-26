@@ -95,6 +95,27 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
             } as Review;
         });
         
+        // =================================================================================================
+        // ============================= HOW TO FIX THE PERMISSION ERROR =====================================
+        // =================================================================================================
+        // The "Missing or insufficient permissions" error you are seeing is happening on the line below
+        // that runs `getDocs(storiesQuery)`.
+        //
+        // This is because Firestore requires a "composite index" for this specific query, which filters
+        // stories by `createdAt` and also orders them by `createdAt`.
+        //
+        // ===> HOW TO FIX IT (ONE CLICK) <===
+        //
+        // 1. Open the Developer Tools in your browser (usually by pressing F12).
+        // 2. Go to the "Console" tab.
+        // 3. You will see the red "FirebaseError: Missing or insufficient permissions" message.
+        // 4. In that error message, there will be a long URL. **CLICK THAT URL.**
+        // 5. A new browser tab will open in your Firebase Console, pre-filled with the details
+        //    for the exact index that needs to be created.
+        // 6. Click the "Create Index" button. It will take a few minutes to build.
+        //
+        // Once the index is finished building, the error will be permanently resolved.
+        // =================================================================================================
         const storiesCollection = collection(db, 'offers', offer.id, 'stories');
         const storiesQuery = query(
             storiesCollection, 
