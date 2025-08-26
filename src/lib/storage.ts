@@ -5,32 +5,32 @@
 // Client-side file uploads to Firebase Storage require a CORS configuration on your Google Cloud
 // Storage bucket. This is a one-time setup.
 //
-// 1. **Activate Cloud Storage:** First, you must enable Cloud Storage for your project.
+// ### Step 1: Create your Storage Bucket
+//
+// The `gsutil` command failed because the bucket doesn't exist yet.
+//
 //    - Go to the Firebase Console: https://console.firebase.google.com/
 //    - Select your project (`localpulse-9e3lz`).
 //    - In the left-hand menu, go to **Build > Storage**.
 //    - Click the **"Get started"** button and follow the on-screen prompts to enable Storage.
-//      (You can use the default security rules for now).
+//      (You can use the default security rules for now). This will create your bucket.
 //
-// 2. **Apply CORS Configuration:** Once Storage is enabled, you can apply the CORS rules.
-//    You will need a file named `cors.json` in your project's root directory. The contents of that
-//    file determine which websites are allowed to upload files.
+// ### Step 2: Apply CORS Configuration
 //
-//    See: `cors.json`
+// Once the bucket is created, you can apply the CORS rules.
 //
-// 3. **Find your correct bucket name.** For this project, it is:
+//    - **Your bucket name is:** `gs://localpulse-9e3lz.appspot.com`
+//    - **Your config file is:** `cors.json` (already in your project)
 //
-//    gs://localpulse-9e3lz.appspot.com
+//    - **Run this command** in your terminal or Cloud Shell to apply the rules:
 //
-// 4. **Run this gcloud command** in your terminal or in the Google Cloud Shell to apply the rules:
+//      gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
 //
-//    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
+//    - To verify the settings were applied correctly, run:
 //
-// 5. To verify the settings were applied correctly, run:
+//      gsutil cors get gs://localpulse-9e3lz.appspot.com
 //
-//    gsutil cors get gs://localpulse-9e3lz.appspot.com
-//
-// After you complete these steps, client-side uploads will be allowed.
+// After you complete these two steps, client-side uploads will be allowed.
 // =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
