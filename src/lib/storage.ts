@@ -1,17 +1,24 @@
-
 // =================================================================================================
-// HOW TO FIX THE "Missing or insufficient permissions" UPLOAD ERROR
+// HOW TO FIX THE "The specified bucket does not exist" ERROR
 // =================================================================================================
-// You have confirmed that `gsutil` is working. Please run the following command in your
-// Cloud Shell prompt to finalize the fix. This command applies the CORS (Cross-Origin
-// Resource Sharing) configuration from the `cors.json` file to your Storage Bucket, which
-// is required for web uploads to work.
+// The error `NotFoundException: 404 The specified bucket does not exist` means that Firebase
+// Storage has not been enabled for your project yet. You must enable it in the Firebase Console
+// before you can upload files.
 //
-// ==> Run this exact command in your Cloud Shell:
+// ===> Step 1: Enable Firebase Storage <===
+//
+//    1. Open the Firebase Console for your project: https://console.firebase.google.com/project/localpulse-9e3lz/storage
+//    2. In the "Storage" section, click the "Get started" button.
+//    3. Follow the on-screen prompts to create your default storage bucket. It's safe to use
+//       the default settings.
+//
+// ===> Step 2: Apply the CORS Configuration (After Enabling Storage) <===
+//
+// After your bucket is created, run the following command in your Cloud Shell to allow your
+// website to upload files to it. This command will now succeed.
 //
 //     gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
 //
-// After you run this command successfully, the permission errors for file uploads will be resolved.
 // =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
