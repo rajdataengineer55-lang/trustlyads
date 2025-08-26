@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdGenerator } from "@/components/ad-generator";
 import { Footer } from "@/components/landing/footer";
@@ -15,15 +15,39 @@ import { LogIn, ShieldAlert, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLoginForm } from '@/components/admin-login-form';
+import { onIdTokenChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export default function AdminPage() {
     const { user, loading, signOut } = useAuth();
-    const router = useRouter();
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
-    const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
+    useEffect(() => {
+        if (loading) return;
 
-    // 1. Show a loading state while we check for the user
-    if (loading) {
+        if (!user) {
+            setIsCheckingAdmin(false);
+            setIsAdmin(false);
+            return;
+        }
+
+        const unsubscribe = onIdTokenChanged(auth, async (user) => {
+            if (user) {
+                const idTokenResult = await user.getIdTokenResult();
+                const isAdminClaim = !!idTokenResult.claims.admin;
+                setIsAdmin(isAdminClaim);
+            } else {
+                setIsAdmin(false);
+            }
+            setIsCheckingAdmin(false);
+        });
+
+        return () => unsubscribe();
+    }, [user, loading]);
+
+    // 1. Show a loading state while we check for the user and their claims
+    if (loading || isCheckingAdmin) {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
@@ -66,8 +90,8 @@ export default function AdminPage() {
         );
     }
 
-    // 3. If a user is logged in but is not the admin, show unauthorized access message
-    if (user.email !== authorizedAdminEmail) {
+    // 3. If a user is logged in but is not an admin, show unauthorized access message
+    if (!isAdmin) {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
