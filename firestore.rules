@@ -1,4 +1,3 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -11,8 +10,7 @@ service cloud.firestore {
     // Rule for the `offers` collection
     match /offers/{offerId} {
       allow read: if true;
-      // Allow write access ONLY to the specific admin email.
-      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+      allow write: if request.auth.email == 'dandurajkumarworld24@gmail.com';
 
       // Nested rule for direct access to reviews of a specific offer
       match /reviews/{reviewId} {
@@ -20,20 +18,23 @@ service cloud.firestore {
         allow update, delete: if false; // No one can edit or delete for now
       }
     }
+
+    // Rule for the `stories` collection
+    match /stories/{storyId} {
+        allow read: if true;
+        allow write: if request.auth.email == 'dandurajkumarworld24@gmail.com';
+    }
     
     // Rule for the `followers` collection
     match /followers/{userId} {
-      // Allow reading follower documents (e.g., for counts)
-      allow get, list: if true;
-      // Allow a user to only write to their own follower document
+      allow list, get: if true; 
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Rule for the `meta/stats` document for follower count
+    // Rule for aggregated stats
     match /meta/stats {
-      allow get: if true;
-      // Only allow backend functions to update stats (for future use)
-      allow write: if false;
+      allow read: if true;
+      allow write: if false; // Should only be written by a trusted backend function
     }
   }
 }

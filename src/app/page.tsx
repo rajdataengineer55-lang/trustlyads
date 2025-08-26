@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
+import { Stories } from "@/components/landing/stories";
 import { Categories } from "@/components/landing/categories";
 import { FeaturedOffers } from "@/components/landing/featured-offers";
 import { HowItWorks } from "@/components/landing/how-it-works";
@@ -27,6 +28,7 @@ export default function Home() {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
         />
+        <Stories />
         <Categories
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}

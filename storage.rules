@@ -1,23 +1,18 @@
 rules_version = '2';
-
 service firebase.storage {
   match /b/{bucket}/o {
-  
-    // Helper function to check for admin status
-    function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
-    }
-  
-    // Allow public read access to all files.
-    // This is necessary so that anyone visiting the site can see the offer images.
-    match /{allPaths=**} {
+    
+    // Public read access for offer images
+    match /offers/{allPaths=**} {
       allow read: if true;
+      allow write: if request.auth.email == 'dandurajkumarworld24@gmail.com';
     }
 
-    // Restrict write access (uploads, deletes) to only admins.
-    // This applies to all folders (offers, stories, etc.).
-    match /{allPaths=**} {
-      allow write: if isAdmin();
+    // Public read access for story images
+    match /stories/{allPaths=**} {
+        allow read: if true;
+        allow write: if request.auth.email == 'dandurajkumarworld24@gmail.com';
     }
+
   }
 }
