@@ -1,9 +1,9 @@
+
 // =================================================================================================
-// CRITICAL FIX: "Missing or insufficient permissions" Upload Error
+// HOW TO FIX THE "Missing or insufficient permissions" UPLOAD ERROR
 // =================================================================================================
-// This persistent error is almost certainly caused by a missing CORS configuration
-// on your project's Storage Bucket. This is a one-time setup that must be
-// performed from your command line.
+// This persistent error is caused by a missing CORS configuration on your project's Storage Bucket.
+// This is a one-time setup that must be performed from your command line.
 //
 // Please follow these steps carefully.
 //
@@ -32,21 +32,7 @@
 //
 //    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
 //
-// ### Step 5: Authorize the Domain for Firebase Authentication
-//
-// You must also authorize your domain to be used for signing users in.
-//
-//    1. Go to the Firebase Console Authentication settings:
-//       https://console.firebase.google.com/project/localpulse-9e3lz/authentication/settings
-//
-//    2. Select the "Settings" tab and then "Authorized domains" from the side menu.
-//
-//    3. Click "Add domain" and enter: cloudworkstations.dev
-//
-//    4. Click "Add".
-//
-// After completing both the `gsutil` command and adding the authorized domain, the permission
-// errors for both file uploads and user sign-in will be resolved.
+// After completing these steps, the permission errors for file uploads will be resolved.
 // =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
