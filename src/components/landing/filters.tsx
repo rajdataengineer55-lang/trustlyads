@@ -5,7 +5,8 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { locations } from "@/lib/locations";
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
+import { categories } from "@/lib/categories";
 
 export type SortOption = 'newest' | 'trending';
 
@@ -28,7 +29,7 @@ export function Filters({
     setSortOption,
     selectedCategory,
     setSelectedCategory,
-    categories,
+    categories: filterCategories,
     searchTerm,
     setSearchTerm
 }: FiltersProps) {
@@ -45,14 +46,14 @@ export function Filters({
     return (
         <section id="filters" className="py-8 bg-background/50 border-t border-b">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 items-center">
                     <div className="w-full lg:col-span-2">
                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                             <Input
                                 id="search-filters"
                                 type="search"
-                                placeholder="Search offers..."
+                                placeholder="Search offers by name, business, or tag..."
                                 className="w-full pl-10"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -66,7 +67,7 @@ export function Filters({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Categories</SelectItem>
-                                {categories.map(cat => (
+                                {filterCategories.map(cat => (
                                     <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
                                 ))}
                             </SelectContent>
@@ -98,20 +99,11 @@ export function Filters({
                             </SelectContent>
                         </Select>
                     </div>
-                    {/* <div className="w-full">
-                        <Select onValueChange={(value) => setSortOption(value as SortOption)} value={sortOption}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Sort by" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="newest">Newest</SelectItem>
-                                <SelectItem value="trending">Trending</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div> */}
+                    
                     {hasActiveFilters && (
-                        <div className="w-full text-center sm:col-span-2 md:col-span-3 lg:col-span-1 md:text-left">
+                        <div className="w-full text-center sm:col-span-2 md:col-span-1 lg:text-left">
                             <Button variant="ghost" onClick={handleClearFilters}>
+                                <X className="mr-2 h-4 w-4" />
                                 Clear Filters
                             </Button>
                         </div>
