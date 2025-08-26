@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -115,8 +114,19 @@ export default function AdminPage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <p className="text-sm text-destructive">
-                                {user.email}
+                                Signed in as {user.email}.
                             </p>
+                            <div className="flex justify-center items-center gap-4">
+                                <Button variant="outline" onClick={signOut}>
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    Sign Out
+                                </Button>
+                                <Link href="/" passHref>
+                                    <Button>
+                                        Go to Homepage
+                                    </Button>
+                                </Link>
+                            </div>
                         </CardContent>
                     </Card>
                 </main>
