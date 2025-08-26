@@ -96,11 +96,11 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
           }}
           className="w-full"
         >
-          <CarouselContent className="-ml-4">
+          <CarouselContent className="-ml-2">
             {filteredOffers.map((offer) => {
               const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
               return (
-              <CarouselItem key={offer.id} className="pl-4 basis-4/5 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
+              <CarouselItem key={offer.id} className="pl-2 basis-4/5 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
                   <Card className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 h-full flex flex-col", offer.isHidden && "opacity-60")}>
                     <CardContent className="p-0 flex flex-col flex-grow">
                       <div className="relative aspect-[4/3] w-full">
@@ -153,7 +153,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, sortOption,
                             <Badge key={tag} variant="secondary">{tag}</Badge>
                           ))}
                         </div>
-                        <div className="mt-auto pt-4">
+                        <div className="pt-4">
                           <Link href={`/offer/${offer.id}`} passHref>
                             <Button className="w-full">
                                  View Details <ArrowRight className="ml-2 h-4 w-4" />
