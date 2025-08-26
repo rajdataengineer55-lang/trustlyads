@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -32,7 +31,9 @@ export function AdminLoginForm() {
 
   const onSubmit = async (data: AdminLoginData) => {
     setIsLoading(true);
-    await signInWithEmail(data);
+    await signInWithEmail(data.email, data.password);
+    // The signInWithEmail function in the context now handles token refreshing.
+    // No need to call the callable function from here anymore, keeping it clean.
     setIsLoading(false);
   };
 

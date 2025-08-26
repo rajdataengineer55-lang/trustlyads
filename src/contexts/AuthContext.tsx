@@ -1,4 +1,3 @@
-
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -12,13 +11,12 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import type { AdminLoginData } from '@/components/admin-login-form';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
-  signInWithEmail: (data: AdminLoginData) => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -30,7 +28,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Whenever auth state changes, refresh the token to get the latest claims.
+        await user.getIdToken(true);
+      }
       setUser(user);
       setLoading(false);
     });
@@ -47,8 +49,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "You have successfully signed in.",
       });
     } catch (error: any) {
-      // This is not a real error. It happens when the user closes the popup.
-      // We can safely ignore it and not show a toast message.
       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         return;
       }
@@ -62,10 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithEmail = async ({ email, password }: AdminLoginData) => {
+  const signInWithEmail = async (email: string, password: string) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // **THIS IS THE FIX**: Force a token refresh to get custom claims immediately.
+      // Force a token refresh right after login.
+      // This is the critical step to ensure the custom claim is loaded immediately.
       await userCredential.user.getIdToken(true); 
       
       toast({
