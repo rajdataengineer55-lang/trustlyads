@@ -2,37 +2,16 @@
 // =================================================================================================
 // HOW TO FIX THE "Missing or insufficient permissions" UPLOAD ERROR
 // =================================================================================================
-// This persistent error is caused by a missing CORS configuration on your project's Storage Bucket.
-// This is a one-time setup that must be performed from your command line.
+// You have confirmed that `gsutil` is working. Please run the following command in your
+// Cloud Shell prompt to finalize the fix. This command applies the CORS (Cross-Origin
+// Resource Sharing) configuration from the `cors.json` file to your Storage Bucket, which
+// is required for web uploads to work.
 //
-// Please follow these steps carefully.
+// ==> Run this exact command in your Cloud Shell:
 //
-// ### Step 1: Install the Google Cloud CLI
+//     gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
 //
-// If you don't have it, install it from here: https://cloud.google.com/sdk/docs/install
-//
-// ### Step 2: Log in to the gcloud CLI
-//
-// Open your terminal or command prompt and run this command. Follow the browser prompts to log in
-// with the same Google account that owns your Firebase project.
-//
-//    gcloud auth login
-//
-// ### Step 3: Set your active project
-//
-// Tell gcloud which project to work on. Your Firebase Project ID is `localpulse-9e3lz`.
-// Run this command:
-//
-//    gcloud config set project localpulse-9e3lz
-//
-// ### Step 4: Apply the CORS Configuration
-//
-// This is the most important step. Your bucket name is `localpulse-9e3lz.appspot.com`.
-// Run this command from your project's root directory (the same directory where `cors.json` is).
-//
-//    gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
-//
-// After completing these steps, the permission errors for file uploads will be resolved.
+// After you run this command successfully, the permission errors for file uploads will be resolved.
 // =================================================================================================
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
