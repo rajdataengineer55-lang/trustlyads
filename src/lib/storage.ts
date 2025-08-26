@@ -1,3 +1,4 @@
+
 // =================================================================================================
 // IMPORTANT: ACTION REQUIRED FOR FILE UPLOADS TO WORK
 // =================================================================================================
@@ -8,28 +9,27 @@
 //
 // The `gsutil` command will fail if the bucket doesn't exist yet. You must create it first.
 //
-//    1. Go to the Firebase Console Storage section for your project:
+//    1. Go to the Firebase Console Storage section for your project by clicking this link:
 //       https://console.firebase.google.com/project/localpulse-9e3lz/storage
 //
-//    2. Click the **"Get started"** button.
-//
-//    3. Follow the on-screen prompts to enable Storage. You can use the default security
-//       rules and location for now. This will create your bucket.
+//    2. If you see a "Get started" button, click it. Follow the on-screen prompts to enable
+//       Storage. This will create your bucket. If you don't see "Get started", your bucket
+//       already exists and you can proceed to the next step.
 //
 // ### Step 2: Apply CORS Configuration
 //
 // Once the bucket has been created in the Firebase Console, you can apply the CORS rules.
 //
-//    - **Your bucket name is:** `gs://localpulse-9e3lz.appspot.com`
+//    - **Your bucket name is:** `gs://trustlyads.in.appspot.com`
 //    - **Your config file is:** `cors.json` (already in your project)
 //
 //    - **Run this command** in your terminal or Cloud Shell to apply the rules:
 //
-//      gsutil cors set cors.json gs://localpulse-9e3lz.appspot.com
+//      gsutil cors set cors.json gs://trustlyads.in.appspot.com
 //
 //    - To verify the settings were applied correctly, run:
 //
-//      gsutil cors get gs://localpulse-9e3lz.appspot.com
+//      gsutil cors get gs://trustlyads.in.appspot.com
 //
 // After you complete these two steps, client-side uploads will be allowed.
 // =================================================================================================
