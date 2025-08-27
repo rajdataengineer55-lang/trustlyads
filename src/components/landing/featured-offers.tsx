@@ -118,7 +118,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                       <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
                         <div className="relative aspect-[4/3] w-full">
                           <Image
-                            src={offer.image}
+                            src={offer.image || 'https://placehold.co/600x400.png'}
                             alt={offer.title}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
