@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogIn, LogOut } from "lucide-react"
+import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogIn, LogOut, Heart } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -12,10 +12,77 @@ import { ThemeToggle } from '../theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Skeleton } from '../ui/skeleton';
+import { addFollower, removeFollower, isFollowing, getFollowersCount } from '@/lib/followers';
+import { useToast } from '@/hooks/use-toast';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { toast } = useToast();
+
+  const [following, setFollowing] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [isFollowLoading, setIsFollowLoading] = useState(true);
+
+  useEffect(() => {
+    // Subscribe to follower count updates
+    const unsubscribe = getFollowersCount(setFollowersCount);
+    
+    // Check initial following status when user loads
+    if (user) {
+      setIsFollowLoading(true);
+      isFollowing(user.uid).then(status => {
+        setFollowing(status);
+        setIsFollowLoading(false);
+      });
+    } else {
+      setFollowing(false);
+      setIsFollowLoading(false);
+    }
+
+    return () => unsubscribe(); // Cleanup subscription on component unmount
+  }, [user]);
+
+  const handleFollowToggle = async () => {
+    if (!user) {
+      toast({ title: "Login Required", description: "You need to be signed in to follow.", variant: "destructive" });
+      return;
+    }
+    
+    setIsFollowLoading(true);
+    try {
+      if (following) {
+        await removeFollower(user.uid);
+        setFollowing(false);
+        toast({ title: "Unfollowed", description: "You are no longer following." });
+      } else {
+        await addFollower(user.uid);
+        setFollowing(true);
+        toast({ title: "Followed!", description: "Thanks for following!" });
+      }
+    } catch (error) {
+      console.error("Failed to toggle follow status:", error);
+      toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
+
+  const FollowButton = () => (
+    <Button
+      variant={following ? "default" : "outline"}
+      onClick={handleFollowToggle}
+      disabled={!user || isFollowLoading}
+      className="hidden sm:inline-flex"
+    >
+      <Heart className={`mr-2 h-4 w-4 ${following ? 'fill-white' : ''}`} />
+      {following ? 'Following' : 'Follow'}
+      <span className="ml-2 bg-secondary text-secondary-foreground rounded-full px-2 py-0.5 text-xs">
+        {followersCount}
+      </span>
+    </Button>
+  );
 
   const UserMenu = () => {
     if (loading) {
@@ -116,6 +183,7 @@ export function Header() {
         
         <div className="hidden flex-1 items-center justify-end space-x-2 md:flex">
           <nav className="flex gap-2 items-center">
+            <FollowButton />
             <Link href="/about" passHref>
                 <Button variant="ghost" size="icon" aria-label="About us">
                     <Info />

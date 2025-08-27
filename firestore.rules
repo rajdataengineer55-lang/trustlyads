@@ -1,30 +1,37 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check for admin custom claim
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+    // Admin-only access to write anything
+    match /{document=**} {
+      allow write: if request.auth.token.admin == true;
     }
 
-    // Offers Collection
+    // Public read for offers
     match /offers/{offerId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
-
-      // Reviews Subcollection
+      allow get: if true;
+      allow list: if true;
+      
+      // Logged-in users can create reviews
       match /reviews/{reviewId} {
         allow get, list: if true;
         allow create: if request.auth != null;
-        allow delete: if isAdmin(); // Only admin can delete reviews
+        allow delete: if request.auth.token.admin == true; // Admin can delete reviews
       }
     }
 
-    // Stories Collection
+    // Public read for stories
     match /stories/{storyId} {
       allow get, list: if true;
-      allow create: if request.auth != null && isAdmin(); // Only admins can create stories
-      allow delete: if isAdmin(); // Only admin can delete stories
+      allow delete: if request.auth.token.admin == true; // Admin can delete stories
+    }
+
+    // Followers can only be managed by the users themselves
+    match /followers/{userId} {
+      allow read: if true; // Anyone can read follower counts
+      allow create, delete: if request.auth.uid == userId; // Only the user can follow/unfollow themselves
     }
   }
 }
