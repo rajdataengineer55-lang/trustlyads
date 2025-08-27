@@ -126,19 +126,20 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     setIsLoading(true);
     setLoadingMessage(isEditMode ? "Updating..." : "Posting...");
 
-    let uploadedImageUrls: string[] = isEditMode && offerToEdit ? imagePreviews.filter(url => url.startsWith('http')) : [];
+    let uploadedImageUrls: string[] = [];
+    const hasNewImages = values.images && values.images.length > 0;
 
-    if (values.images && values.images.length > 0) {
+    if (isEditMode) {
+      // In edit mode, start with the existing image previews that are already URLs.
+      uploadedImageUrls = imagePreviews.filter(url => url.startsWith('http'));
+    }
+
+    if (hasNewImages) {
         setLoadingMessage("Uploading images...");
         try {
-            const filesToUpload = Array.from(values.images).filter(file => !imagePreviews.includes(URL.createObjectURL(file)));
-            const dataTransfer = new DataTransfer();
-            filesToUpload.forEach(file => dataTransfer.items.add(file));
-
-            if(dataTransfer.files.length > 0) {
-              const newUrls = await uploadMultipleFiles(dataTransfer.files);
-              uploadedImageUrls.push(...newUrls);
-            }
+            const newUrls = await uploadMultipleFiles(values.images);
+            // Add newly uploaded URLs to our array.
+            uploadedImageUrls.push(...newUrls);
         } catch (error: any) {
             console.error("Image upload failed:", error);
             const isCorsError = error.message.includes('network') || (error.code && error.code.includes('storage/unauthorized'));
@@ -148,7 +149,11 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         }
     }
     
-    if (uploadedImageUrls.length === 0) uploadedImageUrls.push('https://placehold.co/600x400.png');
+    // Only add a placeholder if there are absolutely no images after all processing.
+    if (uploadedImageUrls.length === 0) {
+        uploadedImageUrls.push('https://placehold.co/600x400.png');
+    }
+    
     setLoadingMessage(isEditMode ? "Saving changes..." : "Finalizing post...");
 
     const mainImage = uploadedImageUrls[selectedMainImageIndex] || uploadedImageUrls[0];
@@ -157,7 +162,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
     const offerData: OfferData = {
         title: values.offerTitle, description: values.offerCompleteDetails, business: values.business, category: values.businessType, location: values.location,
-        nearbyLocation: values.nearbyLocation, locationLink: values.locationLink, image: mainImage, otherImages: otherImages, hint: hint,
+        nearbyLocation: values.nearbyLocation, locationLink: values.locationLink, image: mainImage, otherImages: otherImages || [], hint: hint,
         discount: values.discount, tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [], allowCall: values.allowCall ?? false,
         phoneNumber: values.phoneNumber, allowChat: values.allowChat ?? false, chatLink: values.chatLink, allowSchedule: values.allowSchedule ?? false,
         scheduleLink: values.scheduleLink, isHidden: isEditMode ? offerToEdit.isHidden : false,
@@ -209,7 +214,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
           <CardContent>
             <FormField control={form.control} name="images" render={({ field }) => (<FormItem><FormLabel>Offer Images (up to 10)</FormLabel><FormControl><Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" /></FormControl><FormDescription>Click an image to select it as the main cover photo.</FormDescription>
                 {imagePreviews.length > 0 && (<div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">{imagePreviews.map((src, i) => (<div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}><Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} />{selectedMainImageIndex === i && (<div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>)}</div>))}</div>)}
-                {imagePreviews.length === 0 && (<div className="mt-2 rounded-md border border-dashed border-gray-300 p-4 text-center"><Image src="https://placehold.co/600x400.png" alt="Placeholder" width={100} height={100} className="mx-auto rounded-md object-cover aspect-square" data-ai-hint="food biryani" /><p className="text-xs text-muted-foreground mt-2">Image previews will appear here</p></div>)}
+                {imagePreviews.length === 0 && (<div className="mt-2 rounded-md border border-dashed border-gray-300 p-4 text-center"><Image src="https://placehold.co/600x400.png" alt="Placeholder" width={100} height={100} className="mx-auto rounded-md object-cover" data-ai-hint="food biryani" /><p className="text-xs text-muted-foreground mt-2">Image previews will appear here</p></div>)}
               <FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
@@ -247,3 +252,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
