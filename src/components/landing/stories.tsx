@@ -12,8 +12,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { Card, CardContent } from '../ui/card';
-import { ArrowRight, MapPin } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 
 export function Stories() {
@@ -27,11 +26,12 @@ export function Stories() {
                     Latest Stories
                 </h2>
                 <div className="flex justify-center gap-4">
-                    <Skeleton className="h-64 w-40 rounded-lg" />
-                    <Skeleton className="h-64 w-40 rounded-lg" />
-                    <Skeleton className="h-64 w-40 rounded-lg" />
-                    <Skeleton className="h-64 w-40 rounded-lg" />
-                    <Skeleton className="h-64 w-40 rounded-lg" />
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="flex flex-col items-center gap-2">
+                            <Skeleton className="h-20 w-20 rounded-full" />
+                            <Skeleton className="h-4 w-16" />
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>
@@ -52,33 +52,29 @@ export function Stories() {
         <Carousel
             opts={{
                 align: "start",
-                loop: stories.length > 5,
+                loop: stories.length > 10,
+                dragFree: true,
             }}
             className="w-full"
         >
             <CarouselContent>
             {stories.map((story) => (
-                <CarouselItem key={story.id} className="basis-1/3 md:basis-1/4 lg:basis-1/6">
-                    <Link href={`/offer/${story.offerId}`} className="block group">
-                        <Card className="overflow-hidden rounded-lg shadow-md transition-all duration-300 ease-in-out group-hover:shadow-xl group-hover:-translate-y-1">
-                            <CardContent className="relative aspect-[9/16] w-full p-0">
+                <CarouselItem key={story.id} className="basis-1/4 sm:basis-1/6 md:basis-1/8 lg:basis-1/12">
+                    <Link href={`/offer/${story.offerId}`} className="block group text-center">
+                        <div className="relative w-20 h-20 mx-auto rounded-full p-1 ring-2 ring-primary/50 group-hover:ring-primary transition-all duration-300">
+                             <div className="relative w-full h-full rounded-full overflow-hidden">
                                 <Image
                                     src={story.imageUrl}
                                     alt={`Story from ${story.businessName}`}
                                     fill
                                     className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                    sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
+                                    sizes="80px"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                                <div className="absolute bottom-0 left-0 p-3 text-white w-full">
-                                    <p className="text-sm font-bold truncate">{story.businessName}</p>
-                                    <p className="text-xs italic truncate">"{story.storyText}"</p>
-                                    <div className="flex items-center text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1">
-                                        View Offer <ArrowRight className="ml-1 h-3 w-3" />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                             </div>
+                        </div>
+                        <p className="mt-2 text-xs font-semibold truncate text-foreground group-hover:text-primary transition-colors">
+                            {story.businessName}
+                        </p>
                     </Link>
                 </CarouselItem>
             ))}
@@ -90,5 +86,3 @@ export function Stories() {
     </section>
   );
 }
-
-    
