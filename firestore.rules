@@ -1,12 +1,31 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // WARNING: These rules are insecure and for debugging only.
-    // They allow anyone to read, write, and delete any data in your database.
+  
+    // Admin user with a specific UID has full read and write access to everything.
+    // This is the most secure way to grant admin privileges.
+    // The UID '8dbJ55nXdEXaOrlV4XosUMOq5E83' belongs to 'dandurajkumarworld24@gmail.com'.
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+    }
+
+    // --- Public Access Rules ---
+
+    // Anyone can read (get, list) offers and their reviews.
+    match /offers/{offerId} {
+      allow read: if true;
+      
+      match /reviews/{reviewId} {
+          allow read: if true;
+          // Only authenticated users (not just the admin) can create reviews.
+          allow create: if request.auth != null;
+      }
+    }
+
+    // Anyone can read (get, list) stories.
+    match /stories/{storyId} {
+      allow read: if true;
     }
   }
 }
