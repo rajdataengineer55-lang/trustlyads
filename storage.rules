@@ -1,26 +1,13 @@
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // Rule for all files: By default, no one can read or write.
+    // Match any file in any folder.
     match /{allPaths=**} {
-      allow read, write: if false;
-    }
-    
-    // PUBLIC READ ACCESS for offers and stories folders
-    match /offers/{allPaths=**} {
+      // Allow anyone to read (view) any file. This is needed for public images.
       allow read: if true;
-    }
-    match /stories/{allPaths=**} {
-      allow read: if true;
-    }
-
-    // ADMIN WRITE ACCESS for offers and stories folders
-    // The user with this specific UID is the admin and can upload/delete files.
-    match /offers/{allPaths=**} {
-      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
-    }
-    match /stories/{allPaths=**} {
+      
+      // Allow write (upload, update, delete) only if the user is the admin.
       allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
     }
   }

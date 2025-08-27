@@ -1,35 +1,30 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Rule for the 'offers' collection
+    // ADMIN RULE: Grant full read/write access to the admin user everywhere.
+    // This rule is checked first and provides master access.
+    match /{document=**} {
+      allow read, write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+    }
+
+    // PUBLIC READ RULES:
+    // These rules allow anyone to read public data, but not write.
+
+    // Allow anyone to get (read) a single offer if it's not hidden.
     match /offers/{offerId} {
-      // Anyone can read an offer if it is not hidden.
-      allow read: if resource.data.isHidden == false;
-      
-      // Anyone can query the list of offers.
+      allow get: if resource.data.isHidden == false;
+      // Allow anyone to list (query) all offers.
       allow list: if true;
-
-      // Only the admin can create, update, or delete offers.
-      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
     }
-
-    // Rule for the 'stories' collection
+    
+    // Allow anyone to read all stories and reviews.
     match /stories/{storyId} {
-      // Anyone can read or query stories. This fixes the error.
       allow read: if true;
-
-      // Only the admin can create, update, or delete stories.
-      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
     }
-
-    // Rule for the 'reviews' subcollection
     match /offers/{offerId}/reviews/{reviewId} {
-      // Anyone can read reviews.
       allow read: if true;
-      
-      // Any authenticated user can create a review.
-      allow create: if request.auth != null;
     }
   }
 }
