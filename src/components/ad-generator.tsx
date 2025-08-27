@@ -31,6 +31,7 @@ const formSchema = z.object({
   offerCompleteDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   discount: z.string().min(1, { message: "Discount details are required." }),
   tags: z.string().optional(),
+  // The 'images' field is now only for the input control and not the source of truth for saving
   images: z.custom<FileList>().optional(),
   allowCall: z.boolean().default(false).optional(),
   phoneNumber: z.string().optional(),
@@ -62,6 +63,8 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Posting...");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  // State to hold newly selected files separately
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [selectedMainImageIndex, setSelectedMainImageIndex] = useState(0);
 
   const { toast } = useToast();
@@ -96,6 +99,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
       
       const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean);
       setImagePreviews(allImages);
+      setNewImageFiles([]); // Reset new files on edit
       setSelectedMainImageIndex(0);
     }
   }, [offerToEdit, isEditMode, form]);
@@ -107,18 +111,11 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             toast({ variant: "destructive", title: "Image Limit Exceeded", description: "You can upload a maximum of 10 images." });
             return;
         }
-        const newFilePreviews = Array.from(files).map(file => URL.createObjectURL(file));
-        const combinedPreviews = [...imagePreviews, ...newFilePreviews];
-        setImagePreviews(combinedPreviews.slice(0, 10));
-        
-        const dataTransfer = new DataTransfer();
-        const existingFiles = form.getValues('images');
-        if (existingFiles) {
-            Array.from(existingFiles).forEach(file => dataTransfer.items.add(file));
-        }
-        Array.from(files).forEach(file => dataTransfer.items.add(file));
+        const currentFiles = Array.from(files);
+        const newFilePreviews = currentFiles.map(file => URL.createObjectURL(file));
 
-        form.setValue('images', dataTransfer.files);
+        setImagePreviews(prev => [...prev, ...newFilePreviews]);
+        setNewImageFiles(prev => [...prev, ...currentFiles]);
     }
   };
   
@@ -126,20 +123,19 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     setIsLoading(true);
     setLoadingMessage(isEditMode ? "Updating..." : "Posting...");
 
-    let uploadedImageUrls: string[] = [];
-    const hasNewImages = values.images && values.images.length > 0;
+    let finalImageUrls: string[] = [];
 
+    // In edit mode, start with the existing HTTP URLs.
     if (isEditMode) {
-      // In edit mode, start with the existing image previews that are already URLs.
-      uploadedImageUrls = imagePreviews.filter(url => url.startsWith('http'));
+      finalImageUrls = imagePreviews.filter(url => url.startsWith('http'));
     }
 
-    if (hasNewImages && values.images) {
+    // Upload only the newly selected files
+    if (newImageFiles.length > 0) {
         setLoadingMessage("Uploading images...");
         try {
-            const newUrls = await uploadMultipleFiles(values.images);
-            // Add newly uploaded URLs to our array.
-            uploadedImageUrls.push(...newUrls);
+            const newUrls = await uploadMultipleFiles(newImageFiles);
+            finalImageUrls.push(...newUrls);
         } catch (error: any) {
             console.error("Image upload failed:", error);
             const isCorsError = error.message.includes('network') || (error.code && error.code.includes('storage/unauthorized'));
@@ -149,15 +145,17 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         }
     }
     
-    // Only add a placeholder if there are absolutely no images after all processing.
-    if (uploadedImageUrls.length === 0) {
-        uploadedImageUrls.push('https://placehold.co/600x400.png');
+    // An offer must have at least one image to be created or saved.
+    if (finalImageUrls.length === 0) {
+        toast({ variant: "destructive", title: "No Images", description: "An offer must have at least one image."});
+        setIsLoading(false);
+        return;
     }
     
     setLoadingMessage(isEditMode ? "Saving changes..." : "Finalizing post...");
 
-    const mainImage = uploadedImageUrls[selectedMainImageIndex] || uploadedImageUrls[0];
-    const otherImages = uploadedImageUrls.filter((_, index) => index !== selectedMainImageIndex);
+    const mainImage = finalImageUrls[selectedMainImageIndex] || finalImageUrls[0];
+    const otherImages = finalImageUrls.filter((_, index) => index !== selectedMainImageIndex);
     const hint = [values.offerTitle, values.business, values.businessType, values.tags?.split(',').map(tag => tag.trim()).filter(Boolean).join(' ')].filter(Boolean).join(' ').toLowerCase();
 
     const offerData: OfferData = {
@@ -169,11 +167,20 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     };
 
     try {
-      if (isEditMode && offerToEdit) await updateOffer(offerToEdit.id, offerData);
-      else await addOffer(offerData);
+      if (isEditMode && offerToEdit) {
+        await updateOffer(offerToEdit.id, offerData);
+      } else {
+        await addOffer(offerData);
+      }
       toast({ title: isEditMode ? "Offer Updated!" : "Offer Posted!", description: `Your offer has been successfully ${isEditMode ? 'updated' : 'posted'}.` });
-      if (onFinished) onFinished();
-      else { form.reset(); setImagePreviews([]); setSelectedMainImageIndex(0); }
+      if (onFinished) {
+        onFinished();
+      } else { 
+        form.reset(); 
+        setImagePreviews([]);
+        setNewImageFiles([]);
+        setSelectedMainImageIndex(0);
+      }
     } catch (error) {
        console.error("Failed to save offer:", error);
        toast({ variant: "destructive", title: "Save Failed", description: "Could not save the offer to the database." });
@@ -214,7 +221,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
           <CardContent>
             <FormField control={form.control} name="images" render={({ field }) => (<FormItem><FormLabel>Offer Images (up to 10)</FormLabel><FormControl><Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" /></FormControl><FormDescription>Click an image to select it as the main cover photo.</FormDescription>
                 {imagePreviews.length > 0 && (<div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">{imagePreviews.map((src, i) => (<div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}><Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} />{selectedMainImageIndex === i && (<div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>)}</div>))}</div>)}
-                {imagePreviews.length === 0 && (<div className="mt-2 rounded-md border border-dashed border-gray-300 p-4 text-center"><Image src="https://placehold.co/600x400.png" alt="Placeholder" width={100} height={100} className="mx-auto rounded-md object-cover" data-ai-hint="food biryani" /><p className="text-xs text-muted-foreground mt-2">Image previews will appear here</p></div>)}
+                {imagePreviews.length === 0 && !isEditMode && (<div className="mt-2 rounded-md border border-dashed border-gray-300 p-4 text-center"><Image src="https://placehold.co/600x400.png" alt="Placeholder" width={100} height={100} className="mx-auto rounded-md object-cover" data-ai-hint="food biryani" /><p className="text-xs text-muted-foreground mt-2">Image previews will appear here</p></div>)}
               <FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
@@ -252,3 +259,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
