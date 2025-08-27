@@ -35,7 +35,13 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
   const fetchStories = async () => {
     setLoading(true);
     const storiesFromDb = await getStories();
-    setStories(storiesFromDb);
+    
+    // Filter out stories older than 24 hours
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+    const activeStories = storiesFromDb.filter(story => story.createdAt > twentyFourHoursAgo);
+
+    setStories(activeStories);
     setLoading(false);
   };
 
