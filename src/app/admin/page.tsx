@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLoginForm } from '@/components/admin-login-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { StoryGenerator } from "@/components/story-generator";
 
 export default function AdminPage() {
     const { user, loading, signOut, isAdmin } = useAuth();
@@ -99,9 +100,10 @@ export default function AdminPage() {
             <main className="flex-1 bg-background/50">
                  <div className="container mx-auto px-4 md:px-6 py-12">
                      <Tabs defaultValue="post-offer" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto">
+                        <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
                             <TabsTrigger value="post-offer">Post Offer</TabsTrigger>
                             <TabsTrigger value="manage-offers">Manage Offers</TabsTrigger>
+                            <TabsTrigger value="manage-stories">Manage Stories</TabsTrigger>
                         </TabsList>
                         <TabsContent value="post-offer">
                             <section className="py-12 sm:py-16">
@@ -111,6 +113,11 @@ export default function AdminPage() {
                         <TabsContent value="manage-offers">
                             <section className="py-12 sm:py-16">
                                 <ManageOffers />
+                            </section>
+                        </TabsContent>
+                        <TabsContent value="manage-stories">
+                            <section className="py-12 sm:py-16">
+                                <StoryGenerator />
                             </section>
                         </TabsContent>
                     </Tabs>

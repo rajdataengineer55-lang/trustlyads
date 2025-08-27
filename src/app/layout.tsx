@@ -6,6 +6,7 @@ import { OffersProvider } from '@/contexts/OffersContext';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { StoriesProvider } from '@/contexts/StoriesContext';
 
 
 const fontBody = PT_Sans({
@@ -44,7 +45,9 @@ export default function RootLayout({
         >
           <AuthProvider>
             <OffersProvider>
-              {children}
+              <StoriesProvider>
+                {children}
+              </StoriesProvider>
             </OffersProvider>
             <Toaster />
           </AuthProvider>
