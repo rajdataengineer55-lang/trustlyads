@@ -3,28 +3,28 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // --- Public Access Rules ---
-    // Allow anyone to read offers and stories collections.
+    // --- Admin Override ---
+    // This rule must come first to be evaluated correctly for the admin.
+    match /{document=**} {
+      allow read, write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5E83";
+    }
+
+    // --- Public Read Access Rules ---
+
+    // Offers can be read by anyone.
     match /offers/{offerId} {
       allow read: if true;
       
-      // Allow anyone to read reviews, but only logged-in users can create them.
+      // Reviews can be read by anyone, but only created by logged-in users.
       match /reviews/{reviewId} {
         allow read: if true;
         allow create: if request.auth != null;
       }
     }
 
+    // Stories can be read by anyone.
     match /stories/{storyId} {
       allow read: if true;
-    }
-
-    // --- Admin-Only Write Rules ---
-    // The admin has full write access to all collections.
-    // This rule is checked AFTER the public read rules. It does not override them.
-    // It grants ADDITIONAL write permission to the admin.
-    match /{path=**} {
-        allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5E83";
     }
   }
 }
