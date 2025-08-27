@@ -69,7 +69,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
   
   if (loading) {
     return (
-      <section id="featured-offers" className="w-full py-16 sm:py-24">
+      <section id="featured-offers" className="w-full py-10 sm:py-12">
         <div className="container mx-auto px-4 md:px-6">
            <h2 className="text-3xl font-headline font-bold text-center mb-12">
             Featured Offers
@@ -87,7 +87,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
 
   if (filteredAndSortedOffers.length === 0) {
     return (
-       <section id="featured-offers" className="w-full py-16 sm:py-24">
+       <section id="featured-offers" className="w-full py-10 sm:py-12">
           <div className="container mx-auto px-4 md:px-6 text-center">
             <h2 className="text-3xl font-headline font-bold mb-4">
               Featured Offers
@@ -100,7 +100,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
 
   return (
     <>
-    <section id="featured-offers" className="w-full py-16 sm:py-24">
+    <section id="featured-offers" className="w-full py-10 sm:py-12">
       <div className="container mx-auto px-4 md:px-6">
         <h2 className="text-3xl font-headline font-bold text-center mb-12">
           Featured Offers

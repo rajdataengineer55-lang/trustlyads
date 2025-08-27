@@ -12,10 +12,10 @@ interface HeroProps {
 
 export function Hero({ searchTerm, setSearchTerm }: HeroProps) {
   return (
-    <section id="hero" className="relative w-full py-12 md:py-20 lg:py-24 bg-background/50 overflow-hidden">
+    <section id="hero" className="relative w-full py-10 md:py-16 bg-background/50 overflow-hidden">
       <div className="container mx-auto px-4 md:px-6 text-center">
         <div className="max-w-2xl mx-auto animate-in fade-in-up duration-1000">
-          <h1 className="text-2xl font-headline font-bold tracking-tighter sm:text-4xl text-foreground">
+          <h1 className="text-2xl font-headline font-bold tracking-tighter sm:text-3xl text-foreground">
             Connect with Local Businesses. Find Best Offers Daily.
           </h1>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
