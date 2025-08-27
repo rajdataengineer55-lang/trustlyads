@@ -1,34 +1,35 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to identify the admin by their UID
-    function isAdmin() {
-      return request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+    
+    // Admin Rule: Grant the specified admin UID full read/write access to everything.
+    // This is the master rule that allows the admin to manage the site.
+    match /{document=**} {
+      allow read, write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
     }
 
-    // Rule for the 'offers' collection
+    // --- Public Read-Only Rules ---
+
+    // Anyone can get a list of offers.
     match /offers/{offerId} {
-      // Admins can do anything. Anyone can read non-hidden offers.
-      allow read: if !resource.data.isHidden || isAdmin();
-      allow write: if isAdmin();
-
-      // Rule for the 'reviews' subcollection
-      match /reviews/{reviewId} {
-        // Anyone can read reviews. Only logged-in users can create them.
-        allow read: true;
-        allow create: if request.auth != null;
-        // Only admins can update or delete reviews.
-        allow update, delete: if isAdmin();
-      }
+      allow list: if true;
     }
 
-    // Rule for the 'stories' collection
+    // Anyone can read a specific offer, but only if it is not hidden.
+    // The admin can read hidden offers because of the master rule above.
+    match /offers/{offerId} {
+      allow get: if resource.data.isHidden == false;
+    }
+    
+    // Anyone can read stories.
     match /stories/{storyId} {
-      // Anyone can read stories.
-      allow read: true;
-      // Only admins can create, update, or delete stories.
-      allow write: if isAdmin();
+      allow read: if true;
+    }
+    
+    // Anyone can read reviews for any offer.
+    match /offers/{offerId}/reviews/{reviewId} {
+        allow read: if true;
     }
   }
 }
