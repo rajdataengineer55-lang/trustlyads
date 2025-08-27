@@ -41,7 +41,7 @@ export function Categories({ selectedCategory, setSelectedCategory }: Categories
                     {category.icon}
                   </div>
                 </div>
-                <p className="font-semibold font-headline text-xs sm:text-sm">{category.name}</p>
+                <p className="font-semibold text-xs sm:text-sm">{category.name}</p>
               </CardContent>
             </Card>
           ))}

@@ -1,6 +1,6 @@
 
 import type { Metadata, Viewport } from 'next';
-import { Poppins, PT_Sans } from 'next/font/google';
+import { Poppins, Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { OffersProvider } from '@/contexts/OffersContext';
@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { StoriesProvider } from '@/contexts/StoriesContext';
 
 
-const fontBody = PT_Sans({
+const fontBody = Inter({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-body',

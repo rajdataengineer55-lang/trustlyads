@@ -123,7 +123,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                           />
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                            <h3 className="text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
+                            <h3 className="text-lg sm:text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
                         </div>
                         <Badge variant="default" className="absolute top-4 right-4 bg-black text-white font-bold py-1 px-3 animate-blink">
                           {offer.discount}

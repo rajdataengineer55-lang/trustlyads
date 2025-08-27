@@ -101,7 +101,7 @@ export default function AdminPage() {
             <main className="flex-1 bg-background/50">
                  <div className="container mx-auto px-4 md:px-6 py-12">
                      <Tabs defaultValue="post-offer" className="w-full">
-                        <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto text-xs sm:text-sm">
+                        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 max-w-lg mx-auto text-xs sm:text-sm">
                             <TabsTrigger value="post-offer">Post Offer</TabsTrigger>
                             <TabsTrigger value="manage-offers">Manage Offers</TabsTrigger>
                             <TabsTrigger value="manage-stories">Manage Stories</TabsTrigger>

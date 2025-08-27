@@ -15,10 +15,10 @@ export function Hero({ searchTerm, setSearchTerm }: HeroProps) {
     <section id="hero" className="relative w-full py-12 md:py-20 lg:py-24 bg-background/50 overflow-hidden">
       <div className="container mx-auto px-4 md:px-6 text-center">
         <div className="max-w-2xl mx-auto animate-in fade-in-up duration-1000">
-          <h1 className="text-3xl font-headline font-bold tracking-tighter sm:text-4xl text-foreground">
+          <h1 className="text-3xl font-headline font-bold tracking-tighter sm:text-5xl text-foreground">
             Connect with Local Businesses. Find Best Offers Daily.
           </h1>
-          <p className="mt-4 text-base text-muted-foreground">
+          <p className="mt-4 text-base text-muted-foreground sm:text-lg">
             All your local businesses in one place – shops, restaurants, salons, rentals, and more.
           </p>
           <div className="mt-6 max-w-lg mx-auto">
@@ -29,7 +29,7 @@ export function Hero({ searchTerm, setSearchTerm }: HeroProps) {
                 name="search"
                 type="search"
                 placeholder="Search in Tirupati, Vellore & more"
-                className="w-full pl-12 pr-4 py-5 rounded-full border-2 focus:border-primary focus:ring-primary"
+                className="w-full pl-12 pr-4 py-6 rounded-full border-2 focus:border-primary focus:ring-primary text-base"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
