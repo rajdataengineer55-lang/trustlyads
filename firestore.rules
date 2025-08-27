@@ -2,31 +2,35 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // --- Public Access & Logged-in User Rules ---
 
-    // Offers can be read by anyone.
+    function isAdmin() {
+      return request.auth.uid == "8dbJ55nXdEXaOrlV4XosUM0PTKe2";
+    }
+
+    // Public can read offers and reviews
+    // Logged-in users can create reviews
+    // Admin can write/delete offers and reviews
     match /offers/{offerId} {
       allow read: if true;
-      
-      // Reviews can be read by anyone, but only created by logged-in users.
+      allow write: if isAdmin();
+
       match /reviews/{reviewId} {
         allow read: if true;
         allow create: if request.auth != null;
+        allow update, delete: if isAdmin();
       }
     }
 
-    // Stories can be read by anyone.
+    // Public can read stories
+    // Admin can write/delete stories
     match /stories/{storyId} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     
-    // --- Admin-Specific Write Rules ---
-    
-    // The admin has full write access (create, update, delete) to everything.
-    // This rule is checked *in addition* to the read rules above.
-    match /{document=**} {
-      allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUM0PTKe2";
+    // Fallback for any other collections - only admin has access
+    match /{path=**}/documents/{document} {
+      allow read, write: if isAdmin();
     }
   }
 }

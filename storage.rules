@@ -2,21 +2,16 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // --- Public Read Access ---
-    // Anyone can read files from any folder.
+
+    function isAdmin() {
+      return request.auth.uid == "8dbJ55nXdEXaOrlV4XosUM0PTKe2";
+    }
+
+    // All files can be publicly read
+    // Only the admin can upload, update, or delete any file
     match /{allPaths=**} {
       allow read: if true;
-    }
-
-    // --- Admin Write Access ---
-    // Allow the admin to write to the 'offers' and 'stories' folders.
-    match /offers/{allPaths=**} {
-      allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUM0PTKe2";
-    }
-
-    match /stories/{allPaths=**} {
-      allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUM0PTKe2";
+      allow write: if isAdmin();
     }
   }
 }
