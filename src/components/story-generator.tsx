@@ -14,10 +14,20 @@ import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { uploadFile } from "@/lib/storage";
 import { useStories, type Story } from "@/contexts/StoriesContext";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { locations } from "@/lib/locations";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   mainLocation: z.string({ required_error: "Please select a main location." }),
@@ -37,6 +47,9 @@ export function StoryGenerator() {
   const [businessesInLocation, setBusinessesInLocation] = useState<string[]>([]);
   const [availableSubLocations, setAvailableSubLocations] = useState<string[]>([]);
   
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [storyToDelete, setStoryToDelete] = useState<Story | null>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { mainLocation: "", subLocation: "", businessName: "", storyText: "" },
@@ -121,15 +134,22 @@ export function StoryGenerator() {
     }
   }
 
-  const handleDelete = async (story: Story) => {
-    if (confirm(`Are you sure you want to delete the story for "${story.businessName}"?`)) {
-      try {
-        await deleteStory(story.id);
-        toast({ title: "Story Deleted", description: "The story has been removed." });
-      } catch (error) {
-        console.error("Failed to delete story:", error);
-        toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete the story." });
-      }
+  const handleDeleteClick = (story: Story) => {
+    setStoryToDelete(story);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  const confirmDelete = async () => {
+    if (!storyToDelete) return;
+    try {
+      await deleteStory(storyToDelete.id);
+      toast({ title: "Story Deleted", description: "The story has been removed." });
+    } catch (error) {
+      console.error("Failed to delete story:", error);
+      toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete the story." });
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setStoryToDelete(null);
     }
   };
 
@@ -285,7 +305,7 @@ export function StoryGenerator() {
                                   Links to offer ID: ...{story.offerId.slice(-6)}
                                 </Link>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={() => handleDelete(story)}>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(story)}>
                                 <Trash2 className="h-4 w-4 text-destructive" />
                                 <span className="sr-only">Delete story</span>
                             </Button>
@@ -294,8 +314,22 @@ export function StoryGenerator() {
                 </CardContent>
             </Card>
         </div>
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the story for "{storyToDelete?.businessName}".
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setStoryToDelete(null)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+                        Delete
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </div>
   );
 }
-
-    
