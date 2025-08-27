@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { useOffers, type Offer, type Review } from '@/contexts/OffersContext';
@@ -31,12 +31,11 @@ const reviewSchema = z.object({
     comment: z.string().min(10, "Comment must be at least 10 characters."),
 });
 
-const ADMIN_EMAIL = "dandurajkumarworld24@gmail.com";
 
 export default function OfferDetailsPage() {
   const params = useParams();
-  const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick } = useOffers();
-  const { user, loading: authLoading, signInWithGoogle } = useAuth();
+  const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick, fetchOffers } = useOffers();
+  const { user, loading: authLoading, signInWithGoogle, isAdmin } = useAuth();
   
   const [offer, setOffer] = useState<Offer | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
@@ -46,47 +45,59 @@ export default function OfferDetailsPage() {
 
   const form = useForm<z.infer<typeof reviewSchema>>({
     resolver: zodResolver(reviewSchema),
-    defaultValues: {
-      author: "",
-      rating: 0,
-      comment: "",
-    },
+    defaultValues: { author: "", rating: 0, comment: "" },
   });
 
   const [hoverRating, setHoverRating] = useState(0);
   const currentRating = form.watch("rating");
 
+  const loadOffer = useCallback(() => {
+    if (!id) return;
+    
+    let foundOffer = getOfferById(id);
+
+    if (foundOffer) {
+      const isVisible = !foundOffer.isHidden || isAdmin;
+
+      if (isVisible) {
+        setOffer(foundOffer);
+        if (foundOffer.image) {
+          setMainImage(foundOffer.image);
+        }
+
+        // Track view
+        const viewedKey = `viewed-${id}`;
+        if (!sessionStorage.getItem(viewedKey)) {
+          incrementOfferView(id);
+          sessionStorage.setItem(viewedKey, 'true');
+        }
+      } else {
+        setOffer(null); // Mark as not found if not visible
+      }
+    }
+  }, [id, getOfferById, isAdmin, incrementOfferView]);
+
   useEffect(() => {
-    if (!id || offersLoading) {
-      return; // Wait for ID and data
-    }
-  
-    const foundOffer = getOfferById(id);
-  
-    if (!foundOffer) {
-      notFound();
-      return;
-    }
-  
-    const isAdmin = user?.email === ADMIN_EMAIL;
-    const isVisible = !foundOffer.isHidden || (foundOffer.isHidden && isAdmin);
-  
-    if (isVisible) {
-      setOffer(foundOffer);
-      if (foundOffer.image) {
-        setMainImage(foundOffer.image);
+    // If offers are still loading from context, wait.
+    if (offersLoading) return;
+    
+    // If offers are loaded, try to find the offer.
+    loadOffer();
+
+  }, [id, offersLoading, loadOffer]);
+
+  // If after the initial load, the offer is still not found, it's a 404.
+  useEffect(() => {
+      if (!offersLoading && !offer) {
+          // A small delay to ensure data processing is complete
+          const timer = setTimeout(() => {
+              if (!getOfferById(id)) {
+                  notFound();
+              }
+          }, 100);
+          return () => clearTimeout(timer);
       }
-  
-      // Track view
-      const viewedKey = `viewed-${id}`;
-      if (!sessionStorage.getItem(viewedKey)) {
-        incrementOfferView(id);
-        sessionStorage.setItem(viewedKey, 'true');
-      }
-    } else {
-      notFound();
-    }
-  }, [id, getOfferById, offersLoading, user, incrementOfferView]);
+  }, [offersLoading, offer, id, getOfferById]);
 
   const handleTrackedClick = (url: string, isExternal: boolean = true) => {
     if(!id) return;
@@ -115,9 +126,7 @@ export default function OfferDetailsPage() {
         throw new Error('Web Share API not supported');
       }
     } catch (err: any) {
-      if (err.name === 'AbortError') {
-        return;
-      }
+      if (err.name === 'AbortError') return;
       
       console.error("Error sharing, falling back to clipboard:", err);
       try {
@@ -143,7 +152,7 @@ export default function OfferDetailsPage() {
         rating: data.rating,
         comment: data.comment,
     };
-    await addReview(offer.id, newReview);
+    await addReview(offer.id, newReview); // This will trigger a refetch in the context now
     toast({
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
@@ -192,7 +201,7 @@ export default function OfferDetailsPage() {
   }
 
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
-  const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean);
+  const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean) as string[];
 
   const LocationInfo = () => (
     <div className="flex items-start text-muted-foreground mb-4">

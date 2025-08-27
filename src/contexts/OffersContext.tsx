@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { 
-  getOffers, 
+  getOffers as getOffersFromDb, 
   addOffer as addOfferToDb, 
   updateOffer as updateOfferInDb, 
   deleteOffer as deleteOfferFromDb,
@@ -52,10 +52,11 @@ export interface Offer {
 interface OffersContextType {
   offers: Offer[];
   loading: boolean;
+  fetchOffers: () => Promise<void>; // Expose fetchOffers
   addOffer: (offer: OfferData) => Promise<void>;
   updateOffer: (id: string, updatedOfferData: Partial<OfferData>) => Promise<void>;
   deleteOffer: (id: string) => Promise<void>;
-  boostOffer: (id: string) => void; // This will remain client-side for now
+  boostOffer: (id: string) => void; 
   getOfferById: (id: string) => Offer | undefined;
   addReview: (offerId: string, review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
   toggleOfferVisibility: (id: string) => Promise<void>;
@@ -72,7 +73,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const fetchOffers = useCallback(async () => {
     setLoading(true);
     try {
-        const offersFromDb = await getOffers();
+        const offersFromDb = await getOffersFromDb();
         setOffers(offersFromDb);
     } catch (error) {
         console.error("Failed to fetch offers:", error);
@@ -128,18 +129,18 @@ export function OffersProvider({ children }: { children: ReactNode }) {
 
   const incrementOfferView = async (id: string) => {
     await incrementViewInDb(id);
-    // No need to refetch here for a simple counter to avoid flashing
+    // Optimistically update UI to avoid full refetch
     setOffers(prev => prev.map(o => o.id === id ? {...o, views: (o.views || 0) + 1} : o));
   };
 
   const incrementOfferClick = async (id: string) => {
     await incrementClickInDb(id);
-     // No need to refetch here for a simple counter to avoid flashing
+    // Optimistically update UI to avoid full refetch
     setOffers(prev => prev.map(o => o.id === id ? {...o, clicks: (o.clicks || 0) + 1} : o));
   };
 
   return (
-    <OffersContext.Provider value={{ offers, loading, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility, incrementOfferView, incrementOfferClick }}>
+    <OffersContext.Provider value={{ offers, loading, fetchOffers, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility, incrementOfferView, incrementOfferClick }}>
       {children}
     </OffersContext.Provider>
   );
