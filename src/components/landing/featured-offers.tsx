@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
 import { useMemo } from "react";
+import { locations } from "@/lib/locations";
 
 
 interface FeaturedOffersProps {
@@ -32,32 +33,41 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
   const isAdmin = user?.email === authorizedAdminEmail;
 
   const filteredAndSortedOffers = useMemo(() => {
-    const filtered = offers
-      .filter(offer => {
-        // Admin sees all offers, others only see non-hidden ones.
-        return isAdmin || !offer.isHidden;
-      })
-      .filter(offer => {
-        const categoryMatch = selectedCategory ? offer.category === selectedCategory : true;
-        const locationMatch = selectedLocation ? offer.location === selectedLocation : true;
-        const searchTermLower = searchTerm.toLowerCase();
-        const searchMatch = searchTerm
-          ? offer.title.toLowerCase().includes(searchTermLower) ||
-            offer.business.toLowerCase().includes(searchTermLower) ||
-            offer.location.toLowerCase().includes(searchTermLower) ||
-            offer.description.toLowerCase().includes(searchTermLower) ||
-            (offer.nearbyLocation && offer.nearbyLocation.toLowerCase().includes(searchTermLower)) ||
-            offer.tags.some(tag => tag.toLowerCase().includes(searchTermLower))
-          : true;
-        return categoryMatch && locationMatch && searchMatch;
-      });
+    let filtered = offers.filter(offer => isAdmin || !offer.isHidden);
 
-      if (sortOption === 'trending') {
-        return filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
-      }
-      
-      // Default sort is 'newest', which is the default from Firestore
-      return filtered;
+    if (selectedCategory) {
+      filtered = filtered.filter(offer => offer.category === selectedCategory);
+    }
+
+    if (selectedLocation) {
+        const mainLocation = locations.find(loc => loc.name === selectedLocation && loc.subLocations);
+        if (mainLocation?.subLocations) {
+            const locationsToShow = [mainLocation.name, ...mainLocation.subLocations];
+            filtered = filtered.filter(offer => locationsToShow.includes(offer.location));
+        } else {
+            filtered = filtered.filter(offer => offer.location === selectedLocation);
+        }
+    }
+
+    if (searchTerm) {
+      const searchTermLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(offer => 
+        offer.title.toLowerCase().includes(searchTermLower) ||
+        offer.business.toLowerCase().includes(searchTermLower) ||
+        offer.location.toLowerCase().includes(searchTermLower) ||
+        offer.description.toLowerCase().includes(searchTermLower) ||
+        (offer.nearbyLocation && offer.nearbyLocation.toLowerCase().includes(searchTermLower)) ||
+        offer.tags.some(tag => tag.toLowerCase().includes(searchTermLower))
+      );
+    }
+
+    if (sortOption === 'trending') {
+      return filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
+    }
+    
+    // Default sort is 'newest' (which is the default from Firestore due to orderBy)
+    return filtered;
+
   }, [offers, isAdmin, selectedCategory, selectedLocation, searchTerm, sortOption]);
   
   if (loading) {
@@ -110,11 +120,10 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                           <Image
                             src={offer.image}
                             alt={offer.title}
-                            width={400}
-                            height={300}
-                            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint={offer.hint}
-                            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                           />
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                             <h3 className="text-xl font-headline font-bold text-white truncate">{offer.title}</h3>

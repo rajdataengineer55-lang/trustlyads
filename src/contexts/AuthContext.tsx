@@ -65,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       // The onAuthStateChanged listener will handle the rest
     } catch (error: any) {
+      // Don't show an error toast if the user closes the popup
       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         return;
       }
