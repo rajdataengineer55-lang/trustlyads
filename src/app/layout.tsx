@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Poppins, PT_Sans } from 'next/font/google';
 import './globals.css';
@@ -26,6 +27,12 @@ export const metadata: Metadata = {
   description: 'Connect with Local Businesses. Find Best Offers Daily.',
   icons: {
     icon: '/icon.svg',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
   },
 };
 

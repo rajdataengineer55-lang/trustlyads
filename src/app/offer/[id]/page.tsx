@@ -57,37 +57,39 @@ export default function OfferDetailsPage() {
   const currentRating = form.watch("rating");
 
   useEffect(() => {
-    if (id && !offersLoading) {
-      const foundOffer = getOfferById(id);
-      
-      if (!foundOffer) {
-        notFound();
-        return;
+    if (!id || offersLoading) {
+      return; // Wait for ID and data
+    }
+  
+    const foundOffer = getOfferById(id);
+  
+    if (!foundOffer) {
+      notFound();
+      return;
+    }
+  
+    const isAdmin = user?.email === ADMIN_EMAIL;
+    const isVisible = !foundOffer.isHidden || (foundOffer.isHidden && isAdmin);
+  
+    if (isVisible) {
+      setOffer(foundOffer);
+      if (foundOffer.image) {
+        setMainImage(foundOffer.image);
       }
-      
-      const isAdmin = user?.email === ADMIN_EMAIL;
-      const isVisible = !foundOffer.isHidden || (foundOffer.isHidden && isAdmin);
-
-      if (isVisible) {
-        setOffer(foundOffer);
-        if (foundOffer.image) {
-            setMainImage(foundOffer.image);
-        }
-        
-        // Track view
-        const viewedKey = `viewed-${id}`;
-        if (!sessionStorage.getItem(viewedKey)) {
-          incrementOfferView(id);
-          sessionStorage.setItem(viewedKey, 'true');
-        }
-
-      } else {
-        notFound();
+  
+      // Track view
+      const viewedKey = `viewed-${id}`;
+      if (!sessionStorage.getItem(viewedKey)) {
+        incrementOfferView(id);
+        sessionStorage.setItem(viewedKey, 'true');
       }
+    } else {
+      notFound();
     }
   }, [id, getOfferById, offersLoading, user, incrementOfferView]);
 
   const handleTrackedClick = (url: string, isExternal: boolean = true) => {
+    if(!id) return;
     incrementOfferClick(id);
     if(isExternal) {
         window.open(url, '_blank', 'noopener,noreferrer');
@@ -97,7 +99,7 @@ export default function OfferDetailsPage() {
   };
 
   const handleShare = async () => {
-    if (!offer) return;
+    if (!offer || !id) return;
     incrementOfferClick(id); // Count sharing as a click
 
     const shareData = {
@@ -107,18 +109,12 @@ export default function OfferDetailsPage() {
     };
 
     try {
-      // Prioritize Web Share API but handle its absence or failure gracefully.
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        // If navigator.share doesn't exist, fall back to clipboard.
         throw new Error('Web Share API not supported');
       }
     } catch (err: any) {
-      // This block will catch errors from navigator.share (e.g., AbortError, NotAllowedError)
-      // or the manually thrown error if the API doesn't exist.
-      
-      // Don't show an error if the user simply closed the share sheet.
       if (err.name === 'AbortError') {
         return;
       }
@@ -155,7 +151,7 @@ export default function OfferDetailsPage() {
     form.reset({ author: "", rating: 0, comment: '' });
   };
   
-  if (authLoading || offersLoading) {
+  if (authLoading || offersLoading || !offer) {
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
@@ -193,10 +189,6 @@ export default function OfferDetailsPage() {
             <Footer />
         </div>
     );
-  }
-
-  if (!offer) {
-    return null;
   }
 
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
@@ -473,7 +465,7 @@ export default function OfferDetailsPage() {
                         <Link href={`/offer/${similarOffer.id}`} passHref className="block">
                           <div className="relative aspect-[4/3]">
                             <Image
-                              src={similarOffer.image}
+                              src={similarOffer.image || 'https://placehold.co/600x400.png'}
                               alt={similarOffer.title}
                               fill
                               className="object-cover transition-transform duration-300 group-hover:scale-105"

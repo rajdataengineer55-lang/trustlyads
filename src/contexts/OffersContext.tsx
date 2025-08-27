@@ -61,7 +61,6 @@ interface OffersContextType {
   toggleOfferVisibility: (id: string) => Promise<void>;
   incrementOfferView: (id: string) => Promise<void>;
   incrementOfferClick: (id: string) => Promise<void>;
-  fetchOffers: () => Promise<void>;
 }
 
 const OffersContext = createContext<OffersContextType | undefined>(undefined);
@@ -70,16 +69,21 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchOffers = async () => {
+  const fetchOffers = useCallback(async () => {
     setLoading(true);
-    const offersFromDb = await getOffers();
-    setOffers(offersFromDb);
-    setLoading(false);
-  };
+    try {
+        const offersFromDb = await getOffers();
+        setOffers(offersFromDb);
+    } catch (error) {
+        console.error("Failed to fetch offers:", error);
+    } finally {
+        setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchOffers();
-  }, []);
+  }, [fetchOffers]);
 
   const addOffer = async (offer: OfferData) => {
     await addOfferToDb(offer);
@@ -124,16 +128,18 @@ export function OffersProvider({ children }: { children: ReactNode }) {
 
   const incrementOfferView = async (id: string) => {
     await incrementViewInDb(id);
-    await fetchOffers(); // Refetch to update view count
+    // No need to refetch here for a simple counter to avoid flashing
+    setOffers(prev => prev.map(o => o.id === id ? {...o, views: (o.views || 0) + 1} : o));
   };
 
   const incrementOfferClick = async (id: string) => {
     await incrementClickInDb(id);
-    await fetchOffers(); // Refetch to update click count
+     // No need to refetch here for a simple counter to avoid flashing
+    setOffers(prev => prev.map(o => o.id === id ? {...o, clicks: (o.clicks || 0) + 1} : o));
   };
 
   return (
-    <OffersContext.Provider value={{ offers, loading, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility, incrementOfferView, incrementOfferClick, fetchOffers }}>
+    <OffersContext.Provider value={{ offers, loading, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility, incrementOfferView, incrementOfferClick }}>
       {children}
     </OffersContext.Provider>
   );
