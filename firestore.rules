@@ -2,29 +2,34 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Admin has full read/write access to everything.
-    match /{document=**} {
-      allow read, write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
-    }
-
-    // Public can read a single offer only if it is not hidden.
+    // Rule for the 'offers' collection
     match /offers/{offerId} {
-      allow get: if resource.data.isHidden == false;
-    }
-
-    // Public can read reviews for any offer.
-    match /offers/{offerId}/reviews/{reviewId} {
-        allow read: if true;
-    }
-    
-    // Public can query the list of all offers.
-    match /offers/{offerId} {
+      // Anyone can read an offer if it is not hidden.
+      allow read: if resource.data.isHidden == false;
+      
+      // Anyone can query the list of offers.
       allow list: if true;
+
+      // Only the admin can create, update, or delete offers.
+      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
     }
-    
-    // Public can read and query all stories.
+
+    // Rule for the 'stories' collection
     match /stories/{storyId} {
+      // Anyone can read or query stories. This fixes the error.
       allow read: if true;
+
+      // Only the admin can create, update, or delete stories.
+      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+    }
+
+    // Rule for the 'reviews' subcollection
+    match /offers/{offerId}/reviews/{reviewId} {
+      // Anyone can read reviews.
+      allow read: if true;
+      
+      // Any authenticated user can create a review.
+      allow create: if request.auth != null;
     }
   }
 }
