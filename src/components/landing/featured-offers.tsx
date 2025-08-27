@@ -23,14 +23,11 @@ interface FeaturedOffersProps {
   sortOption: string;
 }
 
-const authorizedAdminEmail = "dandurajkumarworld24@gmail.com";
-
 export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm, sortOption }: FeaturedOffersProps) {
   const { offers, loading: offersLoading } = useOffers();
-  const { user, loading: authLoading } = useAuth();
+  const { loading: authLoading, isAdmin } = useAuth();
   
   const loading = offersLoading || authLoading;
-  const isAdmin = user?.email === authorizedAdminEmail;
 
   const filteredAndSortedOffers = useMemo(() => {
     let filtered = offers.filter(offer => isAdmin || !offer.isHidden);
