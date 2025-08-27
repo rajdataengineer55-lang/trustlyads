@@ -8,7 +8,6 @@
     "cors": "cors.json"
   },
   "hosting": {
-    "public": "public",
     "source": ".",
     "ignore": [
       "firebase.json",
