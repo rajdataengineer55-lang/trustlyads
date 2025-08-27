@@ -1,37 +1,28 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // --- Public Read Rules ---
-    // Anyone can read non-hidden offers.
-    // Anyone can query (list) all offers.
+    // --- Admin Full Access ---
+    // The admin (UID: 8dbJ55nXdEXaOrlV4XosUMOq5E83) can write, update, and delete anything.
+    match /{document=**} {
+      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+    }
+
+    // --- Public Read Access ---
+    // Anyone can read lists of offers, stories, and reviews.
+    // They can also read individual documents if they are not hidden.
     match /offers/{offerId} {
-      allow read: if resource.data.isHidden == false;
+      allow get: if resource.data.isHidden == false || request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
       allow list: if true;
     }
 
-    // Anyone can read stories and reviews.
     match /stories/{storyId} {
-      allow read, list: if true;
-    }
-    match /offers/{offerId}/reviews/{reviewId} {
-      allow read, list: if true;
+      allow read: if true;
     }
 
-    // --- Admin & Authenticated User Write Rules ---
-    // The specific admin user can write/update/delete offers and stories.
-    match /offers/{offerId} {
-      allow write: if request.auth.uid == 'pYt24u6aAdPqB2L4sUIBq9AnTgy2';
-    }
-    match /stories/{storyId} {
-      allow write: if request.auth.uid == 'pYt24u6aAdPqB2L4sUIBq9AnTgy2';
-    }
-
-    // Any authenticated user can create a review.
     match /offers/{offerId}/reviews/{reviewId} {
-      allow create: if request.auth != null;
+      allow read: if true;
     }
   }
 }
