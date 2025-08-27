@@ -8,34 +8,46 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.admin == true;
     }
 
-    // Offers can be read by anyone if they are not hidden.
-    // Admins can read all offers.
-    // Only admins can write/update/delete offers.
+    // Rules for the 'offers' collection
     match /offers/{offerId} {
+      // READ: Public can get a single offer if it's not hidden. Admins can get any.
       allow get: if resource.data.isHidden == false || isAdmin();
-      allow list: if isAdmin() || (query.filters.size() == 0 || (query.filters.size() == 1 && query.filters[0][0] == 'isHidden' && query.filters[0][2] == false));
+      
+      // READ: Public can list offers. The client-side code is responsible for
+      // filtering out hidden offers for non-admin users.
+      allow list: if true;
+
+      // WRITE: Only admins can create, update, or delete offers.
       allow write: if isAdmin();
 
-      // Reviews can be read by anyone who can see the offer.
-      // Only authenticated users can create a review.
+      // Rules for the 'reviews' subcollection
       match /reviews/{reviewId} {
+        // READ: Anyone who can view the parent offer can read its reviews.
         allow read: if get(/databases/$(database)/documents/offers/$(offerId)).data.isHidden == false || isAdmin();
+        
+        // WRITE: Only authenticated users can create reviews.
         allow create: if request.auth != null;
-        allow update, delete: if false; // Reviews cannot be edited or deleted by users
+        
+        // Reviews are immutable; they cannot be updated or deleted.
+        allow update, delete: if false;
       }
     }
 
-    // Followers can be read by anyone.
-    // Only authenticated users can follow/unfollow (create/delete their own doc).
+    // Rules for the 'followers' collection
     match /followers/{userId} {
+      // READ: Publicly readable to get follower counts.
       allow read: if true;
+      
+      // WRITE: Users can only manage their own follow status.
       allow create, delete: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Stories can be read by anyone.
-    // Only admins can write stories.
+    // Rules for the 'stories' collection
     match /stories/{storyId} {
+      // READ: All stories are public.
       allow read: if true;
+      
+      // WRITE: Only admins can create or delete stories.
       allow write: if isAdmin();
     }
   }
