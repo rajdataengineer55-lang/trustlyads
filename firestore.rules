@@ -2,29 +2,26 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to identify the admin user by their UID.
-    function isAdmin() {
-      return request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5eH3";
-    }
-
-    // Grant admin full read and write access to all collections.
-    match /{path=**} {
-      allow read, write: if isAdmin();
-    }
     
-    // Public read access for offers that are not hidden.
+    // --- Admin Permissions ---
+    // The admin user can read and write all documents in the database.
+    // This rule is checked first and provides complete control.
+    match /{document=**} {
+      allow read, write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+    }
+
+    // --- Public Read Permissions ---
+    // Any user (signed in or not) can read offers that are not hidden.
     match /offers/{offerId} {
-      allow read: if !resource.data.isHidden;
-      
-      // Public users can create reviews.
-      match /reviews/{reviewId} {
-        allow read;
-        allow create: if request.auth != null;
-      }
+      allow read: if resource.data.isHidden == false;
     }
     
-    // Public read access for stories.
+    // Any user can read reviews.
+    match /offers/{offerId}/reviews/{reviewId} {
+      allow read: if true;
+    }
+
+    // Any user can read stories.
     match /stories/{storyId} {
       allow read: if true;
     }
