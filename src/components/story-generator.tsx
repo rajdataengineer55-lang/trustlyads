@@ -240,7 +240,13 @@ export function StoryGenerator() {
                     {stories.length === 0 && <p className="text-muted-foreground text-center">No stories posted yet.</p>}
                     {stories.map(story => (
                         <div key={story.id} className="flex items-center gap-4 p-2 rounded-md border">
-                            <Image src={story.imageUrls[0]} alt={story.businessName} width={40} height={60} className="rounded-md object-cover" />
+                            {story.imageUrls && story.imageUrls.length > 0 ? (
+                                <Image src={story.imageUrls[0]} alt={story.businessName} width={40} height={60} className="rounded-md object-cover" />
+                            ) : (
+                                <div className="w-[40px] h-[60px] bg-muted rounded-md flex items-center justify-center text-muted-foreground">
+                                    <PlusCircle className="h-4 w-4" />
+                                </div>
+                            )}
                             <div className="flex-grow">
                                 <p className="font-semibold">{story.businessName}</p>
                                 <p className="text-xs text-muted-foreground">{story.location}</p>
