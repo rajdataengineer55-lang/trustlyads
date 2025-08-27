@@ -134,7 +134,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
       uploadedImageUrls = imagePreviews.filter(url => url.startsWith('http'));
     }
 
-    if (hasNewImages) {
+    if (hasNewImages && values.images) {
         setLoadingMessage("Uploading images...");
         try {
             const newUrls = await uploadMultipleFiles(values.images);
@@ -252,5 +252,3 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
-
-    
