@@ -8,6 +8,8 @@ import {
   signInWithPopup, 
   signOut as firebaseSignOut, 
   signInWithEmailAndPassword,
+  setPersistence,
+  browserSessionPersistence,
   type User 
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -35,23 +37,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { isAdmin, isCheckingAdmin, checkAdminStatus } = useAdmin();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setLoading(true);
-      if (user) {
-        console.log("AuthContext: Logged in UID:", user.uid);
-        setUser(user);
-        // When auth state changes, trigger the admin check
-        await checkAdminStatus(user);
-      } else {
-        console.log("AuthContext: Not logged in!");
-        setUser(null);
-        // Clear admin status on sign-out
-        await checkAdminStatus(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    // Set persistence to 'session' before setting up the auth state listener.
+    // This ensures the user is logged out when the browser session ends.
+    setPersistence(auth, browserSessionPersistence)
+      .then(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          setLoading(true);
+          if (user) {
+            console.log("AuthContext: Logged in UID:", user.uid);
+            setUser(user);
+            // When auth state changes, trigger the admin check
+            await checkAdminStatus(user);
+          } else {
+            console.log("AuthContext: Not logged in!");
+            setUser(null);
+            // Clear admin status on sign-out
+            await checkAdminStatus(null);
+          }
+          setLoading(false);
+        });
+        
+        return () => unsubscribe();
+      })
+      .catch((error) => {
+        console.error("Error setting auth persistence:", error);
+        setLoading(false);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
