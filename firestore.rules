@@ -1,23 +1,12 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Offers can be read by anyone, but only written/deleted by the admin.
-    match /offers/{offerId} {
-      allow read: if true;
-      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
-    }
-
-    // Stories can be read by anyone, but only written/deleted by the admin.
-    match /stories/{storyId} {
-      allow read: if true;
-      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
-    }
-
-    // Reviews can be read by anyone, but only created by a signed-in user.
-    match /offers/{offerId}/reviews/{reviewId} {
-      allow read: if true;
-      allow create: if request.auth != null;
+    // WARNING: These rules are insecure and for debugging only.
+    // They allow anyone to read, write, and delete any data in your database.
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }

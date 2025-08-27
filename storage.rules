@@ -1,17 +1,12 @@
+
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow anyone to read files from the 'offers' and 'stories' folders.
-    match /offers/{allPaths=**} {
-      allow read: if true;
-    }
-    match /stories/{allPaths=**} {
-      allow read: if true;
-    }
-
-    // Only the authenticated admin can write (upload, update, delete) files.
+    // WARNING: These rules are insecure and for debugging only.
+    // They allow anyone to upload, read, and delete any file.
     match /{allPaths=**} {
-      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+      allow read, write: if true;
     }
   }
 }
