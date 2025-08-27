@@ -49,8 +49,8 @@ export function Stories({ selectedLocation }: StoriesProps) {
                 <div className="flex justify-center gap-4">
                     {[...Array(5)].map((_, i) => (
                         <div key={i} className="flex flex-col items-center gap-2">
-                            <Skeleton className="h-20 w-20 rounded-full" />
-                            <Skeleton className="h-4 w-16" />
+                            <Skeleton className="h-16 w-16 sm:h-20 sm:w-20 rounded-full" />
+                            <Skeleton className="h-4 w-12 sm:w-16" />
                         </div>
                     ))}
                 </div>
@@ -80,9 +80,9 @@ export function Stories({ selectedLocation }: StoriesProps) {
         >
             <CarouselContent>
             {filteredStories.map((story) => (
-                <CarouselItem key={story.id} className="basis-1/4 sm:basis-1/6 md:basis-1/8 lg:basis-1/12">
+                <CarouselItem key={story.id} className="basis-1/4 sm:basis-1/5 md:basis-1/8 lg:basis-1/12">
                     <Link href={`/offer/${story.offerId}`} className="block group text-center">
-                        <div className="relative w-20 h-20 mx-auto rounded-full p-1 ring-2 ring-primary/50 group-hover:ring-primary transition-all duration-300">
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full p-1 ring-2 ring-primary/50 group-hover:ring-primary transition-all duration-300">
                              <div className="relative w-full h-full rounded-full overflow-hidden">
                                 {story.imageUrls && story.imageUrls.length > 0 && (
                                     <Image
@@ -90,7 +90,7 @@ export function Stories({ selectedLocation }: StoriesProps) {
                                         alt={`Story from ${story.businessName}`}
                                         fill
                                         className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                        sizes="80px"
+                                        sizes="(max-width: 640px) 64px, 80px"
                                     />
                                 )}
                              </div>
