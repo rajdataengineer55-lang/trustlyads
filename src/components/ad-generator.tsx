@@ -163,7 +163,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         nearbyLocation: values.nearbyLocation, locationLink: values.locationLink, image: mainImage, otherImages: otherImages || [], hint: hint,
         discount: values.discount, tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [], allowCall: values.allowCall ?? false,
         phoneNumber: values.phoneNumber, allowChat: values.allowChat ?? false, chatLink: values.chatLink, allowSchedule: values.allowSchedule ?? false,
-        scheduleLink: values.scheduleLink, isHidden: isEditMode ? offerToEdit.isHidden : false,
+        scheduleLink: values.scheduleLink, isHidden: isEditMode && offerToEdit ? offerToEdit.isHidden : false,
     };
 
     try {
@@ -259,5 +259,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
 
     
