@@ -16,9 +16,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StoryGenerator } from "@/components/story-generator";
 
 export default function AdminPage() {
+    // The useAuth hook now provides the reliable admin status from the custom claim.
     const { user, loading, signOut, isAdmin } = useAuth();
     
-    // Show a loading skeleton if the auth state is still loading.
+    // Show a loading skeleton if the auth state is still loading (this now includes claim checking).
     if (loading) {
         return (
             <div className="flex flex-col min-h-screen">
