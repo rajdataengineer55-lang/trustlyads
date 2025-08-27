@@ -2,17 +2,21 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Grant public read access to offer and story images
+    // Allow public read for offer images, only admin can write
     match /offers/{allPaths=**} {
-      allow read;
-      // Require authentication for all uploads/writes/deletes to the offers folder
-      allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
     }
 
+    // Allow public read for story images, only admin can write
     match /stories/{allPaths=**} {
-      allow read;
-      // Require authentication for all uploads/writes/deletes to the stories folder
-      allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // Deny access to all other paths by default
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
