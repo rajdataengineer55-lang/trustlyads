@@ -16,10 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StoryGenerator } from "@/components/story-generator";
 
 export default function AdminPage() {
-    // The useAuth hook now provides the reliable admin status from the custom claim.
     const { user, loading, signOut, isAdmin } = useAuth();
     
-    // Show a loading skeleton if the auth state is still loading (this now includes claim checking).
     if (loading) {
         return (
             <div className="flex flex-col min-h-screen">
@@ -40,89 +38,76 @@ export default function AdminPage() {
         );
     }
     
-    // After loading, if there's no user, or the user is not an admin, show the login form or an error.
-    if (!user || !isAdmin) {
-         return (
+    // If a user is logged in AND is an admin, show the dashboard.
+    if (user && isAdmin) {
+        return (
             <div className="flex flex-col min-h-screen">
                 <Header />
-                <main className="flex-1 bg-background/50 flex flex-col items-center justify-center text-center p-4">
-                     {user && !isAdmin ? (
-                         <Card className="max-w-md w-full">
-                            <CardHeader>
-                                <CardTitle className="flex items-center justify-center gap-2">
-                                    <ShieldAlert className="h-6 w-6" /> Unauthorized Access
-                                </CardTitle>
-                                <CardDescription>
-                                    This account does not have admin privileges. Please sign in with an admin account.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <p className="text-sm text-destructive">
-                                    Signed in as {user.email}.
-                                </p>
-                                <div className="flex justify-center items-center gap-4">
-                                    <Button variant="outline" onClick={signOut}>
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        Sign Out & Switch
-                                    </Button>
-                                    <Link href="/" passHref>
-                                        <Button>
-                                            Go to Homepage
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </CardContent>
-                        </Card>
-                     ) : (
-                        <Card className="max-w-md w-full">
-                            <CardHeader>
-                                <CardTitle className="flex items-center justify-center gap-2">
-                                    <ShieldAlert className="h-6 w-6" /> Admin Login
-                                </CardTitle>
-                                <CardDescription>
-                                    Please sign in to manage the website.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                               <AdminLoginForm />
-                            </CardContent>
-                        </Card>
-                     )}
+                <main className="flex-1 bg-background/50">
+                     <div className="container mx-auto px-4 md:px-6 py-12">
+                         <Tabs defaultValue="post-offer" className="w-full">
+                            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 max-w-lg mx-auto text-xs sm:text-sm">
+                                <TabsTrigger value="post-offer">Post Offer</TabsTrigger>
+                                <TabsTrigger value="manage-offers">Manage Offers</TabsTrigger>
+                                <TabsTrigger value="manage-stories">Manage Stories</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="post-offer">
+                                <section className="py-12 sm:py-16">
+                                    <AdGenerator />
+                                </section>
+                            </TabsContent>
+                            <TabsContent value="manage-offers">
+                                <section className="py-12 sm:py-16">
+                                    <ManageOffers />
+                                </section>
+                            </TabsContent>
+                            <TabsContent value="manage-stories">
+                                <section className="py-12 sm:py-16">
+                                    <StoryGenerator />
+                                </section>
+                            </TabsContent>
+                        </Tabs>
+                    </div>
                 </main>
                 <Footer />
             </div>
         );
     }
 
-    // If all checks pass, render the admin dashboard.
+    // This section now handles both logged-out users AND logged-in non-admin users.
+    // It will show the login form for both, but display an extra "Unauthorized" message
+    // if a non-admin user is currently signed in.
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex-1 bg-background/50">
-                 <div className="container mx-auto px-4 md:px-6 py-12">
-                     <Tabs defaultValue="post-offer" className="w-full">
-                        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 max-w-lg mx-auto text-xs sm:text-sm">
-                            <TabsTrigger value="post-offer">Post Offer</TabsTrigger>
-                            <TabsTrigger value="manage-offers">Manage Offers</TabsTrigger>
-                            <TabsTrigger value="manage-stories">Manage Stories</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="post-offer">
-                            <section className="py-12 sm:py-16">
-                                <AdGenerator />
-                            </section>
-                        </TabsContent>
-                        <TabsContent value="manage-offers">
-                            <section className="py-12 sm:py-16">
-                                <ManageOffers />
-                            </section>
-                        </TabsContent>
-                        <TabsContent value="manage-stories">
-                            <section className="py-12 sm:py-16">
-                                <StoryGenerator />
-                            </section>
-                        </TabsContent>
-                    </Tabs>
-                </div>
+            <main className="flex-1 bg-background/50 flex flex-col items-center justify-center text-center p-4">
+                <Card className="max-w-md w-full">
+                    <CardHeader>
+                        <CardTitle className="flex items-center justify-center gap-2">
+                            <ShieldAlert className="h-6 w-6" /> Admin Login
+                        </CardTitle>
+                        <CardDescription>
+                            Please sign in to manage the website.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                       {/* This block shows an error if a NON-admin user is logged in */}
+                       {user && !isAdmin && (
+                            <div className="mb-4 bg-destructive/10 p-3 rounded-md border border-destructive/50">
+                                <p className="text-sm text-destructive font-semibold">
+                                    Unauthorized Access
+                                </p>
+                                <p className="text-xs text-destructive/80 mt-1">
+                                    The account <span className="font-medium">{user.email}</span> does not have admin privileges.
+                                </p>
+                                <Button variant="link" className="h-auto p-0 mt-2 text-destructive/80 text-xs" onClick={signOut}>
+                                    Sign Out & Try Again
+                                </Button>
+                            </div>
+                       )}
+                       <AdminLoginForm />
+                    </CardContent>
+                </Card>
             </main>
             <Footer />
         </div>
