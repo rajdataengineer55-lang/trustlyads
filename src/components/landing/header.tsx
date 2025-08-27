@@ -25,10 +25,8 @@ export function Header() {
   const [isFollowLoading, setIsFollowLoading] = useState(true);
 
   useEffect(() => {
-    // Subscribe to follower count updates
     const unsubscribe = getFollowersCount(setFollowersCount);
     
-    // Check initial following status when user loads
     if (user) {
       setIsFollowLoading(true);
       isFollowing(user.uid).then(status => {
@@ -40,7 +38,7 @@ export function Header() {
       setIsFollowLoading(false);
     }
 
-    return () => unsubscribe(); // Cleanup subscription on component unmount
+    return () => unsubscribe();
   }, [user]);
 
   const handleFollowToggle = async () => {
@@ -69,14 +67,14 @@ export function Header() {
   };
 
 
-  const FollowButton = () => (
+  const FollowButton = ({ isMobile = false }) => (
     <Button
       variant={following ? "default" : "outline"}
       onClick={handleFollowToggle}
       disabled={!user || isFollowLoading}
-      className="hidden sm:inline-flex"
+      className={isMobile ? "w-full justify-start gap-2" : ""}
     >
-      <Heart className={`mr-2 h-4 w-4 ${following ? 'fill-white' : ''}`} />
+      <Heart className={`mr-2 h-4 w-4 ${following && !isMobile ? 'fill-white' : ''}`} />
       {following ? 'Following' : 'Follow'}
       <span className="ml-2 bg-secondary text-secondary-foreground rounded-full px-2 py-0.5 text-xs">
         {followersCount}
@@ -242,6 +240,8 @@ export function Header() {
                   
                   <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">Quick Links</div>
                   
+                  <FollowButton isMobile={true} />
+
                   <Link href="/about" passHref>
                     <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Info /> About</Button>
                   </Link>
