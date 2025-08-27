@@ -1,42 +1,45 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Allow public read access to offers, stories, and reviews
+
+    // Helper function to check if the user is the admin by their UID
+    function isAdmin() {
+      return request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMO9g0q1';
+    }
+
+    // --- Offers ---
     match /offers/{offerId} {
-      allow read: if true;
-      // Allow only the admin to create, update, or delete offers
-      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+      // Admin can do anything.
+      // Public can read non-hidden offers.
+      allow read: if isAdmin() || resource.data.isHidden == false;
+      allow write: if isAdmin();
       
+      // --- Reviews (subcollection) ---
       match /reviews/{reviewId} {
+        // Anyone authenticated can create a review.
+        // Admin can do anything.
         allow read: if true;
-        // Allow any authenticated user to create reviews
         allow create: if request.auth != null;
-        allow update, delete: if false; // Disallow updating/deleting reviews for now
+        allow update, delete: if isAdmin();
       }
     }
 
+    // --- Stories ---
     match /stories/{storyId} {
-        allow read: if true;
-        allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
-    }
-
-    // Allow any authenticated user to follow/unfollow their own document
-    match /followers/{userId} {
-      allow read, create, delete: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Allow admin to read the entire followers collection for notifications
-    match /followers/{follower} {
-      allow list: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
-    }
-
-    // Allow admin to read the stats document
-    match /meta/stats {
+      // Public can read all stories.
+      // Admin can create, update, and delete stories.
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+      allow write: if isAdmin();
+    }
+
+    // --- Followers ---
+    // Users can only manage their own follower document.
+    // Admin can read the whole collection (for analytics, etc.)
+    match /followers/{userId} {
+      allow read: if isAdmin() || request.auth.uid == userId;
+      allow create: if request.auth.uid == userId;
+      allow delete: if request.auth.uid == userId;
     }
   }
 }
