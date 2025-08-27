@@ -32,7 +32,8 @@ export function Stories({ selectedLocation }: StoriesProps) {
 
     if (mainLocation && mainLocation.subLocations) {
       // If a main location is selected, show stories from all its sub-locations
-      return stories.filter(story => mainLocation.subLocations?.includes(story.location));
+      const locationsToShow = [mainLocation.name, ...mainLocation.subLocations];
+      return stories.filter(story => locationsToShow.includes(story.location));
     } else {
       // If a sub-location or a location without sub-locations is selected, do an exact match
       return stories.filter(story => story.location === selectedLocation);
@@ -71,6 +72,7 @@ export function Stories({ selectedLocation }: StoriesProps) {
         </h2>
         
         <Carousel
+            key={filteredStories.length} // Add a key to force re-render on filter change
             opts={{
                 align: "start",
                 loop: filteredStories.length > 10,
@@ -102,8 +104,8 @@ export function Stories({ selectedLocation }: StoriesProps) {
                 </CarouselItem>
             ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="block" />
+            <CarouselNext className="block" />
         </Carousel>
       </div>
     </section>
