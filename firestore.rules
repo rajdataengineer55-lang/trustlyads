@@ -3,43 +3,30 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if the user is the admin by their UID
+    // Helper function to identify the admin user by their UID.
     function isAdmin() {
-      return request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMO9g0q1';
+      return request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5eH3";
     }
 
-    // --- Offers ---
+    // Grant admin full read and write access to all collections.
+    match /{path=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Public read access for offers that are not hidden.
     match /offers/{offerId} {
-      // Admin can do anything.
-      // Public can read non-hidden offers.
-      allow read: if isAdmin() || resource.data.isHidden == false;
-      allow write: if isAdmin();
+      allow read: if !resource.data.isHidden;
       
-      // --- Reviews (subcollection) ---
+      // Public users can create reviews.
       match /reviews/{reviewId} {
-        // Anyone authenticated can create a review.
-        // Admin can do anything.
-        allow read: if true;
+        allow read;
         allow create: if request.auth != null;
-        allow update, delete: if isAdmin();
       }
     }
-
-    // --- Stories ---
+    
+    // Public read access for stories.
     match /stories/{storyId} {
-      // Public can read all stories.
-      // Admin can create, update, and delete stories.
       allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // --- Followers ---
-    // Users can only manage their own follower document.
-    // Admin can read the whole collection (for analytics, etc.)
-    match /followers/{userId} {
-      allow read: if isAdmin() || request.auth.uid == userId;
-      allow create: if request.auth.uid == userId;
-      allow delete: if request.auth.uid == userId;
     }
   }
 }
