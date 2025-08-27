@@ -1,6 +1,6 @@
 
 import type { Metadata, Viewport } from 'next';
-import { Poppins, Inter } from 'next/font/google';
+import { Open_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { OffersProvider } from '@/contexts/OffersContext';
@@ -10,15 +10,9 @@ import { cn } from '@/lib/utils';
 import { StoriesProvider } from '@/contexts/StoriesContext';
 
 
-const poppins = Poppins({
+const openSans = Open_Sans({
   subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-headline',
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-body',
+  variable: '--font-sans',
 });
 
 export const metadata: Metadata = {
@@ -43,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body className={cn("antialiased", poppins.variable, inter.variable)}>
+      <body className={cn("antialiased font-sans", openSans.variable)}>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"
