@@ -2,28 +2,33 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // ADMIN RULE: Grant full read/write access to the admin user everywhere.
-    // This rule is checked first and provides master access.
+    
+    // --- Admin Master Rule ---
+    // The admin user can read and write everything in the database.
+    // The UID '8dbJ55nXdEXaOrlV4XosUMOq5E83' belongs to dandurajkumarworld24@gmail.com.
     match /{document=**} {
       allow read, write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
     }
 
-    // PUBLIC READ RULES:
-    // These rules allow anyone to read public data, but not write.
-
-    // Allow anyone to get (read) a single offer if it's not hidden.
+    // --- Public Read Rules ---
+    
+    // Anyone can query the 'offers' collection.
     match /offers/{offerId} {
-      allow get: if resource.data.isHidden == false;
-      // Allow anyone to list (query) all offers.
       allow list: if true;
     }
     
-    // Allow anyone to read all stories and reviews.
-    match /stories/{storyId} {
+    // Anyone can read a specific offer if it is not hidden.
+    match /offers/{offerId} {
+      allow get: if resource.data.isHidden == false;
+    }
+
+    // Anyone can read reviews for any offer.
+    match /offers/{offerId}/reviews/{reviewId} {
       allow read: if true;
     }
-    match /offers/{offerId}/reviews/{reviewId} {
+
+    // Anyone can read and query stories.
+    match /stories/{storyId} {
       allow read: if true;
     }
   }

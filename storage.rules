@@ -1,16 +1,28 @@
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    // Match any file in the 'offers' or 'stories' folders
-    match /{folder}/{fileId} where folder == 'offers' || folder == 'stories' {
-      
-      // Rule 1: Anyone can read files in these folders.
-      // This is necessary for the images to be displayed on your public website.
+    
+    // Define the admin UID for clarity.
+    // The UID '8dbJ55nXdEXaOrlV4XosUMOq5E83' belongs to dandurajkumarworld24@gmail.com.
+    function isAdmin() {
+      return request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+    }
+
+    // --- Public Read and Admin Write Rules for Offers ---
+    // Anyone can read offer images.
+    // Only the admin can upload, update, or delete offer images.
+    match /offers/{allPaths=**} {
       allow read: if true;
-      
-      // Rule 2: Only the authorized admin can write (upload, update, delete).
-      // This is the critical rule that was failing before.
-      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+      allow write: if isAdmin();
+    }
+
+    // --- Public Read and Admin Write Rules for Stories ---
+    // Anyone can read story images.
+    // Only the admin can upload, update, or delete story images.
+    match /stories/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }
