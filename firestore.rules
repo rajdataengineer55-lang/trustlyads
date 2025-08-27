@@ -1,47 +1,34 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check for admin custom claim
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
-    }
-
-    // Helper function to check if a user is authenticated
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    
-    // Offers can be read by anyone, but only managed by admins.
+    // Offers can be read by anyone, but only created, updated, or deleted by an admin.
     match /offers/{offerId} {
       allow read: if true;
-      
-      // Admins can create, update, and delete offers.
-      allow create, update, delete: if isAdmin();
+      allow write: if request.auth.token.admin == true;
 
-      // Subcollection for reviews
+      // Reviews can be read by anyone.
+      // They can only be created by signed-in users.
+      // They can only be deleted by an admin.
       match /reviews/{reviewId} {
         allow read: if true;
-        // Only signed-in users can create a review.
-        allow create: if isSignedIn();
-        // Only admins can update or delete reviews.
-        allow update, delete: if isAdmin();
+        allow create: if request.auth != null;
+        allow delete: if request.auth.token.admin == true;
       }
     }
 
-    // Followers collection: Users can only manage their own follow status.
-    match /followers/{userId} {
-      allow read: if true;
-      // A user can only create or delete their own follower document.
-      allow create, delete: if isSignedIn() && request.auth.uid == userId;
-      // No updates are allowed to follower documents.
-      allow update: if false;
-    }
-
-    // Stories can be read by anyone, but only managed by admins.
+    // Stories can be read by anyone, but only created or deleted by an admin.
     match /stories/{storyId} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if request.auth.token.admin == true;
+    }
+
+    // Followers can be read by anyone (for follower count).
+    // Only signed-in users can follow/unfollow (write to their own follower doc).
+    match /followers/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
