@@ -55,14 +55,22 @@ export function Header() {
     )
   }
 
-  const LocationDropdown = () => (
+  const LocationDropdown = ({ isMobile = false }: { isMobile?: boolean }) => (
      <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground">
-            <MapPin className="h-5 w-5" />
-            <span>Locations</span>
-            <ChevronDown className="h-4 w-4 ml-auto" />
-          </Button>
+          {isMobile ? (
+             <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                <span className="text-xs">Locations</span>
+                <ChevronDown className="h-3 w-3" />
+             </Button>
+          ) : (
+            <Button variant="ghost" className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-5 w-5" />
+              <span>Tirupati, Vellore, Chittoor & more</span>
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          )}
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {locations.map((location) => (
@@ -88,44 +96,21 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        <div className="flex-1 flex items-center">
+        <div className="flex-1 flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2">
               <Megaphone className="h-6 w-6 text-primary" />
               <span className="font-bold sm:inline-block font-headline">
                 trustlyads.in
               </span>
           </Link>
+          <div className="md:hidden">
+            <LocationDropdown isMobile />
+          </div>
         </div>
 
         <div className="mr-4 hidden md:flex">
           <nav className="flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="h-5 w-5" />
-                  <span>Tirupati, Vellore, Chittoor & more</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {locations.map((location) => (
-                  location.subLocations ? (
-                    <DropdownMenuSub key={location.name}>
-                      <DropdownMenuSubTrigger>{location.name}</DropdownMenuSubTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
-                          {location.subLocations.map((subLocation) => (
-                            <DropdownMenuItem key={subLocation}>{subLocation}</DropdownMenuItem>
-                          ))}
-                        </DropdownMenuSubContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenuSub>
-                  ) : (
-                    <DropdownMenuItem key={location.name}>{location.name}</DropdownMenuItem>
-                  )
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+             <LocationDropdown />
           </nav>
         </div>
         
@@ -187,8 +172,8 @@ export function Header() {
 
                   <DropdownMenuSeparator />
                   
-                  <LocationDropdown />
-
+                  <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">Quick Links</div>
+                  
                   <Link href="/about" passHref>
                     <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Info /> About</Button>
                   </Link>
