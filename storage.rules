@@ -1,13 +1,15 @@
 rules_version = '2';
-
 service firebase.storage {
   match /b/{bucket}/o {
-    // Match any file in any folder.
-    match /{allPaths=**} {
-      // Allow anyone to read (view) any file. This is needed for public images.
+    // Match any file in the 'offers' or 'stories' folders
+    match /{folder}/{fileId} where folder == 'offers' || folder == 'stories' {
+      
+      // Rule 1: Anyone can read files in these folders.
+      // This is necessary for the images to be displayed on your public website.
       allow read: if true;
       
-      // Allow write (upload, update, delete) only if the user is the admin.
+      // Rule 2: Only the authorized admin can write (upload, update, delete).
+      // This is the critical rule that was failing before.
       allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
     }
   }
