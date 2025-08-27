@@ -1,18 +1,25 @@
 rules_version = '2';
-
 service firebase.storage {
   match /b/{bucket}/o {
-    // Helper function to check if the user is the admin by their unique ID (UID)
+
+    // Helper function to identify the admin by their UID
     function isAdmin() {
-      // The UID for the admin account dandurajkumarworld24@gmail.com
-      return request.auth != null && request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMO';
+      return request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
     }
 
-    // Rules for all other files/folders (e.g., stories)
-    match /{path}/{allPaths=**} {
-      // Allow anyone to read images
-      allow read;
-      // Only allow the admin to write (create, update, delete)
+    // Rules for the 'offers' folder
+    match /offers/{allPaths=**} {
+      // Anyone can read offer images.
+      allow read: true;
+      // Only the admin can upload, update, or delete images.
+      allow write: if isAdmin();
+    }
+
+    // Rules for the 'stories' folder
+    match /stories/{allPaths=**} {
+      // Anyone can read story images.
+      allow read: true;
+      // Only the admin can upload, update, or delete images.
       allow write: if isAdmin();
     }
   }
