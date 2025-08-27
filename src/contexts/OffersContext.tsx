@@ -61,6 +61,7 @@ interface OffersContextType {
   toggleOfferVisibility: (id: string) => Promise<void>;
   incrementOfferView: (id: string) => Promise<void>;
   incrementOfferClick: (id: string) => Promise<void>;
+  fetchOffers: () => Promise<void>;
 }
 
 const OffersContext = createContext<OffersContextType | undefined>(undefined);
@@ -69,32 +70,33 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Initial sort by createdAt is handled by the getOffers query in firebase.ts
-    const unsubscribe = getOffers((offersFromDb) => {
-      setOffers(offersFromDb);
-      setLoading(false);
-    });
+  const fetchOffers = async () => {
+    setLoading(true);
+    const offersFromDb = await getOffers();
+    setOffers(offersFromDb);
+    setLoading(false);
+  };
 
-    return () => unsubscribe();
+  useEffect(() => {
+    fetchOffers();
   }, []);
 
   const addOffer = async (offer: OfferData) => {
     await addOfferToDb(offer);
-    // Real-time listener will update state, no need for manual update
+    await fetchOffers(); // Refetch after adding
   };
 
   const updateOffer = async (id: string, updatedOfferData: Partial<OfferData>) => {
     await updateOfferInDb(id, updatedOfferData);
+    await fetchOffers(); // Refetch after updating
   };
   
   const deleteOffer = async (id: string) => {
     await deleteOfferFromDb(id);
+    await fetchOffers(); // Refetch after deleting
   };
   
   const boostOffer = (id: string) => {
-    // Note: This implementation of boost is temporary and client-side.
-    // For a persistent boost, we would need to add a 'boostedAt' field to the offer in Firestore and sort by it.
     setOffers(prevOffers => {
       const offerToBoost = prevOffers.find(offer => offer.id === id);
       if (!offerToBoost) return prevOffers;
@@ -109,25 +111,29 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   
   const addReview = async (offerId: string, review: Omit<Review, 'id' | 'createdAt'>) => {
     await addReviewToDb(offerId, review);
+    await fetchOffers(); // Refetch to show new review
   };
 
   const toggleOfferVisibility = async (id: string) => {
     const offer = getOfferById(id);
     if(offer) {
         await toggleVisibilityInDb(id, !offer.isHidden);
+        await fetchOffers(); // Refetch to update status
     }
   };
 
   const incrementOfferView = async (id: string) => {
     await incrementViewInDb(id);
+    await fetchOffers(); // Refetch to update view count
   };
 
   const incrementOfferClick = async (id: string) => {
     await incrementClickInDb(id);
+    await fetchOffers(); // Refetch to update click count
   };
 
   return (
-    <OffersContext.Provider value={{ offers, loading, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility, incrementOfferView, incrementOfferClick }}>
+    <OffersContext.Provider value={{ offers, loading, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, addReview, toggleOfferVisibility, incrementOfferView, incrementOfferClick, fetchOffers }}>
       {children}
     </OffersContext.Provider>
   );

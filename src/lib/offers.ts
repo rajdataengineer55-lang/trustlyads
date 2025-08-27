@@ -10,13 +10,9 @@ import {
     doc,
     query,
     orderBy,
-    onSnapshot,
     serverTimestamp,
     Timestamp,
-    collectionGroup,
-    writeBatch,
     increment,
-    where
 } from 'firebase/firestore';
 import type { Offer, Review } from '@/contexts/OffersContext';
 
@@ -61,13 +57,12 @@ const mapDocToOffer = (doc: any): Offer => {
   } as Offer;
 };
 
-// Get all offers with real-time updates and subcollection of reviews
-export const getOffers = (callback: (offers: Offer[]) => void) => {
+// Get all offers with subcollection of reviews
+export const getOffers = async (): Promise<Offer[]> => {
   const q = query(offersCollection, orderBy('createdAt', 'desc'));
 
-  // Listen to changes in the main 'offers' collection
-  const unsubscribe = onSnapshot(q, async (offersSnapshot) => {
-    
+  try {
+    const offersSnapshot = await getDocs(q);
     const offers = await Promise.all(offersSnapshot.docs.map(async (offerDoc) => {
         const offer = mapDocToOffer(offerDoc);
         
@@ -87,14 +82,11 @@ export const getOffers = (callback: (offers: Offer[]) => void) => {
 
         return offer;
     }));
-    
-    callback(offers);
-  }, (error) => {
+    return offers;
+  } catch (error) {
     console.error("Error fetching offers: ", error);
-    callback([]);
-  });
-
-  return unsubscribe;
+    return [];
+  }
 };
 
 

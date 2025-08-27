@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { Megaphone, MapPin, ChevronDown, Users, Menu, Phone, User, Info, LogIn, LogOut, Check, Heart } from "lucide-react"
+import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogIn, LogOut } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -12,65 +12,10 @@ import { ThemeToggle } from '../theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Skeleton } from '../ui/skeleton';
-import { addFollower, getFollowersCount, isFollowing, removeFollower } from '@/lib/followers';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, loading, signInWithGoogle, signOut } = useAuth();
-  const { toast } = useToast();
-
-  const [followerCount, setFollowerCount] = useState(0);
-  const [userIsFollowing, setUserIsFollowing] = useState(false);
-  const [isFollowLoading, setIsFollowLoading] = useState(true);
-
-  useEffect(() => {
-    // Fetch initial follower count
-    const unsubscribe = getFollowersCount(setFollowerCount);
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (loading) {
-      setIsFollowLoading(true);
-      return;
-    }
-
-    if (user) {
-      isFollowing(user.uid).then(following => {
-        setUserIsFollowing(following);
-        setIsFollowLoading(false);
-      });
-    } else {
-      setUserIsFollowing(false);
-      setIsFollowLoading(false);
-    }
-  }, [user, loading]);
-
-  const handleFollowToggle = async () => {
-    if (!user) {
-      toast({
-        title: "Please Sign In",
-        description: "You need to be signed in to follow.",
-      });
-      signInWithGoogle();
-      return;
-    }
-    
-    setIsFollowLoading(true);
-    if (userIsFollowing) {
-      await removeFollower(user.uid);
-      setUserIsFollowing(false);
-      toast({ title: "Unfollowed", description: "You are no longer following." });
-    } else {
-      await addFollower(user);
-      setUserIsFollowing(true);
-      toast({ title: "Followed!", description: "Thank you for your support!" });
-    }
-    setIsFollowLoading(false);
-  };
-
 
   const UserMenu = () => {
     if (loading) {
@@ -109,21 +54,6 @@ export function Header() {
       </Button>
     )
   }
-  
-  const FollowButton = ({ isMobile = false }) => (
-     <Button 
-        variant="outline" 
-        onClick={handleFollowToggle} 
-        disabled={isFollowLoading}
-        className={cn(isMobile && "w-full")}
-    >
-        {userIsFollowing ? <Check className="mr-2 h-4 w-4 text-green-500" /> : <Heart className="mr-2 h-4 w-4" />}
-        {userIsFollowing ? 'Following' : 'Follow'}
-        <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-primary-foreground bg-primary rounded-full">
-            {followerCount}
-        </span>
-    </Button>
-  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -181,7 +111,6 @@ export function Header() {
                     <Phone />
                 </Button>
             </a>
-            <FollowButton />
             <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
               <Button>Post Your Business</Button>
             </a>
@@ -226,14 +155,12 @@ export function Header() {
                   <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
                       <Button className="w-full">Post Your Business</Button>
                   </a>
-                  <FollowButton isMobile />
                   
                   <Link href="/about" passHref>
                     <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Info /> About</Button>
                   </Link>
                   <a href="tel:+919380002829">
                     <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Phone /> Contact Us</Button>
-
                   </a>
                </nav>
             </SheetContent>

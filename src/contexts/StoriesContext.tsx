@@ -32,21 +32,25 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = getStories((storiesFromDb) => {
-      setStories(storiesFromDb);
-      setLoading(false);
-    });
+  const fetchStories = async () => {
+    setLoading(true);
+    const storiesFromDb = await getStories();
+    setStories(storiesFromDb);
+    setLoading(false);
+  };
 
-    return () => unsubscribe();
+  useEffect(() => {
+    fetchStories();
   }, []);
 
   const addStory = async (story: StoryData) => {
     await addStoryToDb(story);
+    await fetchStories(); // Refetch after adding
   };
 
   const deleteStory = async (id: string) => {
     await deleteStoryFromDb(id);
+    await fetchStories(); // Refetch after deleting
   };
 
   return (
@@ -63,5 +67,3 @@ export function useStories() {
   }
   return context;
 }
-
-    

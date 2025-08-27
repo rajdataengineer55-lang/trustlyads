@@ -1,4 +1,5 @@
 
+
 import { db } from './firebase';
 import { 
     collection, 
@@ -8,7 +9,6 @@ import {
     doc,
     query,
     orderBy,
-    onSnapshot,
     serverTimestamp,
     Timestamp,
 } from 'firebase/firestore';
@@ -34,19 +34,17 @@ const mapDocToStory = (doc: any): Story => {
   } as Story;
 };
 
-// Get all stories with real-time updates, sorted by most recent
-export const getStories = (callback: (stories: Story[]) => void) => {
+// Get all stories, sorted by most recent
+export const getStories = async (): Promise<Story[]> => {
   const q = query(storiesCollection, orderBy('createdAt', 'desc'));
-
-  const unsubscribe = onSnapshot(q, (snapshot) => {
+  try {
+    const snapshot = await getDocs(q);
     const stories = snapshot.docs.map(mapDocToStory);
-    callback(stories);
-  }, (error) => {
+    return stories;
+  } catch (error) {
     console.error("Error fetching stories: ", error);
-    callback([]);
-  });
-
-  return unsubscribe;
+    return [];
+  }
 };
 
 // Add a new story
@@ -63,5 +61,3 @@ export const deleteStory = async (id: string) => {
   const storyDoc = doc(db, 'stories', id);
   await deleteDoc(storyDoc);
 };
-
-    
