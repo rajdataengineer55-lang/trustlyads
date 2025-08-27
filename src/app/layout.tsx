@@ -3,7 +3,6 @@ import { Poppins, PT_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { OffersProvider } from '@/contexts/OffersContext';
-import { StoriesProvider } from '@/contexts/StoriesContext';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -45,9 +44,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <OffersProvider>
-              <StoriesProvider>
-                {children}
-              </StoriesProvider>
+              {children}
             </OffersProvider>
             <Toaster />
           </AuthProvider>

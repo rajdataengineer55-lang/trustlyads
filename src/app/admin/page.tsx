@@ -5,7 +5,6 @@ import { AdGenerator } from "@/components/ad-generator";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
 import { ManageOffers } from "@/components/manage-offers";
-import { StoryGenerator } from "@/components/story-generator";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -100,10 +99,9 @@ export default function AdminPage() {
             <main className="flex-1 bg-background/50">
                  <div className="container mx-auto px-4 md:px-6 py-12">
                      <Tabs defaultValue="post-offer" className="w-full">
-                        <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
+                        <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto">
                             <TabsTrigger value="post-offer">Post Offer</TabsTrigger>
                             <TabsTrigger value="manage-offers">Manage Offers</TabsTrigger>
-                            <TabsTrigger value="post-story">Post Story</TabsTrigger>
                         </TabsList>
                         <TabsContent value="post-offer">
                             <section className="py-12 sm:py-16">
@@ -113,11 +111,6 @@ export default function AdminPage() {
                         <TabsContent value="manage-offers">
                             <section className="py-12 sm:py-16">
                                 <ManageOffers />
-                            </section>
-                        </TabsContent>
-                        <TabsContent value="post-story">
-                             <section className="py-12 sm:py-16">
-                                <StoryGenerator />
                             </section>
                         </TabsContent>
                     </Tabs>
