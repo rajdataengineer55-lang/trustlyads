@@ -31,9 +31,9 @@ This document provides a comprehensive overview of the features, architecture, a
 
 The entire backend is powered by Firebase services, configured in `src/lib/firebase.ts`.
 
-- **Firestore (`db`):** A NoSQL database used to store all application data, including offers, reviews, and followers.
+- **Firestore (`db`):** A NoSQL database used to store all application data, including offers, reviews, and followers. Secured with `firestore.rules`.
 - **Authentication (`auth`):** Manages user sign-in and sessions.
-- **Storage (`storage`):** Stores all user-uploaded media (offer images).
+- **Storage (`storage`):** Stores all user-uploaded media (offer and story images). Secured with `storage.rules`.
 
 #### Firestore Data Model
 
@@ -48,22 +48,22 @@ The entire backend is powered by Firebase services, configured in `src/lib/fireb
   - `clicks`: Number counter for clicks on contact actions.
   - `reviews` (subcollection): Each document is a user review for that offer.
 - `followers` (collection): Each document represents a user who has followed the site.
+- `stories` (collection): Each document represents a temporary story linked to a business offer.
 
-### 3.2. Authentication (`src/contexts/AuthContext.tsx`)
+### 3.2. Authentication (`src/contexts/AuthContext.tsx` & `src/hooks/use-admin.ts`)
 
-- **Admin Login:** The admin signs in using a specific email and password (`dandurajkumarworld24@gmail.com`). This is handled by `signInWithEmail()`.
+- **Admin Login:** The admin signs in using a specific email and password. Upon successful login, the application securely checks for a custom `admin: true` claim on the user's Firebase token. This server-side check is the sole source of truth for admin privileges.
 - **User Login:** Regular users sign in via their Google account (`signInWithGoogle()`).
-- **Global State:** The `AuthProvider` wraps the entire application, providing global access to the current user's state (`user`) and a `loading` status.
-- **Access Control:** The admin page (`src/app/admin/page.tsx`) and contact actions on the offer page (`src/app/offer/[id]/page.tsx`) use the `useAuth()` hook to check user status and conditionally render content.
+- **Global State:** The `AuthProvider` wraps the entire application, providing global access to the current user's state (`user`), a loading status (`loading`), and the secure admin status (`isAdmin`).
+- **Access Control:** The admin page (`src/app/admin/page.tsx`) and all content management features rely on the `useAuth()` hook to check the `isAdmin` status and conditionally render content.
 
 ### 3.3. Offer Management (`src/contexts/OffersContext.tsx`)
 
-This is the central nervous system for all offer-related data.
+This is the central hub for all offer-related data.
 
-- **Real-time Data:** `getOffers()` sets up a real-time listener to the Firestore `offers` collection. Any change in the database (add, update, delete) is instantly reflected in the UI without needing a page refresh.
-- **Data Hydration:** When fetching offers, it also fetches the `reviews` subcollection for each offer, ensuring the full data object is available.
+- **Data Fetching:** The context uses a `fetchOffers()` function to get the complete list of offers and their review subcollections from Firestore. This function is called when the provider mounts and can be called again to refresh data.
 - **CRUD Operations:** The context provides functions to interact with the database:
-  - `addOffer`, `updateOffer`, `deleteOffer`, `addReview`, `toggleOfferVisibility`.
+  - `addOffer`, `updateOffer`, `deleteOffer`, `addReview`, `toggleOfferVisibility`. Each of these functions performs its operation and then calls `fetchOffers()` to ensure the UI is updated with the latest data.
 - **Analytics Tracking:**
   - `incrementOfferView`: Called from the offer detail page to increment the `views` count in Firestore.
   - `incrementOfferClick`: Called when a user clicks a contact button, incrementing the `clicks` count.
@@ -71,7 +71,7 @@ This is the central nervous system for all offer-related data.
 
 ### 3.4. Admin Panel (`src/app/admin/page.tsx`)
 
-This is a protected route, only fully visible to the authorized admin email.
+This is a protected route, only fully visible to an authenticated admin user.
 
 #### Ad Posting & Editing (`src/components/ad-generator.tsx`)
 
@@ -85,39 +85,31 @@ This is a protected route, only fully visible to the authorized admin email.
 
 #### Offer Management Table (`src/components/manage-offers.tsx`)
 
-- Displays all offers in a table format for easy scanning.
+- Displays all offers in a table, allowing the admin to easily manage them.
 - **Analytics:** Shows the `views` and `clicks` for each offer.
 - **Status Badge:** A visual indicator shows if an offer is `Visible` or `Hidden`.
-- **Actions Menu:** A dropdown menu provides all management functions:
-  - **Boost:** Calls the client-side `boostOffer` function.
-  - **Hide/Make Visible:** Toggles the `isHidden` flag in Firestore.
-  - **Edit:** Opens the `AdGenerator` component in a dialog, pre-filled with the offer's data.
-  - **Delete:** Triggers a confirmation dialog before permanently deleting the offer from Firestore.
+- **Actions Menu:** A dropdown menu provides all management functions: Boost, Hide/Make Visible, Edit, and Delete.
 
 ### 3.5. Public User Experience
 
 #### Homepage (`src/app/page.tsx`)
 
 - **Filtering & Searching:** The homepage maintains state for `selectedCategory`, `selectedLocation`, `sortOption`, and `searchTerm`.
-- These state variables are passed down to `FeaturedOffers` and `Filters` components.
-- The `FeaturedOffers` component then filters the global list of offers from `OffersContext` based on these props before rendering them.
+- These state variables are used by the `FeaturedOffers` component to filter the global list of offers from `OffersContext` before rendering them.
 
 #### Offer Details Page (`src/app/offer/[id]/page.tsx`)
 
-- **Data Fetching:** Uses the `useParams()` hook to get the offer `id` from the URL and `getOfferById()` from `OffersContext` to find the correct offer data.
+- **Data Fetching:** Uses the `useParams()` hook to get the offer `id` from the URL and `getOfferById()` from `OffersContext` to find the correct offer data. The component now includes robust loading and not-found states to prevent rendering errors.
 - **View Tracking:** On first load, it calls `incrementOfferView(id)` to log a view for the ad. This is tracked in `sessionStorage` to prevent re-counting on page refresh.
-- **Conditional Contact Actions:** It checks if a user is signed in.
-  - If **yes**, it displays the "Call", "Chat", and "Schedule" buttons. Clicking these buttons calls `incrementOfferClick(id)` before performing the action.
-  - If **no**, it displays a single "Sign in to Contact" button.
-- **Review System:** Signed-in users can submit a review using the form, which calls the `addReview()` function.
+- **Conditional Contact Actions:** It checks if a user is signed in to show contact buttons or a "Sign in" prompt.
+- **Review System:** Signed-in users can submit a review, which calls the `addReview()` function.
 
 ### 3.6. Follower System (`src/lib/followers.ts`)
 
 - A simple system allowing users to "follow" the website.
-- `addFollower`: Creates a document in the `followers` collection using the user's UID as the document ID.
-- `removeFollower`: Deletes the document.
-- `getFollowersCount`: Sets up a real-time listener to the `followers` collection and returns the number of documents (followers), which is displayed in the header.
-- `isFollowing`: Checks if a document for the current user's UID exists, used to determine the state of the "Follow" button.
+- `addFollower` & `removeFollower`: Manages a user's follow status.
+- `getFollowersCount`: Uses an efficient `getCountFromServer` query to get the total number of followers.
+- `isFollowing`: Checks if a specific user is following.
 
 ---
 This documentation should serve as a solid foundation for understanding the application's inner workings.
