@@ -25,7 +25,7 @@ export function Categories({ selectedCategory, setSelectedCategory }: Categories
         <h2 className="text-3xl font-headline font-bold text-center mb-12">
           Explore by Category
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4">
           {categories.map((category) => (
             <Card 
               key={category.name} 
