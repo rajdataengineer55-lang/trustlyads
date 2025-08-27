@@ -1,45 +1,43 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Allow read-only access to stories and reviews through collection group queries
-    match /{path=**}/stories/{storyId} {
-      allow read: if true;
-    }
-    match /{path=**}/reviews/{reviewId} {
-      allow read: if true;
+    // HELPER FUNCTION: Check if the user is the admin.
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
     }
 
-    // Rule for the `offers` collection
+    // OFFERS: Public read, admin write.
     match /offers/{offerId} {
-      // Allow public read access
       allow read: if true;
-      // Allow write access (create, update, delete) only for the specific admin user
-      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+      allow create, update, delete: if isAdmin();
 
-      // Nested rule for reviews within an offer
+      // REVIEWS: Public read, authenticated user write.
       match /reviews/{reviewId} {
-        // Only logged-in users can create reviews
+        allow read: if true;
         allow create: if request.auth != null;
-        // No one can edit or delete reviews
-        allow update, delete: if false;
+        allow update, delete: if false; // Reviews cannot be edited/deleted by users for now.
       }
     }
-    
-    // Rule for the `followers` collection
-    match /followers/{userId} {
-      // Allow anyone to read follower data (e.g., for follower counts)
-      allow read: if true; 
-      // Allow a user to write (follow/unfollow) only to their own document
-      allow write: if request.auth != null && request.auth.uid == userId;
+
+    // STORIES: Public read, admin write.
+    match /stories/{storyId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
-     // Rule for the `stories` collection
-    match /stories/{storyId} {
-      // Allow public read access
+    // FOLLOWERS: Public read, user-specific write.
+    match /followers/{userId} {
+        allow read: if true;
+        allow create: if request.auth != null && request.auth.uid == userId;
+        allow delete: if request.auth.uid == userId;
+    }
+
+    // METADATA: Public read, backend-only write.
+    match /meta/{docId} {
       allow read: if true;
-      // Allow write access only for the admin
-      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+      allow write: if false; // Should only be updated by backend functions.
     }
   }
 }
