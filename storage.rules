@@ -1,26 +1,26 @@
 rules_version = '2';
 
-// 1. All files are private by default.
-// 2. Grant access to a resource to the user who uploaded it.
-// 3. Expose a resource publicly if you want to.
 service firebase.storage {
   match /b/{bucket}/o {
-    // Files in the 'offers' directory
-    match /offers/{allPaths=**} {
-      // Anyone can read images in the 'offers' directory.
-      allow read;
-      
-      // Only the authenticated admin user can write (create, update, delete) files.
-      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+    // Helper function to check if the user is the admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
     }
 
-    // Files in the 'stories' directory
-    match /stories/{allPaths=**} {
-      // Anyone can read images in the 'stories' directory.
+    // --- Offers ---
+    // Anyone can read offer images.
+    // Only the admin can upload, update, or delete offer images.
+    match /offers/{allPaths=**} {
       allow read;
-      
-      // Only the authenticated admin user can write (create, update, delete) files.
-      allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
+      allow write: if isAdmin();
+    }
+
+    // --- Stories ---
+    // Anyone can read story images.
+    // Only the admin can upload, update, or delete story images.
+    match /stories/{allPaths=**} {
+      allow read;
+      allow write: if isAdmin();
     }
   }
 }
