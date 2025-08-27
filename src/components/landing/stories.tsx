@@ -12,11 +12,21 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { ArrowRight } from 'lucide-react';
+import { useMemo } from 'react';
 
+interface StoriesProps {
+  selectedLocation: string | null;
+}
 
-export function Stories() {
+export function Stories({ selectedLocation }: StoriesProps) {
   const { stories, loading } = useStories();
+
+  const filteredStories = useMemo(() => {
+    if (!selectedLocation) {
+      return stories;
+    }
+    return stories.filter(story => story.location === selectedLocation);
+  }, [stories, selectedLocation]);
 
   if (loading) {
     return (
@@ -38,7 +48,7 @@ export function Stories() {
     );
   }
 
-  if(stories.length === 0) {
+  if(filteredStories.length === 0) {
     return null; // Don't render the section if there are no stories
   }
 
@@ -52,13 +62,13 @@ export function Stories() {
         <Carousel
             opts={{
                 align: "start",
-                loop: stories.length > 10,
+                loop: filteredStories.length > 10,
                 dragFree: true,
             }}
             className="w-full"
         >
             <CarouselContent>
-            {stories.map((story) => (
+            {filteredStories.map((story) => (
                 <CarouselItem key={story.id} className="basis-1/4 sm:basis-1/6 md:basis-1/8 lg:basis-1/12">
                     <Link href={`/offer/${story.offerId}`} className="block group text-center">
                         <div className="relative w-20 h-20 mx-auto rounded-full p-1 ring-2 ring-primary/50 group-hover:ring-primary transition-all duration-300">

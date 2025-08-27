@@ -28,7 +28,7 @@ export default function Home() {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
         />
-        <Stories />
+        <Stories selectedLocation={selectedLocation} />
         <Categories
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
