@@ -13,6 +13,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { useMemo } from 'react';
+import { locations } from '@/lib/locations';
 
 interface StoriesProps {
   selectedLocation: string | null;
@@ -25,7 +26,17 @@ export function Stories({ selectedLocation }: StoriesProps) {
     if (!selectedLocation) {
       return stories;
     }
-    return stories.filter(story => story.location === selectedLocation);
+
+    // Find if the selected location is a main location with sub-locations
+    const mainLocation = locations.find(loc => loc.name === selectedLocation && loc.subLocations);
+
+    if (mainLocation && mainLocation.subLocations) {
+      // If a main location is selected, show stories from all its sub-locations
+      return stories.filter(story => mainLocation.subLocations?.includes(story.location));
+    } else {
+      // If a sub-location or a location without sub-locations is selected, do an exact match
+      return stories.filter(story => story.location === selectedLocation);
+    }
   }, [stories, selectedLocation]);
 
   if (loading) {
@@ -49,7 +60,7 @@ export function Stories({ selectedLocation }: StoriesProps) {
   }
 
   if(filteredStories.length === 0) {
-    return null; // Don't render the section if there are no stories
+    return null; // Don't render the section if there are no stories for the filter
   }
 
   return (

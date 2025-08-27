@@ -6,7 +6,7 @@ import { locations } from "@/lib/locations";
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Search, X } from "lucide-react";
-import { categories } from "@/lib/categories";
+import { categories as categoryData } from "@/lib/categories"; // Renamed to avoid conflict
 
 export type SortOption = 'newest' | 'trending';
 
@@ -29,7 +29,7 @@ export function Filters({
     setSortOption,
     selectedCategory,
     setSelectedCategory,
-    categories: filterCategories,
+    categories: filterCategories, // This prop comes from page.tsx and is already named categoryData
     searchTerm,
     setSearchTerm
 }: FiltersProps) {
@@ -84,6 +84,7 @@ export function Filters({
                                     location.subLocations ? (
                                     <SelectGroup key={location.name}>
                                         <SelectLabel>{location.name}</SelectLabel>
+                                        <SelectItem value={location.name}>All of {location.name}</SelectItem>
                                         {location.subLocations.map((sub) => (
                                         <SelectItem key={`${location.name}-${sub}`} value={sub}>
                                             {sub}
