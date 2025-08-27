@@ -20,7 +20,8 @@ import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 
 const formSchema = z.object({
-  location: z.string({ required_error: "Please select a location." }),
+  mainLocation: z.string({ required_error: "Please select a main location." }),
+  subLocation: z.string().optional(),
   businessName: z.string({ required_error: "Please select a business." }),
   storyText: z.string().min(1, "Please enter some text for the story."),
   images: z.custom<FileList>().refine((files) => files?.length > 0, "At least one image is required."),
@@ -34,26 +35,40 @@ export function StoryGenerator() {
   const { offers } = useOffers();
 
   const [businessesInLocation, setBusinessesInLocation] = useState<string[]>([]);
+  const [availableSubLocations, setAvailableSubLocations] = useState<string[]>([]);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { location: "", businessName: "", storyText: "" },
+    defaultValues: { mainLocation: "", subLocation: "", businessName: "", storyText: "" },
   });
 
-  const selectedLocation = form.watch("location");
+  const mainLocationValue = form.watch("mainLocation");
+  const subLocationValue = form.watch("subLocation");
+  const finalLocation = subLocationValue || mainLocationValue;
+
+  useEffect(() => {
+    if (mainLocationValue) {
+      const selectedLoc = locations.find(loc => loc.name === mainLocationValue);
+      setAvailableSubLocations(selectedLoc?.subLocations || []);
+      form.resetField("subLocation");
+      form.resetField("businessName");
+    } else {
+      setAvailableSubLocations([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mainLocationValue]);
   
   useEffect(() => {
-    if (selectedLocation) {
-        const offersInLoc = offers.filter(offer => offer.location === selectedLocation);
+    if (finalLocation) {
+        const offersInLoc = offers.filter(offer => offer.location === finalLocation);
         const uniqueBusinesses = [...new Set(offersInLoc.map(offer => offer.business))];
         setBusinessesInLocation(uniqueBusinesses);
         form.resetField("businessName");
-        form.resetField("storyText");
     } else {
         setBusinessesInLocation([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedLocation, offers]);
+  }, [finalLocation, offers]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -69,8 +84,10 @@ export function StoryGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
+    const locationForQuery = values.subLocation || values.mainLocation;
+
     const businessOffers = offers
-      .filter(o => o.business === values.businessName && o.location === values.location)
+      .filter(o => o.business === values.businessName && o.location === locationForQuery)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     if (businessOffers.length === 0) {
@@ -88,7 +105,7 @@ export function StoryGenerator() {
       await addStory({
         offerId: latestOfferId,
         businessName: values.businessName,
-        location: values.location,
+        location: locationForQuery,
         storyText: values.storyText,
         imageUrls,
       });
@@ -151,10 +168,10 @@ export function StoryGenerator() {
                         />
                          <FormField
                             control={form.control}
-                            name="location"
+                            name="mainLocation"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Location</FormLabel>
+                                    <FormLabel>Main Location</FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
@@ -163,20 +180,7 @@ export function StoryGenerator() {
                                         </FormControl>
                                         <SelectContent>
                                             {locations.map((location) =>
-                                                location.subLocations ? (
-                                                <SelectGroup key={location.name}>
-                                                    <SelectLabel>{location.name}</SelectLabel>
-                                                    {location.subLocations.map((sub) => (
-                                                    <SelectItem key={`${location.name}-${sub}`} value={sub}>
-                                                        {sub}
-                                                    </SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                                ) : (
-                                                <SelectItem key={location.name} value={location.name}>
-                                                    {location.name}
-                                                </SelectItem>
-                                                )
+                                                <SelectItem key={location.name} value={location.name}>{location.name}</SelectItem>
                                             )}
                                         </SelectContent>
                                     </Select>
@@ -184,16 +188,42 @@ export function StoryGenerator() {
                                 </FormItem>
                             )}
                         />
+
+                        {availableSubLocations.length > 0 && (
+                             <FormField
+                                control={form.control}
+                                name="subLocation"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Sub Location</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={`Select a sub-location in ${mainLocationValue}`} />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {availableSubLocations.map((sub) => (
+                                                    <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
+
                          <FormField
                             control={form.control}
                             name="businessName"
                             render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Business Name</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedLocation || businessesInLocation.length === 0}>
+                                <Select onValueChange={field.onChange} value={field.value} disabled={!finalLocation || businessesInLocation.length === 0}>
                                     <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder={!selectedLocation ? "First select a location" : "Step 2: Select a business"} />
+                                            <SelectValue placeholder={!finalLocation ? "First select a location" : "Step 2: Select a business"} />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
@@ -202,7 +232,7 @@ export function StoryGenerator() {
                                                 <SelectItem key={business} value={business}>{business}</SelectItem>
                                             ))
                                         ) : (
-                                            <SelectItem value="no-business" disabled>No businesses found</SelectItem>
+                                            <SelectItem value="no-business" disabled>No businesses found in this location</SelectItem>
                                         )}
                                     </SelectContent>
                                 </Select>
