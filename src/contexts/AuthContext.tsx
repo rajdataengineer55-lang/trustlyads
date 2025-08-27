@@ -36,9 +36,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setLoading(true);
       if (user) {
+        console.log("AuthContext: Logged in UID:", user.uid);
         setUser(user);
         setIsAdmin(user.email === ADMIN_EMAIL);
       } else {
+        console.log("AuthContext: Not logged in!");
         setUser(null);
         setIsAdmin(false);
       }
