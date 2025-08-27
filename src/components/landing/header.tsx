@@ -55,6 +55,36 @@ export function Header() {
     )
   }
 
+  const LocationDropdown = () => (
+     <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground">
+            <MapPin className="h-5 w-5" />
+            <span>Locations</span>
+            <ChevronDown className="h-4 w-4 ml-auto" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {locations.map((location) => (
+            location.subLocations ? (
+              <DropdownMenuSub key={location.name}>
+                <DropdownMenuSubTrigger>{location.name}</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    {location.subLocations.map((subLocation) => (
+                      <DropdownMenuItem key={subLocation}>{subLocation}</DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+            ) : (
+              <DropdownMenuItem key={location.name}>{location.name}</DropdownMenuItem>
+            )
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+  );
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -138,12 +168,14 @@ export function Header() {
                   </Link>
                 </SheetTitle>
               </SheetHeader>
-               <nav className="flex flex-col gap-4 py-6">
-                  <div className="px-4">
-                     <ThemeToggle />
-                  </div>
-                   {user ? (
+               <nav className="flex flex-col gap-2 py-6">
+                  {user ? (
                     <>
+                      <div className='px-4 mb-2'>
+                        <p className='text-sm font-medium'>{user.displayName}</p>
+                        <p className='text-xs text-muted-foreground'>{user.email}</p>
+                      </div>
+                      <DropdownMenuSeparator />
                       <Link href="/admin" passHref>
                         <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><User /> Admin</Button>
                       </Link>
@@ -152,16 +184,25 @@ export function Header() {
                   ) : (
                     <Button className="w-full" onClick={() => { signInWithGoogle(); setIsMobileMenuOpen(false); }}><LogIn /> Sign In</Button>
                   )}
-                  <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button className="w-full">Post Your Business</Button>
-                  </a>
+
+                  <DropdownMenuSeparator />
                   
+                  <LocationDropdown />
+
                   <Link href="/about" passHref>
                     <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Info /> About</Button>
                   </Link>
                   <a href="tel:+919380002829">
                     <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Phone /> Contact Us</Button>
                   </a>
+                  
+                  <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button className="w-full mt-4">Post Your Business</Button>
+                  </a>
+
+                  <div className="absolute bottom-4 right-4">
+                     <ThemeToggle />
+                  </div>
                </nav>
             </SheetContent>
           </Sheet>
