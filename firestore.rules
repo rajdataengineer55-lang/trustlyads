@@ -1,34 +1,42 @@
-
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Offers can be read by anyone, but only created, updated, or deleted by an admin.
-    match /offers/{offerId} {
-      allow read: if true;
-      allow write: if request.auth.token.admin == true;
+    // Helper function to check for admin custom claim
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
 
-      // Reviews can be read by anyone.
-      // They can only be created by signed-in users.
-      // They can only be deleted by an admin.
+    // Offers can be read by anyone if they are not hidden.
+    // Admins can read all offers.
+    // Only admins can write/update/delete offers.
+    match /offers/{offerId} {
+      allow get: if resource.data.isHidden == false || isAdmin();
+      allow list: if isAdmin() || (query.filters.size() == 0 || (query.filters.size() == 1 && query.filters[0][0] == 'isHidden' && query.filters[0][2] == false));
+      allow write: if isAdmin();
+
+      // Reviews can be read by anyone who can see the offer.
+      // Only authenticated users can create a review.
       match /reviews/{reviewId} {
-        allow read: if true;
+        allow read: if get(/databases/$(database)/documents/offers/$(offerId)).data.isHidden == false || isAdmin();
         allow create: if request.auth != null;
-        allow delete: if request.auth.token.admin == true;
+        allow update, delete: if false; // Reviews cannot be edited or deleted by users
       }
     }
 
-    // Stories can be read by anyone, but only created or deleted by an admin.
-    match /stories/{storyId} {
-      allow read: if true;
-      allow write: if request.auth.token.admin == true;
-    }
-
-    // Followers can be read by anyone (for follower count).
-    // Only signed-in users can follow/unfollow (write to their own follower doc).
+    // Followers can be read by anyone.
+    // Only authenticated users can follow/unfollow (create/delete their own doc).
     match /followers/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow create, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Stories can be read by anyone.
+    // Only admins can write stories.
+    match /stories/{storyId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }
