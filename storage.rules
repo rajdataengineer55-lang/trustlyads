@@ -2,22 +2,14 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // --- Public Read Access ---
-    // Anyone can read files from the 'offers' and 'stories' folders.
-    match /offers/{allPaths=**} {
-      allow get: if true;
-    }
-    match /stories/{allPaths=**} {
-      allow get: if true;
+    // Allow public read access to all files in the 'offers' and 'stories' folders.
+    match /{folder}/{allPaths=**} {
+      allow read: if folder == 'offers' || folder == 'stories';
     }
 
-    // --- Admin Write Access ---
-    // Only the admin can write (upload, update, delete) to the 'offers' and 'stories' folders.
-    // The UID '8dbJ55nXdEXaOrlV4XosUMOq5E83' belongs to 'dandurajkumarworld24@gmail.com'.
-    match /{folder}/{allPaths=**}
-      where folder in ['offers', 'stories'] {
-        allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+    // Allow the admin user to write (create, update, delete) files.
+    match /{allPaths=**} {
+        allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5E83";
     }
   }
 }

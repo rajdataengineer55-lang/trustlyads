@@ -4,12 +4,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // --- Public Access Rules ---
-    // Anyone can read offers and stories.
-    // Any signed-in user can create a review.
-
+    // Allow anyone to read offers and stories collections.
     match /offers/{offerId} {
       allow read: if true;
       
+      // Allow anyone to read reviews, but only logged-in users can create them.
       match /reviews/{reviewId} {
         allow read: if true;
         allow create: if request.auth != null;
@@ -20,16 +19,12 @@ service cloud.firestore {
       allow read: if true;
     }
 
-    // --- Admin-specific Write Rules ---
-    // The admin has write access to all collections needed for the app.
-    // This is better than a single wildcard to avoid accidental conflicts.
-    
-    match /offers/{offerId} {
-      allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5E83";
-    }
-
-    match /stories/{storyId} {
-       allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5E83";
+    // --- Admin-Only Write Rules ---
+    // The admin has full write access to all collections.
+    // This rule is checked AFTER the public read rules. It does not override them.
+    // It grants ADDITIONAL write permission to the admin.
+    match /{path=**} {
+        allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5E83";
     }
   }
 }
