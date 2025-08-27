@@ -1,28 +1,28 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // --- Admin Full Access ---
-    // The admin (UID: 8dbJ55nXdEXaOrlV4XosUMOq5E83) can write, update, and delete anything.
-    match /{document=**} {
-      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
-    }
 
-    // --- Public Read Access ---
-    // Anyone can read lists of offers, stories, and reviews.
-    // They can also read individual documents if they are not hidden.
+    // Rule 1: Public Read Access
+    // Allow anyone to read offers, stories, and reviews.
+    // The "list" permission is crucial for querying collections.
     match /offers/{offerId} {
-      allow get: if resource.data.isHidden == false || request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
+      allow read: if resource.data.isHidden == false || request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
       allow list: if true;
     }
 
     match /stories/{storyId} {
-      allow read: if true;
+      allow read, list: if true;
     }
 
     match /offers/{offerId}/reviews/{reviewId} {
-      allow read: if true;
+      allow read, list: if true;
+    }
+
+    // Rule 2: Admin Write Access
+    // The admin has full write access (create, update, delete) everywhere.
+    // This rule is layered on top of the public read rules.
+    match /{document=**} {
+      allow write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUMOq5E83';
     }
   }
 }
