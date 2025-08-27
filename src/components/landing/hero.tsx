@@ -36,8 +36,8 @@ export function Hero({ searchTerm, setSearchTerm }: HeroProps) {
             </div>
           </div>
           <div className="mt-6 flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Link href="#featured-offers">
-              <Button size="lg" className="rounded-full font-semibold w-full sm:w-auto">Explore Offers</Button>
+            <Link href="#featured-offers" className="w-full sm:w-auto">
+              <Button size="lg" className="rounded-full font-semibold w-full">Explore Offers</Button>
             </Link>
             <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="rounded-full font-semibold bg-background w-full">Post Your Business</Button>
