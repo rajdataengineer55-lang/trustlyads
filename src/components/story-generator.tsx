@@ -16,19 +16,19 @@ import { uploadFile } from "@/lib/storage";
 import { useStories, type Story } from "@/contexts/StoriesContext";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { locations } from "@/lib/locations";
-import { useOffers, type Offer } from "@/contexts/OffersContext";
+import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 
 const formSchema = z.object({
   location: z.string({ required_error: "Please select a location." }),
   businessName: z.string({ required_error: "Please select a business." }),
   storyText: z.string().min(1, "Please enter some text for the story."),
-  image: z.custom<FileList>().refine((files) => files?.length > 0, "An image is required."),
+  images: z.custom<FileList>().refine((files) => files?.length > 0, "At least one image is required."),
 });
 
 export function StoryGenerator() {
   const [isLoading, setIsLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const { toast } = useToast();
   const { addStory, deleteStory, stories } = useStories();
   const { offers } = useOffers();
@@ -56,14 +56,13 @@ export function StoryGenerator() {
   }, [selectedLocation, offers]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      form.setValue('image', e.target.files as FileList);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newFilePreviews = Array.from(files).map(file => URL.createObjectURL(file));
+      setImagePreviews(newFilePreviews);
+      form.setValue('images', files);
+    } else {
+      setImagePreviews([]);
     }
   };
 
@@ -83,18 +82,20 @@ export function StoryGenerator() {
     const latestOfferId = businessOffers[0].id;
 
     try {
-      const imageUrl = await uploadFile(values.image[0], 'stories');
+      const uploadPromises = Array.from(values.images).map(file => uploadFile(file, 'stories'));
+      const imageUrls = await Promise.all(uploadPromises);
+
       await addStory({
         offerId: latestOfferId,
         businessName: values.businessName,
         location: values.location,
         storyText: values.storyText,
-        imageUrl,
+        imageUrls,
       });
 
       toast({ title: "Story Posted!", description: "The new story has been added successfully." });
       form.reset();
-      setImagePreview(null);
+      setImagePreviews([]);
     } catch (error) {
       console.error("Failed to post story:", error);
       toast({ variant: "destructive", title: "Post Failed", description: "Could not post the story." });
@@ -121,23 +122,27 @@ export function StoryGenerator() {
             <Card>
                 <CardHeader>
                 <CardTitle>Post a New Story</CardTitle>
-                <CardDescription>Upload an image and link it to a business.</CardDescription>
+                <CardDescription>Upload one or more images and link them to a business.</CardDescription>
                 </CardHeader>
                 <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <FormField
                             control={form.control}
-                            name="image"
+                            name="images"
                             render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Story Image</FormLabel>
+                                <FormLabel>Story Images</FormLabel>
                                 <FormControl>
-                                <Input type="file" accept="image/*" onChange={handleImageChange} />
+                                <Input type="file" accept="image/*" multiple onChange={handleImageChange} />
                                 </FormControl>
-                                {imagePreview && (
-                                <div className="mt-4 relative w-32 h-48 rounded-lg overflow-hidden mx-auto">
-                                    <Image src={imagePreview} alt="Image preview" fill className="object-cover" />
+                                {imagePreviews.length > 0 && (
+                                <div className="mt-4 grid grid-cols-3 gap-2">
+                                  {imagePreviews.map((src, index) => (
+                                    <div key={index} className="relative w-full aspect-square rounded-md overflow-hidden">
+                                        <Image src={src} alt={`Image preview ${index+1}`} fill className="object-cover" />
+                                    </div>
+                                  ))}
                                 </div>
                                 )}
                                 <FormMessage />
@@ -235,7 +240,7 @@ export function StoryGenerator() {
                     {stories.length === 0 && <p className="text-muted-foreground text-center">No stories posted yet.</p>}
                     {stories.map(story => (
                         <div key={story.id} className="flex items-center gap-4 p-2 rounded-md border">
-                            <Image src={story.imageUrl} alt={story.businessName} width={40} height={60} className="rounded-md object-cover" />
+                            <Image src={story.imageUrls[0]} alt={story.businessName} width={40} height={60} className="rounded-md object-cover" />
                             <div className="flex-grow">
                                 <p className="font-semibold">{story.businessName}</p>
                                 <p className="text-xs text-muted-foreground">{story.location}</p>

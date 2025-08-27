@@ -36,18 +36,22 @@ export const uploadFile = async (file: File, destination: 'offers' | 'stories' |
  * @param files The FileList object from the file input.
  * @returns A promise that resolves with an array of download URLs.
  */
-export const uploadMultipleFiles = async (files: FileList): Promise<string[]> => {
+export const uploadMultipleFiles = async (files: FileList | File[]): Promise<string[]> => {
   if (!files || files.length === 0) {
     return [];
   }
 
-  const uploadPromises: Promise<string>[] = Array.from(files).map(file => uploadFile(file, 'offers'));
+  const filesArray = Array.from(files);
 
+  // This function is currently only used for offers, so it hardcodes the 'offers' destination.
+  // If it needs to be used for other types like 'stories', this should be refactored to accept a destination parameter.
+  const uploadPromises: Promise<string>[] = filesArray.map(file => uploadFile(file, 'offers'));
+  
   try {
-    const urls = await Promise.all(uploadPromises);
-    return urls;
+    const downloadURLs = await Promise.all(uploadPromises);
+    return downloadURLs;
   } catch (error) {
-    console.error('Error during file uploads:', error);
-    throw error; // Re-throw the error to be handled in the component
+    console.error("Multiple file upload failed:", error);
+    throw error;
   }
 };

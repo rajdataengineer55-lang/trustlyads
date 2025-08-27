@@ -11,7 +11,7 @@ import {
 
 export interface Story {
   id: string;
-  imageUrl: string;
+  imageUrls: string[];
   businessName: string;
   location: string;
   storyText: string;

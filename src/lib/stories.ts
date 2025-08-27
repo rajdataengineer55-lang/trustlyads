@@ -15,7 +15,7 @@ import {
 import type { Story } from '@/contexts/StoriesContext';
 
 export interface StoryData {
-  imageUrl: string;
+  imageUrls: string[];
   businessName: string;
   location: string;
   storyText: string;

@@ -73,13 +73,15 @@ export function Stories({ selectedLocation }: StoriesProps) {
                     <Link href={`/offer/${story.offerId}`} className="block group text-center">
                         <div className="relative w-20 h-20 mx-auto rounded-full p-1 ring-2 ring-primary/50 group-hover:ring-primary transition-all duration-300">
                              <div className="relative w-full h-full rounded-full overflow-hidden">
-                                <Image
-                                    src={story.imageUrl}
-                                    alt={`Story from ${story.businessName}`}
-                                    fill
-                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                    sizes="80px"
-                                />
+                                {story.imageUrls && story.imageUrls.length > 0 && (
+                                    <Image
+                                        src={story.imageUrls[0]}
+                                        alt={`Story from ${story.businessName}`}
+                                        fill
+                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        sizes="80px"
+                                    />
+                                )}
                              </div>
                         </div>
                         <p className="mt-2 text-xs font-semibold truncate text-foreground group-hover:text-primary transition-colors">
