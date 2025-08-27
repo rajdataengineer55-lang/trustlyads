@@ -1,26 +1,27 @@
-
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Admin access for your real UID
+    
+    // Admin full access
     match /{document=**} {
       allow read, write: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUM0PTKe2';
     }
 
-    // Public access rules
+    // Public stories
+    match /stories/{storyId} {
+      allow read: if true; // anyone can view stories
+      allow create: if request.auth != null; // only logged-in users can post
+      allow delete: if request.auth.uid == '8dbJ55nXdEXaOrlV4XosUM0PTKe2'; // only YOU (admin) can delete
+    }
+
+    // Offers
     match /offers/{offerId} {
       allow read: if true;
 
       match /reviews/{reviewId} {
         allow read: if true;
-        allow create: if request.auth != null;
+        allow create: if request.auth != null; // any logged-in user can add review
       }
-    }
-
-    match /stories/{storyId} {
-      allow read: if true;
     }
   }
 }
