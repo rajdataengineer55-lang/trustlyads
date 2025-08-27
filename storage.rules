@@ -2,13 +2,21 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // Rules for all files
-    // - Public read access is granted to all files.
-    // - Write access is restricted to authenticated admins only.
-    match /{allPaths=**} {
+    
+    // --- Offers Folder ---
+    // Anyone can read images in the 'offers' folder.
+    // Only admins can write to the 'offers' folder.
+    match /offers/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.admin == true;
+      allow write: if request.auth.token.admin == true;
+    }
+
+    // --- Stories Folder ---
+    // Anyone can read images in the 'stories' folder.
+    // Only admins can write to the 'stories' folder.
+    match /stories/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth.token.admin == true;
     }
   }
 }
