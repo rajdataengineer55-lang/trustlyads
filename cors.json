@@ -1,3 +1,4 @@
+
 [
   {
     "origin": [
@@ -5,19 +6,20 @@
       "http://localhost:9003",
       "https://6000-firebase-studio-1755798338059.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev",
       "https://localpulse-9e3lz.web.app",
-      "https://localpulse-9e3lz.firebaseapp.com"
+      "https://localpulse-9e3lz.firebaseapp.com",
+      "https://trustlyads.in"
     ],
     "method": [
       "GET",
-      "PUT",
       "POST",
+      "PUT",
       "DELETE",
       "OPTIONS"
     ],
     "responseHeader": [
       "Content-Type",
-      "x-goog-resumable",
-      "Access-Control-Allow-Origin"
+      "Access-Control-Allow-Origin",
+      "x-goog-resumable"
     ],
     "maxAgeSeconds": 3600
   }

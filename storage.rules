@@ -1,12 +1,15 @@
+
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
+    
     // Allow public read access to all files
     match /{allPaths=**} {
-      allow read: if true;
+      allow read;
     }
 
-    // Allow write access only for the admin on specific paths
+    // Allow admin write access only to the 'offers' and 'stories' folders
     match /offers/{allPaths=**} {
       allow write: if request.auth != null && request.auth.token.email == 'dandurajkumarworld24@gmail.com';
     }
