@@ -2,16 +2,21 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-
-    function isAdmin() {
-      return request.auth.uid == "8dbJ55nXdEXaOrlV4XosUM0PTKe2";
+    
+    // Default deny all access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // Allow public read access to offer and story images
+    match /offers/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth.token.admin == true;
     }
 
-    // All files can be publicly read
-    // Only the admin can upload, update, or delete any file
-    match /{allPaths=**} {
+    match /stories/{allPaths=**} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if request.auth.token.admin == true;
     }
   }
 }
