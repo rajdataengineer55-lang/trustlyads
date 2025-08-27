@@ -3,14 +3,20 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Allow public read access to all files in 'offers' and 'stories' folders.
-    match /{folder}/{allPaths=**} {
-      allow read: if folder == 'offers' || folder == 'stories';
+    // --- Public Read Access ---
+    // Anyone can read files from any folder.
+    match /{allPaths=**} {
+      allow read: if true;
     }
-    
-    // Allow write access ONLY for the admin user in 'offers' and 'stories' folders.
-    match /{folder}/{allPaths=**} {
-      allow write: if (folder == 'offers' || folder == 'stories') && request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5E83";
+
+    // --- Admin Write Access ---
+    // Allow the admin to write to the 'offers' and 'stories' folders.
+    match /offers/{allPaths=**} {
+      allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUM0PTKe2";
+    }
+
+    match /stories/{allPaths=**} {
+      allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUM0PTKe2";
     }
   }
 }

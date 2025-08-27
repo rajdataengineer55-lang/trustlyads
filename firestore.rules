@@ -3,13 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // --- Admin Override ---
-    // This rule must come first to be evaluated correctly for the admin.
-    match /{document=**} {
-      allow read, write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUMOq5E83";
-    }
-
-    // --- Public Read Access Rules ---
+    // --- Public Access & Logged-in User Rules ---
 
     // Offers can be read by anyone.
     match /offers/{offerId} {
@@ -25,6 +19,14 @@ service cloud.firestore {
     // Stories can be read by anyone.
     match /stories/{storyId} {
       allow read: if true;
+    }
+    
+    // --- Admin-Specific Write Rules ---
+    
+    // The admin has full write access (create, update, delete) to everything.
+    // This rule is checked *in addition* to the read rules above.
+    match /{document=**} {
+      allow write: if request.auth.uid == "8dbJ55nXdEXaOrlV4XosUM0PTKe2";
     }
   }
 }
