@@ -8,11 +8,9 @@ import {
   setDoc,
   deleteDoc,
   getDoc,
-  onSnapshot,
   query,
   getCountFromServer,
 } from 'firebase/firestore';
-import type { User } from 'firebase/auth';
 
 const followersCollection = collection(db, 'followers');
 
@@ -53,15 +51,17 @@ export const isFollowing = async (userId: string): Promise<boolean> => {
 };
 
 /**
- * Subscribes to real-time updates of the followers count.
- * @param callback A function to call with the new count.
- * @returns An unsubscribe function.
+ * Gets the total count of followers from the server.
+ * This is more efficient than fetching all documents.
+ * @returns A promise that resolves to the number of followers.
  */
-export const getFollowersCount = (callback: (count: number) => void) => {
-  const q = query(followersCollection);
-  // onSnapshot is more efficient for real-time counts than getCountFromServer
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    callback(snapshot.size);
-  });
-  return unsubscribe;
+export const getFollowersCount = async (): Promise<number> => {
+  try {
+    const q = query(followersCollection);
+    const snapshot = await getCountFromServer(q);
+    return snapshot.data().count;
+  } catch (error) {
+    console.error("Error getting followers count: ", error);
+    return 0;
+  }
 };

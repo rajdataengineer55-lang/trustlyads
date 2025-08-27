@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogIn, LogOut, Heart } from "lucide-react"
@@ -24,11 +24,13 @@ export function Header() {
   const [followersCount, setFollowersCount] = useState(0);
   const [isFollowLoading, setIsFollowLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = getFollowersCount(setFollowersCount);
-    
+  const fetchFollowerData = useCallback(async () => {
+    setIsFollowLoading(true);
+    // Fetch the count regardless of user state
+    getFollowersCount().then(setFollowersCount);
+
     if (user) {
-      setIsFollowLoading(true);
+      // Check following status only if user is logged in
       isFollowing(user.uid).then(status => {
         setFollowing(status);
         setIsFollowLoading(false);
@@ -37,9 +39,12 @@ export function Header() {
       setFollowing(false);
       setIsFollowLoading(false);
     }
-
-    return () => unsubscribe();
   }, [user]);
+
+  useEffect(() => {
+    fetchFollowerData();
+  }, [fetchFollowerData]);
+
 
   const handleFollowToggle = async () => {
     if (!user) {
@@ -52,15 +57,19 @@ export function Header() {
       if (following) {
         await removeFollower(user.uid);
         setFollowing(false);
+        setFollowersCount(prev => prev - 1); // Optimistically update count
         toast({ title: "Unfollowed", description: "You are no longer following." });
       } else {
         await addFollower(user.uid);
         setFollowing(true);
+        setFollowersCount(prev => prev + 1); // Optimistically update count
         toast({ title: "Followed!", description: "Thanks for following!" });
       }
     } catch (error) {
       console.error("Failed to toggle follow status:", error);
       toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
+      // If there was an error, refetch the real data to correct optimistic updates
+      fetchFollowerData();
     } finally {
       setIsFollowLoading(false);
     }
