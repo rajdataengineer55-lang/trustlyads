@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+        pathname: "/v0/b/localpulse-9e3lz.firebasestorage.app/o/**",
+      },
+      {
+        protocol: "https",
         hostname: "placehold.co",
         pathname: "/**",
       },
