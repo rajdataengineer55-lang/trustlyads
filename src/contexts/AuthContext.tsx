@@ -5,7 +5,7 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback 
 import { 
   onAuthStateChanged, 
   GoogleAuthProvider, 
-  signInWithPopup, 
+  signInWithRedirect, 
   signOut as firebaseSignOut, 
   signInWithEmailAndPassword,
   setPersistence,
@@ -69,18 +69,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      toast({
-        title: "Signed In",
-        description: "You have successfully signed in.",
-      });
-      // The onAuthStateChanged listener will handle the rest
+      // Use signInWithRedirect instead of signInWithPopup
+      await signInWithRedirect(auth, provider);
+      // No toast here, as the page will redirect away. 
+      // The onAuthStateChanged listener will handle the user state upon return.
     } catch (error: any) {
-      // Don't show an error toast if the user closes the popup
-      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-        return;
-      }
-      
       console.error("Error signing in with Google:", error);
       toast({
         variant: "destructive",
