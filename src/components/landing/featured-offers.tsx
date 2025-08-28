@@ -116,6 +116,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAndSortedOffers.map((offer) => {
             const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
+            const imageUrl = offer.image || 'https://placehold.co/600x400.png';
 
             return (
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
@@ -123,7 +124,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                       <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
                         <div className="relative aspect-[4/3] w-full">
                           <Image
-                            src={offer.image ? safeDecodeURIComponent(offer.image) : 'https://placehold.co/600x400.png'}
+                            src={imageUrl.includes('firebasestorage.googleapis.com') ? safeDecodeURIComponent(imageUrl) : imageUrl}
                             alt={offer.title}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -190,3 +191,5 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     </>
   );
 }
+
+    

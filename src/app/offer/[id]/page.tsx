@@ -213,6 +213,7 @@ export default function OfferDetailsPage() {
 
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
   const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean) as string[];
+  const mainImageUrl = mainImage || 'https://placehold.co/600x400.png';
 
   const LocationInfo = () => (
     <div className="flex items-start text-muted-foreground mb-4">
@@ -260,7 +261,7 @@ export default function OfferDetailsPage() {
                 <div className="lg:col-span-3">
                     <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
                         <Image
-                            src={mainImage ? safeDecodeURIComponent(mainImage) : 'https://placehold.co/600x400.png'}
+                            src={mainImageUrl.includes('firebasestorage.googleapis.com') ? safeDecodeURIComponent(mainImageUrl) : mainImageUrl}
                             alt={offer.title}
                             fill
                             className="object-cover transition-all duration-300 ease-in-out hover:scale-105"
@@ -288,10 +289,12 @@ export default function OfferDetailsPage() {
 
                     {allImages.length > 1 && (
                       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
-                          {allImages.map((img, i) => (
+                          {allImages.map((img, i) => {
+                            const imageUrl = img || 'https://placehold.co/100x100.png';
+                            return (
                               <div key={i} className="relative aspect-square cursor-pointer" onClick={() => setMainImage(img)}>
                                 <Image 
-                                  src={safeDecodeURIComponent(img)} 
+                                  src={imageUrl.includes('firebasestorage.googleapis.com') ? safeDecodeURIComponent(imageUrl) : imageUrl} 
                                   alt={`thumbnail ${i + 1}`} 
                                   fill 
                                   className={cn("rounded-md object-cover transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
@@ -299,7 +302,8 @@ export default function OfferDetailsPage() {
                                   sizes="10vw" 
                                 />
                               </div>
-                          ))}
+                            )
+                          })}
                       </div>
                     )}
                 </div>
@@ -479,47 +483,50 @@ export default function OfferDetailsPage() {
                   Similar Offers
                 </h2>
                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {similarOffers.map((similarOffer) => (
-                    <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
-                      <CardContent className="p-0">
-                        <Link href={`/offer/${similarOffer.id}`} passHref className="block">
-                          <div className="relative aspect-[4/3]">
-                            <Image
-                              src={similarOffer.image ? safeDecodeURIComponent(similarOffer.image) : 'https://placehold.co/600x400.png'}
-                              alt={similarOffer.title}
-                              fill
-                              className="object-cover transition-transform duration-300 group-hover:scale-105"
-                              data-ai-hint={similarOffer.hint}
-                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                                <h3 className="text-lg font-headline font-bold text-white truncate">{similarOffer.title}</h3>
+                  {similarOffers.map((similarOffer) => {
+                    const imageUrl = similarOffer.image || 'https://placehold.co/600x400.png';
+                    return (
+                      <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
+                        <CardContent className="p-0">
+                          <Link href={`/offer/${similarOffer.id}`} passHref className="block">
+                            <div className="relative aspect-[4/3]">
+                              <Image
+                                src={imageUrl.includes('firebasestorage.googleapis.com') ? safeDecodeURIComponent(imageUrl) : imageUrl}
+                                alt={similarOffer.title}
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                data-ai-hint={similarOffer.hint}
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              />
+                              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                                  <h3 className="text-lg font-headline font-bold text-white truncate">{similarOffer.title}</h3>
+                              </div>
+                              <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
+                                {similarOffer.discount}
+                              </Badge>
                             </div>
-                            <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
-                              {similarOffer.discount}
-                            </Badge>
-                          </div>
-                        </Link>
-                        <div className="p-4 sm:p-6 bg-card">
-                          <div className="flex items-center text-sm text-muted-foreground mb-3">
-                              <MapPin className="h-4 w-4 mr-2 shrink-0" />
-                              <span className="truncate">{similarOffer.location}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {similarOffer.tags?.slice(0, 3).map((tag) => (
-                              <Badge key={tag} variant="secondary">{tag}</Badge>                            
-                            ))}
-                          </div>
-                          <Link href={`/offer/${similarOffer.id}`} passHref>
-                            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                                 View Details
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
                           </Link>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                          <div className="p-4 sm:p-6 bg-card">
+                            <div className="flex items-center text-sm text-muted-foreground mb-3">
+                                <MapPin className="h-4 w-4 mr-2 shrink-0" />
+                                <span className="truncate">{similarOffer.location}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              {similarOffer.tags?.slice(0, 3).map((tag) => (
+                                <Badge key={tag} variant="secondary">{tag}</Badge>                            
+                              ))}
+                            </div>
+                            <Link href={`/offer/${similarOffer.id}`} passHref>
+                              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                                   View Details
+                                  <ArrowRight className="ml-2 h-4 w-4" />
+                              </Button>
+                            </Link>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
                  </div>
               </div>
             )}
@@ -530,3 +537,5 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    
