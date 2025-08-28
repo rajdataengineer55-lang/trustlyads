@@ -17,12 +17,13 @@ export const uploadFile = async (
   }
 
   const fileId = uuidv4();
-  const filePath = `${destination}/${fileId}-${file.name}`;
+  // Encode the filename to handle spaces, parentheses, etc.
+  const safeFileName = encodeURIComponent(file.name);
+  const filePath = `${destination}/${fileId}-${safeFileName}`;
   const fileRef = ref(storage, filePath);
 
   try {
     const snapshot = await uploadBytes(fileRef, file);
-    // The download URL will now be correct because of the updated firebase.ts config
     const downloadURL = await getDownloadURL(snapshot.ref);
     return downloadURL;
   } catch (error) {
