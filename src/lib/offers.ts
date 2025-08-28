@@ -1,6 +1,6 @@
 
 
-import { db, auth } from './firebase';
+import { db } from './firebase';
 import { 
     collection, 
     addDoc, 
@@ -55,23 +55,19 @@ const mapDocToOffer = (doc: any): Offer => {
     reviews: data.reviews || [], // Initialize with empty array
     views: data.views || 0,
     clicks: data.clicks || 0,
-    storyViews: data.storyViews || 0, // This will be updated separately now
+    storyViews: data.storyViews || 0,
   } as Offer;
 };
 
 // Get all offers with subcollection of reviews
 export const getOffers = async (): Promise<Offer[]> => {
-  const isAdmin = auth.currentUser && (await auth.currentUser.getIdTokenResult(true)).claims.admin;
-  
-  let offersQuery;
-  if (isAdmin) {
-    // Admins get all offers, including hidden ones, sorted by date
-    offersQuery = query(offersCollection, orderBy('createdAt', 'desc'));
-  } else {
-    // Regular users only get visible offers, sorted by date.
-    // This requires a composite index: (isHidden, createdAt)
-    offersQuery = query(offersCollection, where('isHidden', '==', false), orderBy('createdAt', 'desc'));
-  }
+  // This function runs on the server, where `auth.currentUser` is not available.
+  // We fetch only visible offers, and rely on security rules to control admin access to hidden ones.
+  const offersQuery = query(
+    offersCollection, 
+    where('isHidden', '!=', true), 
+    orderBy('createdAt', 'desc')
+  );
 
   try {
     const offersSnapshot = await getDocs(offersQuery);
@@ -92,23 +88,13 @@ export const getOffers = async (): Promise<Offer[]> => {
             } as Review;
         });
         offer.reviews = reviews;
-
-        // The expensive and permission-heavy story view aggregation is removed from here.
-        // It's more secure and efficient to calculate this on-demand or with a separate process.
-        const storiesRef = collection(db, 'stories');
-        const storiesQuery = query(storiesRef, where('offerId', '==', offer.id));
-        const storiesSnapshot = await getDocs(storiesQuery);
-        let totalStoryViews = 0;
-        storiesSnapshot.forEach(storyDoc => {
-          totalStoryViews += storyDoc.data().views || 0;
-        });
-        offer.storyViews = totalStoryViews;
-
+        
         return offer;
     }));
     return offers;
   } catch (error) {
     console.error("Error fetching offers: ", error);
+    // Return empty array on error to prevent site crash
     return [];
   }
 };
