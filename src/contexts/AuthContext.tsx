@@ -6,6 +6,7 @@ import {
   onAuthStateChanged, 
   GoogleAuthProvider, 
   signInWithRedirect, 
+  getRedirectResult,
   signOut as firebaseSignOut, 
   signInWithEmailAndPassword,
   setPersistence,
@@ -14,7 +15,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { useAdmin } from '@/hooks/use-admin'; // Import the new hook
+import { useAdmin } from '@/hooks/use-admin';
 
 interface AuthContextType {
   user: User | null;
@@ -33,46 +34,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   
-  // Use the new hook to check for admin claims
   const { isAdmin, isCheckingAdmin, checkAdminStatus } = useAdmin();
 
   useEffect(() => {
-    // Set persistence to 'session' before setting up the auth state listener.
-    // This ensures the user is logged out when the browser session ends.
-    setPersistence(auth, browserSessionPersistence)
-      .then(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-          setLoading(true);
-          if (user) {
-            console.log("AuthContext: Logged in UID:", user.uid);
-            setUser(user);
-            // When auth state changes, trigger the admin check
-            await checkAdminStatus(user);
-          } else {
-            console.log("AuthContext: Not logged in!");
-            setUser(null);
-            // Clear admin status on sign-out
-            await checkAdminStatus(null);
-          }
-          setLoading(false);
+    const initializeAuth = async () => {
+      try {
+        await setPersistence(auth, browserSessionPersistence);
+
+        // Check for redirect result first
+        const result = await getRedirectResult(auth);
+        if (result) {
+          // This means a sign-in just completed.
+          // onAuthStateChanged will handle setting the user.
+          toast({
+            title: "Signed In",
+            description: `Welcome, ${result.user.displayName}!`,
+          });
+        }
+      } catch (error: any) {
+        console.error("Error during auth initialization or redirect:", error);
+        toast({
+          variant: "destructive",
+          title: "Sign In Failed",
+          description: "Could not complete sign in after redirect. Please try again.",
         });
-        
-        return () => unsubscribe();
-      })
-      .catch((error) => {
-        console.error("Error setting auth persistence:", error);
+      }
+
+      // Now, set up the listener for ongoing auth state changes.
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        setLoading(true);
+        if (currentUser) {
+          console.log("AuthContext: User state changed. Logged in UID:", currentUser.uid);
+          setUser(currentUser);
+          await checkAdminStatus(currentUser);
+        } else {
+          console.log("AuthContext: User state changed. Not logged in.");
+          setUser(null);
+          await checkAdminStatus(null);
+        }
         setLoading(false);
       });
+
+      return unsubscribe;
+    };
+
+    const unsubscribePromise = initializeAuth();
+
+    return () => {
+      unsubscribePromise.then(unsubscribe => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      });
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      // Use signInWithRedirect instead of signInWithPopup
       await signInWithRedirect(auth, provider);
-      // No toast here, as the page will redirect away. 
-      // The onAuthStateChanged listener will handle the user state upon return.
     } catch (error: any) {
       console.error("Error signing in with Google:", error);
       toast({
