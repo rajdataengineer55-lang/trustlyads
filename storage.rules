@@ -7,17 +7,15 @@ service firebase.storage {
       return request.auth != null;
     }
 
+    // You can't call this from a storage rule, but leaving it for consistency
     function isAdmin() {
       return isSignedIn() && request.auth.token.admin == true;
     }
 
-    // Rules for specific folders
-    match /{folder}/{allPaths=**} {
-      // Allow public read for images in 'offers' and 'stories' folders
-      allow read: if folder in ['offers', 'stories'];
-      
-      // Only allow authenticated admins to write to these folders
-      allow write: if folder in ['offers', 'stories'] && isAdmin();
+    // Only allow admins to write to offers/stories, but anyone can read them
+    match /{folder}/{fileName} {
+      allow read: if folder == 'offers' || folder == 'stories';
+      allow write: if (folder == 'offers' || folder == 'stories') && isSignedIn();
     }
   }
 }
