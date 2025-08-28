@@ -20,7 +20,12 @@ export const uploadFile = async (file: File, destination: 'offers' | 'stories' |
 
     try {
         const snapshot = await uploadBytes(fileRef, file);
-        const downloadURL = await getDownloadURL(snapshot.ref);
+        let downloadURL = await getDownloadURL(snapshot.ref);
+
+        // ** Fix for production URLs **
+        // Ensure the URL uses the correct .appspot.com domain for the REST API.
+        downloadURL = downloadURL.replace('.firebasestorage.app', '.appspot.com');
+        
         return downloadURL;
     } catch (error) {
         console.error(`Upload failed for ${file.name}:`, error);
