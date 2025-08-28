@@ -16,7 +16,7 @@ export function StoryCreator() {
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
 
   const handleLocationSelect = (location: string) => {
-    setSelectedLocation(location);
+    setSelectedLocation(location === 'all' ? null : location);
     setSelectedOfferId(null); // Reset offer selection when location changes
   };
   
@@ -24,7 +24,8 @@ export function StoryCreator() {
     setSelectedOfferId(offerId);
   };
 
-  const availableLocations = Array.from(new Set(offers.map(o => o.location)));
+  // Get a unique set of locations that actually have offers.
+  const availableLocations = new Set(offers.map(o => o.location));
 
   const filteredOffers = selectedLocation
     ? offers.filter(o => o.location === selectedLocation && !o.isHidden)
@@ -72,18 +73,23 @@ export function StoryCreator() {
                         location.subLocations ? (
                         <SelectGroup key={location.name}>
                             <SelectLabel>{location.name}</SelectLabel>
-                            {location.subLocations.map((sub) => (
-                              availableLocations.includes(sub) &&
-                              <SelectItem key={`${location.name}-${sub}`} value={sub}>
-                                  {sub}
-                              </SelectItem>
-                            ))}
+                            {location.subLocations.map((sub) => {
+                              if (availableLocations.has(sub)) {
+                                return (
+                                  <SelectItem key={`${location.name}-${sub}`} value={sub}>
+                                      {sub}
+                                  </SelectItem>
+                                )
+                              }
+                              return null;
+                            })}
                         </SelectGroup>
                         ) : (
-                          availableLocations.includes(location.name) &&
-                          <SelectItem key={location.name} value={location.name}>
-                              {location.name}
-                          </SelectItem>
+                          availableLocations.has(location.name) && (
+                            <SelectItem key={location.name} value={location.name}>
+                                {location.name}
+                            </SelectItem>
+                          )
                         )
                       )}
                     </SelectContent>
@@ -113,12 +119,12 @@ export function StoryCreator() {
           )}
 
           {selectedOffer && (
-            <div className="border-t pt-6">
+            <div className="border-t pt-6 mt-6">
               <StoryUploader 
                 offer={selectedOffer} 
                 onFinished={() => {
                   setSelectedOfferId(null);
-                  setSelectedLocation(null);
+                  // Keep location selected to allow posting another story in the same area
                 }} 
               />
             </div>
