@@ -1,6 +1,6 @@
 
 
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { 
     collection, 
     addDoc, 
@@ -63,10 +63,19 @@ const mapDocToOffer = (doc: any): Offer => {
 
 // Get all offers with subcollection of reviews and aggregated story views
 export const getOffers = async (): Promise<Offer[]> => {
-  const q = query(offersCollection, orderBy('createdAt', 'desc'));
+  const isAdmin = auth.currentUser && (await auth.currentUser.getIdTokenResult()).claims.admin;
+  
+  let offersQuery;
+  if (isAdmin) {
+    // Admins get all offers, including hidden ones
+    offersQuery = query(offersCollection, orderBy('createdAt', 'desc'));
+  } else {
+    // Regular users only get visible offers
+    offersQuery = query(offersCollection, where('isHidden', '==', false), orderBy('createdAt', 'desc'));
+  }
 
   try {
-    const offersSnapshot = await getDocs(q);
+    const offersSnapshot = await getDocs(offersQuery);
     
     // Fetch all stories at once to calculate view counts efficiently
     const storiesQuery = query(collectionGroup(db, 'stories'));

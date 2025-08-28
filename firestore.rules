@@ -3,48 +3,49 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Default-deny all access. More specific rules below will grant access.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // ADMIN ACCESS: Admins have full read/write access to everything.
-    // This rule is checked first. If a user is an admin, they pass.
+    
+    // --- Admin Rules ---
+    // Admins can read and write anything, anywhere. This is the master override.
     match /{document=**} {
       allow read, write: if request.auth.token.admin == true;
     }
 
-    // PUBLIC/USER ACCESS RULES:
+    // --- Public & User Rules ---
 
-    // OFFERS:
-    // Allow anyone to get a single offer if it's not hidden.
-    // Allow anyone to list/query offers, but only if they filter for visible offers.
-    match /offers/{offerId} {
-      allow get: if resource.data.isHidden == false;
-      allow list: if request.query.get('isHidden') == false || request.query.where.get('isHidden')[2] == false;
-    }
-
-    // REVIEWS:
-    // Allow anyone to read reviews for an offer that is itself visible.
-    // Allow any authenticated user to create a new review.
-    match /offers/{offerId}/reviews/{reviewId} {
-      allow read: if get(/databases/$(database)/documents/offers/$(offerId)).data.isHidden == false;
-      allow create: if request.auth != null;
-    }
-
-    // STORIES:
-    // Allow anyone to read any story.
-    // Allow authenticated users to update ONLY the 'views' field of a story.
-    match /stories/{storyId} {
-      allow read: if true;
-      allow update: if request.auth != null && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']);
-    }
-
-    // FOLLOWERS:
-    // Allow authenticated users to manage their own follower document.
+    // Followers Collection
+    // Anyone can read follower count, but only logged-in users can follow/unfollow.
     match /followers/{userId} {
-      allow read, create, delete: if request.auth != null && request.auth.uid == userId;
+      allow read: if true;
+      allow create, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Offers Collection
+    match /offers/{offerId} {
+      // Anyone can GET a single offer if it's not hidden.
+      allow get: if resource.data.isHidden == false;
+
+      // Anyone can LIST offers, but only if they query for non-hidden ones.
+      allow list: if request.query.get('where') == null || 
+                   (request.query.where[0] == 'isHidden' && 
+                    request.query.where[1] == '==' && 
+                    request.query.where[2] == false);
+      
+      // Reviews Subcollection
+      match /reviews/{reviewId} {
+        // Anyone can read/list reviews.
+        allow read: if true;
+        // Only authenticated users can create reviews.
+        allow create: if request.auth != null;
+      }
+    }
+    
+    // Stories Collection Group
+    // This rule is essential for aggregating story view counts in getOffers().
+    match /stories/{storyId} {
+        // Anyone can read any story.
+        allow get, list: if true;
+        // Anyone can update ONLY the views field.
+        allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']);
     }
   }
 }
