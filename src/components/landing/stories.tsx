@@ -82,9 +82,6 @@ export function Stories({ selectedLocation }: StoriesProps) {
         >
             <CarouselContent>
             {filteredStories.map((story) => {
-                if (story.imageUrls && story.imageUrls.length > 0) {
-                    console.log(`[Stories] Image URL for "${story.businessName}":`, story.imageUrls[0]); // DEBUG LOG
-                }
                 return (
                 <CarouselItem key={story.id} className="basis-1/4 sm:basis-1/5 md:basis-1/8 lg:basis-1/12">
                     <Link href={`/offer/${story.offerId}`} className="block group text-center">
@@ -115,5 +112,3 @@ export function Stories({ selectedLocation }: StoriesProps) {
     </section>
   );
 }
-
-    

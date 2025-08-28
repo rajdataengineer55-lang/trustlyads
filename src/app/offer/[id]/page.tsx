@@ -213,9 +213,6 @@ export default function OfferDetailsPage() {
   const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean) as string[];
   const mainImageUrl = mainImage || 'https://placehold.co/600x400.png';
 
-  console.log(`[OfferDetailsPage] Main Image URL for "${offer.title}":`, mainImageUrl); // DEBUG LOG
-  console.log(`[OfferDetailsPage] All Image URLs for "${offer.title}":`, allImages); // DEBUG LOG
-
   const LocationInfo = () => (
     <div className="flex items-start text-muted-foreground mb-4">
       <MapPin className="h-5 w-5 mr-3 shrink-0 mt-1" />
@@ -539,5 +536,3 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
-
-    
