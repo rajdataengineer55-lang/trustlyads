@@ -11,7 +11,6 @@ import { HowItWorks } from "@/components/landing/how-it-works";
 import { Footer } from "@/components/landing/footer";
 import { Filters, SortOption } from "@/components/landing/filters";
 import { categories as categoryData } from "@/lib/categories";
-import { Stories } from "@/components/landing/stories";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -28,7 +27,6 @@ export default function Home() {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
         />
-        <Stories selectedLocation={selectedLocation} />
         <Categories
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
