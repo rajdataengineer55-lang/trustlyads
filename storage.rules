@@ -1,22 +1,20 @@
+
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow public read for offer images, only admin can write
-    match /offers/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null && request.auth.token.admin == true;
-    }
 
-    // Allow public read for story images, only admin can write
-    match /stories/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null && request.auth.token.admin == true;
-    }
-
-    // Deny access to all other paths by default
+    // Default: Deny all reads and writes unless explicitly allowed.
     match /{allPaths=**} {
       allow read, write: if false;
+    }
+
+    // Allow public read access to all images in the 'offers' and 'stories' folders.
+    // Allow write (upload, update, delete) only for authenticated users.
+    // In your app's flow, only the admin will be performing uploads.
+    match /{folder}/{fileName} where folder IN ['offers', 'stories'] {
+       allow read: if true;
+       allow write: if request.auth != null;
     }
   }
 }

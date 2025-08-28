@@ -4,34 +4,39 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow public read access for offers and stories, but restrict writes to admins.
+    // Default: Deny all reads and writes unless explicitly allowed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Offers can be read by anyone, but only created, updated, or
+    // deleted by an authenticated user with the 'admin' custom claim.
     match /offers/{offerId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.admin == true;
+      allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
 
-      // Rules for the 'reviews' subcollection within each offer
+      // Reviews can be read by anyone.
+      // A review can only be created by an authenticated user.
+      // Users cannot update or delete reviews after posting.
       match /reviews/{reviewId} {
-        // Anyone can read reviews
         allow read: if true;
-        // Only authenticated users can create a review
         allow create: if request.auth != null;
-        // Only admins can update or delete existing reviews
-        allow update, delete: if request.auth != null && request.auth.token.admin == true;
+        allow update, delete: if false;
       }
     }
 
+    // Stories can be read by anyone.
+    // Stories can only be created or deleted by an admin.
     match /stories/{storyId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.admin == true;
+      allow create, delete: if request.auth != null && request.auth.token.admin == true;
     }
 
-    // Secure the followers collection
+    // A user can only follow/unfollow themselves.
+    // The follower document ID must match the UID of the signed-in user.
     match /followers/{userId} {
-      // Anyone can read the follower data (needed for public count)
-      allow read: if true; 
-      // A user can only create or delete their OWN follower document.
-      // This prevents a user from making someone else follow/unfollow.
-      allow create, delete: if request.auth != null && request.auth.uid == userId; 
+      allow read: if true; // Allows getting follower counts
+      allow create, delete: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
