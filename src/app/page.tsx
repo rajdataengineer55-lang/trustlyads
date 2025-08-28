@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState } from "react";
@@ -11,6 +10,7 @@ import { HowItWorks } from "@/components/landing/how-it-works";
 import { Footer } from "@/components/landing/footer";
 import { Filters, SortOption } from "@/components/landing/filters";
 import { categories as categoryData } from "@/lib/categories";
+import { StoriesViewer } from "@/components/landing/stories-viewer";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -27,6 +27,7 @@ export default function Home() {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
         />
+        <StoriesViewer />
         <Categories
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}

@@ -1,3 +1,4 @@
+"use client";
 
 import { Leaf, Milk, Shirt, Palette, Armchair, Construction, Car, CircuitBoard, Wrench, Gem, Building, ShoppingCart, Printer, Pill, Code, Landmark, Dumbbell, UtensilsCrossed } from "lucide-react";
 
