@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "placehold.co", // keep if you use placeholder images
+        hostname: "placehold.co",
         pathname: "/**",
       },
     ],
