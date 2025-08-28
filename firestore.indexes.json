@@ -2,16 +2,6 @@
 {
   "indexes": [
     {
-      "collectionGroup": "stories",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "offers",
       "queryScope": "COLLECTION",
       "fields": [
@@ -19,6 +9,16 @@
           "fieldPath": "isHidden",
           "order": "ASCENDING"
         },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "stories",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
         {
           "fieldPath": "createdAt",
           "order": "DESCENDING"
