@@ -94,22 +94,26 @@ export function StoriesViewer() {
       <section className="py-6 bg-background/50 border-b">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex gap-4 overflow-x-auto pb-2 -mb-2 no-scrollbar">
-            {Array.from(storiesByOffer.entries()).map(([offerId, stories]) => (
+            {Array.from(storiesByOffer.entries()).map(([offerId, stories]) => {
+              const story = stories[0];
+              const businessImageUrl = story.businessImage || 'https://placehold.co/60x60.png';
+              
+              return (
               <button key={offerId} onClick={() => openStory(offerId)} className="flex flex-col items-center gap-2 flex-shrink-0 text-center w-20 group">
                 <div className="relative h-16 w-16 rounded-full p-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 group-hover:scale-105 transition-transform duration-200">
                   <div className="bg-background rounded-full h-full w-full p-0.5">
                     <Image
-                      src={stories[0].businessImage}
-                      alt={stories[0].businessName}
+                      src={businessImageUrl}
+                      alt={story.businessName}
                       width={60}
                       height={60}
                       className="rounded-full object-cover w-full h-full"
                     />
                   </div>
                 </div>
-                <p className="text-xs font-medium truncate w-full">{stories[0].businessName}</p>
+                <p className="text-xs font-medium truncate w-full">{story.businessName}</p>
               </button>
-            ))}
+            )})}
           </div>
         </div>
       </section>
@@ -128,7 +132,7 @@ export function StoriesViewer() {
               </div>
 
               <div className="absolute top-5 left-4 z-20 flex items-center gap-3">
-                 <Image src={currentStory.businessImage} alt={currentStory.businessName} width={32} height={32} className="rounded-full object-cover" />
+                 <Image src={currentStory.businessImage || 'https://placehold.co/32x32.png'} alt={currentStory.businessName} width={32} height={32} className="rounded-full object-cover" />
                  <Link href={`/offer/${currentStory.offerId}`} onClick={closeStory}>
                    <p className="text-white text-sm font-bold hover:underline">{currentStory.businessName}</p>
                  </Link>
