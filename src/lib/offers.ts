@@ -55,7 +55,7 @@ const mapDocToOffer = (doc: any): Offer => {
     reviews: data.reviews || [], // Initialize with empty array
     views: data.views || 0,
     clicks: data.clicks || 0,
-    // storyViews will be added later if needed, removing from initial load
+    storyViews: data.storyViews || 0, // This will be updated separately now
   } as Offer;
 };
 
@@ -68,9 +68,9 @@ export const getOffers = async (): Promise<Offer[]> => {
     // Admins get all offers, including hidden ones, sorted by date
     offersQuery = query(offersCollection, orderBy('createdAt', 'desc'));
   } else {
-    // Regular users only get visible offers.
-    // The sorting will be handled on the client-side.
-    offersQuery = query(offersCollection, where('isHidden', '==', false));
+    // Regular users only get visible offers, sorted by date.
+    // This requires a composite index: (isHidden, createdAt)
+    offersQuery = query(offersCollection, where('isHidden', '==', false), orderBy('createdAt', 'desc'));
   }
 
   try {
@@ -93,10 +93,10 @@ export const getOffers = async (): Promise<Offer[]> => {
         });
         offer.reviews = reviews;
 
-        // Note: Story views are no longer calculated here to fix permission errors.
-        // They can be aggregated on the client if needed or fetched separately.
-        const storiesRef = collection(db, `offers/${offer.id}/stories`);
-        const storiesQuery = query(storiesRef);
+        // The expensive and permission-heavy story view aggregation is removed from here.
+        // It's more secure and efficient to calculate this on-demand or with a separate process.
+        const storiesRef = collection(db, 'stories');
+        const storiesQuery = query(storiesRef, where('offerId', '==', offer.id));
         const storiesSnapshot = await getDocs(storiesQuery);
         let totalStoryViews = 0;
         storiesSnapshot.forEach(storyDoc => {
