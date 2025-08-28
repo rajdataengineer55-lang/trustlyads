@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, EyeOff, MapPin, Clock, Building } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
