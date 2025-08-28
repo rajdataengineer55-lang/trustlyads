@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -30,7 +31,6 @@ const formSchema = z.object({
   offerCompleteDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   discount: z.string().min(1, { message: "Discount details are required." }),
   tags: z.string().optional(),
-  // The 'images' field is now only for the input control and not the source of truth for saving
   images: z.custom<FileList>().optional(),
   allowCall: z.boolean().default(false).optional(),
   phoneNumber: z.string().optional(),
@@ -62,7 +62,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Posting...");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  // State to hold newly selected files separately
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [selectedMainImageIndex, setSelectedMainImageIndex] = useState(0);
 
@@ -98,7 +97,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
       
       const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean);
       setImagePreviews(allImages);
-      setNewImageFiles([]); // Reset new files on edit
+      setNewImageFiles([]); 
       setSelectedMainImageIndex(0);
     }
   }, [offerToEdit, isEditMode, form]);
@@ -122,19 +121,13 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     setIsLoading(true);
     setLoadingMessage(isEditMode ? "Updating..." : "Posting...");
 
-    let finalImageUrls: string[] = [];
+    let finalImageUrls: string[] = imagePreviews.filter(p => p.startsWith('https://'));
 
-    // In edit mode, start with the existing HTTP URLs.
-    if (isEditMode) {
-      finalImageUrls = imagePreviews.filter(url => url.startsWith('http'));
-    }
-
-    // Upload only the newly selected files
     if (newImageFiles.length > 0) {
         setLoadingMessage("Uploading images...");
         try {
-            const newUrls = await uploadMultipleFiles(newImageFiles, 'offers');
-            finalImageUrls.push(...newUrls);
+            const uploadedUrls = await uploadMultipleFiles(newImageFiles, 'offers');
+            finalImageUrls.push(...uploadedUrls);
         } catch (error: any) {
             console.error("Image upload failed:", error);
             const isCorsError = error.message.includes('network') || (error.code && error.code.includes('storage/unauthorized'));
@@ -144,7 +137,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         }
     }
     
-    // An offer must have at least one image to be created or saved.
     if (finalImageUrls.length === 0) {
         toast({ variant: "destructive", title: "No Images", description: "An offer must have at least one image."});
         setIsLoading(false);
@@ -258,7 +250,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
-
-    
 
     
