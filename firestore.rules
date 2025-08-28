@@ -3,42 +3,48 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // --- Offers Collection ---
-    // Anyone can read offers.
-    // Only admins can create, update, or delete offers.
+
+    // Default-deny all access. More specific rules below will grant access.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ADMIN ACCESS: Admins have full read/write access to everything.
+    // This rule is checked first. If a user is an admin, they pass.
+    match /{document=**} {
+      allow read, write: if request.auth.token.admin == true;
+    }
+
+    // PUBLIC/USER ACCESS RULES:
+
+    // OFFERS:
+    // Allow anyone to get a single offer if it's not hidden.
+    // Allow anyone to list/query offers, but only if they filter for visible offers.
     match /offers/{offerId} {
-      allow read: if true;
-      allow write: if request.auth.token.admin == true;
-
-      // --- Reviews Subcollection ---
-      // Anyone can read reviews.
-      // Any authenticated user can add a review.
-      // Only admins can delete reviews.
-      match /reviews/{reviewId} {
-        allow read: if true;
-        allow create: if request.auth != null;
-        allow delete: if request.auth.token.admin == true;
-        allow update: if false; // Don't allow reviews to be edited
-      }
-    }
-    
-    // --- Followers Collection ---
-    // Logged-in users can follow/unfollow themselves.
-    // Anyone can read the follower list (e.g., for counts).
-    match /followers/{userId} {
-        allow read: if true;
-        allow write: if request.auth != null && request.auth.uid == userId;
+      allow get: if resource.data.isHidden == false;
+      allow list: if request.query.get('isHidden') == false || request.query.where.get('isHidden')[2] == false;
     }
 
-    // --- Stories Collection ---
-    // Anyone can read stories.
-    // Only admins can create or delete stories.
-    // Authenticated users can update *only* the 'views' field.
+    // REVIEWS:
+    // Allow anyone to read reviews for an offer that is itself visible.
+    // Allow any authenticated user to create a new review.
+    match /offers/{offerId}/reviews/{reviewId} {
+      allow read: if get(/databases/$(database)/documents/offers/$(offerId)).data.isHidden == false;
+      allow create: if request.auth != null;
+    }
+
+    // STORIES:
+    // Allow anyone to read any story.
+    // Allow authenticated users to update ONLY the 'views' field of a story.
     match /stories/{storyId} {
       allow read: if true;
-      allow create, delete: if request.auth.token.admin == true;
       allow update: if request.auth != null && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']);
+    }
+
+    // FOLLOWERS:
+    // Allow authenticated users to manage their own follower document.
+    match /followers/{userId} {
+      allow read, create, delete: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
