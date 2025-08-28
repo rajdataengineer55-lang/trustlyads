@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { getActiveStories, type Story } from "@/lib/stories";
+import { getActiveStories, incrementStoryView, type Story } from "@/lib/stories";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
@@ -16,6 +16,7 @@ export function StoriesViewer() {
   const [loading, setLoading] = useState(true);
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const [viewedStories, setViewedStories] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     async function fetchStories() {
@@ -45,6 +46,14 @@ export function StoriesViewer() {
   const selectedStories = selectedOfferId ? storiesByOffer.get(selectedOfferId) : null;
   const currentStory = selectedStories?.[currentStoryIndex];
 
+  useEffect(() => {
+    if (currentStory && !viewedStories.has(currentStory.id)) {
+      incrementStoryView(currentStory.id);
+      setViewedStories(prev => new Set(prev).add(currentStory.id));
+    }
+  }, [currentStory, viewedStories]);
+
+
   const goToNextStory = () => {
     if (!selectedStories) return;
     if (currentStoryIndex < selectedStories.length - 1) {
@@ -65,7 +74,6 @@ export function StoriesViewer() {
       const timer = setTimeout(goToNextStory, 5000); // 5 seconds for images
       return () => clearTimeout(timer);
     }
-    // For videos, user clicks next
   }, [currentStory, currentStoryIndex]);
 
   if (loading) {

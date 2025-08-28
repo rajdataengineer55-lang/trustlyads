@@ -13,8 +13,11 @@ import {
     serverTimestamp,
     Timestamp,
     increment,
+    collectionGroup,
+    where,
 } from 'firebase/firestore';
 import type { Offer, Review } from '@/contexts/OffersContext';
+import type { Story } from './stories';
 
 // This is the data structure for creating/updating offers.
 // It excludes fields that are auto-generated or managed separately (like id, reviews, createdAt).
@@ -54,18 +57,33 @@ const mapDocToOffer = (doc: any): Offer => {
     reviews: data.reviews || [], // Initialize with empty array
     views: data.views || 0,
     clicks: data.clicks || 0,
+    storyViews: data.storyViews || 0,
   } as Offer;
 };
 
-// Get all offers with subcollection of reviews
+// Get all offers with subcollection of reviews and aggregated story views
 export const getOffers = async (): Promise<Offer[]> => {
   const q = query(offersCollection, orderBy('createdAt', 'desc'));
 
   try {
     const offersSnapshot = await getDocs(q);
+    
+    // Fetch all stories at once to calculate view counts efficiently
+    const storiesQuery = query(collectionGroup(db, 'stories'));
+    const storiesSnapshot = await getDocs(storiesQuery);
+    const storyViewsByOffer: { [key: string]: number } = {};
+
+    storiesSnapshot.docs.forEach(doc => {
+      const story = doc.data() as Story;
+      storyViewsByOffer[story.offerId] = (storyViewsByOffer[story.offerId] || 0) + (story.views || 0);
+    });
+
     const offers = await Promise.all(offersSnapshot.docs.map(async (offerDoc) => {
         const offer = mapDocToOffer(offerDoc);
         
+        // Assign aggregated story views
+        offer.storyViews = storyViewsByOffer[offer.id] || 0;
+
         const reviewsCollection = collection(db, 'offers', offer.id, 'reviews');
         const reviewsQuery = query(reviewsCollection, orderBy('createdAt', 'desc'));
         const reviewsSnapshot = await getDocs(reviewsQuery);

@@ -24,9 +24,6 @@ export function StoryCreator() {
     setSelectedOfferId(offerId);
   };
 
-  // Get a unique set of locations that actually have offers.
-  const availableLocations = new Set(offers.map(o => o.location));
-
   const filteredOffers = selectedLocation
     ? offers.filter(o => o.location === selectedLocation && !o.isHidden)
     : [];
@@ -73,23 +70,16 @@ export function StoryCreator() {
                         location.subLocations ? (
                         <SelectGroup key={location.name}>
                             <SelectLabel>{location.name}</SelectLabel>
-                            {location.subLocations.map((sub) => {
-                              if (availableLocations.has(sub)) {
-                                return (
-                                  <SelectItem key={`${location.name}-${sub}`} value={sub}>
-                                      {sub}
-                                  </SelectItem>
-                                )
-                              }
-                              return null;
-                            })}
+                            {location.subLocations.map((sub) => (
+                              <SelectItem key={`${location.name}-${sub}`} value={sub}>
+                                  {sub}
+                              </SelectItem>
+                            ))}
                         </SelectGroup>
                         ) : (
-                          availableLocations.has(location.name) && (
-                            <SelectItem key={location.name} value={location.name}>
-                                {location.name}
-                            </SelectItem>
-                          )
+                          <SelectItem key={location.name} value={location.name}>
+                              {location.name}
+                          </SelectItem>
                         )
                       )}
                     </SelectContent>

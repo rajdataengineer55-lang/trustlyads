@@ -47,6 +47,7 @@ export interface Offer {
   createdAt: Date;
   views?: number;
   clicks?: number;
+  storyViews?: number;
 }
 
 interface OffersContextType {

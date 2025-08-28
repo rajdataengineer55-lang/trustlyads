@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff, BarChart2, Clapperboard } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Megaphone, Eye, EyeOff, BarChart2, Clapperboard, Layers } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdGenerator } from "./ad-generator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -112,6 +112,7 @@ export function ManageOffers() {
                         <TableHead>Status</TableHead>
                         <TableHead>Views</TableHead>
                         <TableHead>Clicks</TableHead>
+                        <TableHead>Story Views</TableHead>
                         <TableHead className="text-right pr-6">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -144,6 +145,14 @@ export function ManageOffers() {
                                         <div className="flex items-center gap-2"> <BarChart2 className="h-4 w-4 text-muted-foreground" /> <span>{offer.clicks || 0}</span> </div>
                                     </TooltipTrigger>
                                     <TooltipContent><p>Total clicks on contact buttons (Call, Chat, etc.).</p></TooltipContent>
+                                </Tooltip>
+                            </TableCell>
+                             <TableCell>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center gap-2"> <Layers className="h-4 w-4 text-muted-foreground" /> <span>{offer.storyViews || 0}</span> </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Total views across all stories for this offer.</p></TooltipContent>
                                 </Tooltip>
                             </TableCell>
                             <TableCell className="text-right pr-6">
