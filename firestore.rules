@@ -3,43 +3,42 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to check if a user is an admin based on custom claims.
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
-    }
-
-    // Helper function to check if a user is signed in.
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // Offers can be read by anyone, but only created, updated, or deleted by an admin.
+    
+    // --- Offers Collection ---
+    // Anyone can read offers.
+    // Only admins can create, update, or delete offers.
     match /offers/{offerId} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
+      allow write: if request.auth.token.admin == true;
 
-      // Reviews can be read by anyone, but only created by a signed-in user.
-      // Users cannot update or delete reviews after posting.
+      // --- Reviews Subcollection ---
+      // Anyone can read reviews.
+      // Any authenticated user can add a review.
+      // Only admins can delete reviews.
       match /reviews/{reviewId} {
         allow read: if true;
-        allow create: if isSignedIn();
-        allow update, delete: if false; // Disallow updating/deleting reviews
+        allow create: if request.auth != null;
+        allow delete: if request.auth.token.admin == true;
+        allow update: if false; // Don't allow reviews to be edited
       }
     }
-
-    // Stories can be read by anyone, but only created or deleted by an admin.
-    match /stories/{storyId} {
-      allow read: if true;
-      allow create, delete: if isAdmin();
+    
+    // --- Followers Collection ---
+    // Logged-in users can follow/unfollow themselves.
+    // Anyone can read the follower list (e.g., for counts).
+    match /followers/{userId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // A signed-in user can add/remove themselves from the followers list.
-    // They can only affect their own document (using their UID).
-    match /followers/{userId} {
-      allow read: if true; // Allow public read for follower count
-      allow create, delete: if isSignedIn() && request.auth.uid == userId;
-      allow update: if false; // No updates needed for followers
+    // --- Stories Collection ---
+    // Anyone can read stories.
+    // Only admins can create or delete stories.
+    // Authenticated users can update *only* the 'views' field.
+    match /stories/{storyId} {
+      allow read: if true;
+      allow create, delete: if request.auth.token.admin == true;
+      allow update: if request.auth != null && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']);
     }
   }
 }
