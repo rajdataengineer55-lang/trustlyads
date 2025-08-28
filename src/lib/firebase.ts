@@ -28,8 +28,8 @@ const storage = getStorage(app);
 
 // Log the project ID to the console for verification
 if (typeof window !== 'undefined') {
-  console.log("Connecting to Firebase Project ID:", firebaseConfig.projectId);
-  console.log("Connecting to Firebase Storage Bucket:", firebaseConfig.storageBucket);
+  // console.log("Connecting to Firebase Project ID:", firebaseConfig.projectId);
+  // console.log("Connecting to Firebase Storage Bucket:", firebaseConfig.storageBucket);
 }
 
 export { db, storage, auth };
