@@ -165,7 +165,7 @@ export function StoriesViewer() {
                   />
                 ) : (
                   <Image
-                    src={currentStory.mediaUrl}
+                    src={currentStory.mediaUrl || 'https://placehold.co/1080x1920.png'}
                     alt="Story Content"
                     fill
                     className="object-contain"
