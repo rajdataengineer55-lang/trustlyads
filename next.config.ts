@@ -9,17 +9,11 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "localpulse-9e3lz.firebasestorage.app",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "placehold.co",
         pathname: "/**",
       },
     ],
   },
-
   experimental: {
     allowedDevOrigins: [
       "http://localhost:9003",
