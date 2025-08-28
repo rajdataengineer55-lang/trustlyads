@@ -81,7 +81,11 @@ export function Stories({ selectedLocation }: StoriesProps) {
             className="w-full"
         >
             <CarouselContent>
-            {filteredStories.map((story) => (
+            {filteredStories.map((story) => {
+                if (story.imageUrls && story.imageUrls.length > 0) {
+                    console.log(`[Stories] Image URL for "${story.businessName}":`, story.imageUrls[0]); // DEBUG LOG
+                }
+                return (
                 <CarouselItem key={story.id} className="basis-1/4 sm:basis-1/5 md:basis-1/8 lg:basis-1/12">
                     <Link href={`/offer/${story.offerId}`} className="block group text-center">
                         <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full p-1 ring-2 ring-primary/50 group-hover:ring-primary transition-all duration-300">
@@ -102,7 +106,7 @@ export function Stories({ selectedLocation }: StoriesProps) {
                         </p>
                     </Link>
                 </CarouselItem>
-            ))}
+            )})}
             </CarouselContent>
             <CarouselPrevious className="block" />
             <CarouselNext className="block" />

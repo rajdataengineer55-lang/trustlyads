@@ -23,14 +23,6 @@ interface FeaturedOffersProps {
   sortOption: string;
 }
 
-const safeDecodeURIComponent = (uri: string) => {
-  try {
-    return decodeURIComponent(uri);
-  } catch (e) {
-    return uri;
-  }
-};
-
 export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm, sortOption }: FeaturedOffersProps) {
   const { offers, loading: offersLoading } = useOffers();
   const { loading: authLoading, isAdmin } = useAuth();
@@ -114,6 +106,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
           {filteredAndSortedOffers.map((offer) => {
             const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
             const imageUrl = offer.image || 'https://placehold.co/600x400.png';
+            console.log(`[FeaturedOffers] Image URL for "${offer.title}":`, imageUrl); // DEBUG LOG
 
             return (
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
@@ -121,7 +114,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                       <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
                         <div className="relative aspect-[4/3] w-full bg-muted">
                           <Image
-                            src={safeDecodeURIComponent(imageUrl)}
+                            src={imageUrl}
                             alt={offer.title}
                             width={600}
                             height={400}

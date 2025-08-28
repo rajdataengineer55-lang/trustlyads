@@ -213,6 +213,9 @@ export default function OfferDetailsPage() {
   const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean) as string[];
   const mainImageUrl = mainImage || 'https://placehold.co/600x400.png';
 
+  console.log(`[OfferDetailsPage] Main Image URL for "${offer.title}":`, mainImageUrl); // DEBUG LOG
+  console.log(`[OfferDetailsPage] All Image URLs for "${offer.title}":`, allImages); // DEBUG LOG
+
   const LocationInfo = () => (
     <div className="flex items-start text-muted-foreground mb-4">
       <MapPin className="h-5 w-5 mr-3 shrink-0 mt-1" />
@@ -259,7 +262,7 @@ export default function OfferDetailsPage() {
                 <div className="lg:col-span-3">
                     <div className="relative mb-4 w-full overflow-hidden rounded-lg shadow-lg bg-muted">
                         <Image
-                            src={safeDecodeURIComponent(mainImageUrl)}
+                            src={mainImageUrl}
                             alt={offer.title}
                             width={800}
                             height={600}
@@ -293,7 +296,7 @@ export default function OfferDetailsPage() {
                             return (
                               <div key={i} className="relative aspect-square cursor-pointer" onClick={() => setMainImage(img)}>
                                 <Image 
-                                  src={safeDecodeURIComponent(imageUrl)}
+                                  src={imageUrl}
                                   alt={`thumbnail ${i + 1}`} 
                                   width={100}
                                   height={100}
@@ -490,7 +493,7 @@ export default function OfferDetailsPage() {
                           <Link href={`/offer/${similarOffer.id}`} passHref className="block">
                             <div className="relative aspect-[4/3] bg-muted">
                               <Image
-                                src={safeDecodeURIComponent(imageUrl)}
+                                src={imageUrl}
                                 alt={similarOffer.title}
                                 width={600}
                                 height={400}

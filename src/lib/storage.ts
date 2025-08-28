@@ -25,6 +25,7 @@ export const uploadFile = async (
   try {
     const snapshot = await uploadBytes(fileRef, file);
     const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log(`[storage.ts] Generated URL for ${safeFileName}:`, downloadURL); // DEBUG LOG
     return downloadURL;
   } catch (error) {
     console.error(`Upload failed for ${file.name}:`, error);
