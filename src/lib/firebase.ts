@@ -6,7 +6,7 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Your production Firebase project configuration.
-// These variables must be prefixed with NEXT_PUBLIC_ to be exposed to the browser.
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -17,6 +17,7 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
+
 // Initialize Firebase
 // The Firebase SDK will automatically connect to the emulators if they are running.
 // Configuration for this is now in firebase.json
@@ -25,12 +26,6 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-
-// Log the project ID to the console for verification
-if (typeof window !== 'undefined') {
-  // console.log("Connecting to Firebase Project ID:", firebaseConfig.projectId);
-  // console.log("Connecting to Firebase Storage Bucket:", firebaseConfig.storageBucket);
-}
 
 export { db, storage, auth };
 export default app;
