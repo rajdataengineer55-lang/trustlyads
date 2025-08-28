@@ -3,49 +3,39 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // --- Admin Rules ---
-    // Admins can read and write anything, anywhere. This is the master override.
-    match /{document=**} {
-      allow read, write: if request.auth.token.admin == true;
+
+    // Helper function to check for admin claims
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
     }
 
-    // --- Public & User Rules ---
-
-    // Followers Collection
-    // Anyone can read follower count, but only logged-in users can follow/unfollow.
-    match /followers/{userId} {
-      allow read: if true;
-      allow create, delete: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Offers Collection
+    // Offers can be read by anyone if not hidden, and managed only by admins.
     match /offers/{offerId} {
-      // Anyone can GET a single offer if it's not hidden.
-      allow get: if resource.data.isHidden == false;
+      allow read: if resource.data.isHidden == false || isAdmin();
+      allow list: if isAdmin() || (request.query.where.isHidden == false && request.query.orderBy == null);
+      allow create, update, delete: if isAdmin();
 
-      // Anyone can LIST offers, but only if they query for non-hidden ones.
-      allow list: if request.query.get('where') == null || 
-                   (request.query.where[0] == 'isHidden' && 
-                    request.query.where[1] == '==' && 
-                    request.query.where[2] == false);
-      
-      // Reviews Subcollection
+      // Reviews can be read by anyone, created by authenticated users, and deleted by admins.
       match /reviews/{reviewId} {
-        // Anyone can read/list reviews.
-        allow read: if true;
-        // Only authenticated users can create reviews.
+        allow read, list: if true;
         allow create: if request.auth != null;
+        allow update, delete: if isAdmin();
       }
     }
     
-    // Stories Collection Group
-    // This rule is essential for aggregating story view counts in getOffers().
+    // Followers can be created/deleted by authenticated users and read only by admins.
+    match /followers/{userId} {
+      allow read, list: if isAdmin();
+      allow create, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Stories can be created by admins.
+    // ANY authenticated user can update the 'views' count.
+    // Anyone can read stories.
     match /stories/{storyId} {
-        // Anyone can read any story.
-        allow get, list: if true;
-        // Anyone can update ONLY the views field.
-        allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']);
+      allow read, list: if true; // Allows getActiveStories to work for all users
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (request.auth != null && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']));
     }
   }
 }

@@ -13,11 +13,9 @@ import {
     serverTimestamp,
     Timestamp,
     increment,
-    collectionGroup,
     where,
 } from 'firebase/firestore';
 import type { Offer, Review } from '@/contexts/OffersContext';
-import type { Story } from './stories';
 
 // This is the data structure for creating/updating offers.
 // It excludes fields that are auto-generated or managed separately (like id, reviews, createdAt).
@@ -57,11 +55,11 @@ const mapDocToOffer = (doc: any): Offer => {
     reviews: data.reviews || [], // Initialize with empty array
     views: data.views || 0,
     clicks: data.clicks || 0,
-    storyViews: data.storyViews || 0,
+    // storyViews will be added later if needed, removing from initial load
   } as Offer;
 };
 
-// Get all offers with subcollection of reviews and aggregated story views
+// Get all offers with subcollection of reviews
 export const getOffers = async (): Promise<Offer[]> => {
   const isAdmin = auth.currentUser && (await auth.currentUser.getIdTokenResult(true)).claims.admin;
   
@@ -70,30 +68,17 @@ export const getOffers = async (): Promise<Offer[]> => {
     // Admins get all offers, including hidden ones, sorted by date
     offersQuery = query(offersCollection, orderBy('createdAt', 'desc'));
   } else {
-    // Regular users only get visible offers. Sorting will be done on the client.
-    // This query does not require a composite index.
+    // Regular users only get visible offers.
+    // The sorting will be handled on the client-side.
     offersQuery = query(offersCollection, where('isHidden', '==', false));
   }
 
   try {
     const offersSnapshot = await getDocs(offersQuery);
-    
-    // Fetch all stories at once to calculate view counts efficiently
-    const storiesQuery = query(collectionGroup(db, 'stories'));
-    const storiesSnapshot = await getDocs(storiesQuery);
-    const storyViewsByOffer: { [key: string]: number } = {};
-
-    storiesSnapshot.docs.forEach(doc => {
-      const story = doc.data() as Story;
-      storyViewsByOffer[story.offerId] = (storyViewsByOffer[story.offerId] || 0) + (story.views || 0);
-    });
 
     const offers = await Promise.all(offersSnapshot.docs.map(async (offerDoc) => {
         const offer = mapDocToOffer(offerDoc);
         
-        // Assign aggregated story views
-        offer.storyViews = storyViewsByOffer[offer.id] || 0;
-
         const reviewsCollection = collection(db, 'offers', offer.id, 'reviews');
         const reviewsQuery = query(reviewsCollection, orderBy('createdAt', 'desc'));
         const reviewsSnapshot = await getDocs(reviewsQuery);
@@ -107,6 +92,17 @@ export const getOffers = async (): Promise<Offer[]> => {
             } as Review;
         });
         offer.reviews = reviews;
+
+        // Note: Story views are no longer calculated here to fix permission errors.
+        // They can be aggregated on the client if needed or fetched separately.
+        const storiesRef = collection(db, `offers/${offer.id}/stories`);
+        const storiesQuery = query(storiesRef);
+        const storiesSnapshot = await getDocs(storiesQuery);
+        let totalStoryViews = 0;
+        storiesSnapshot.forEach(storyDoc => {
+          totalStoryViews += storyDoc.data().views || 0;
+        });
+        offer.storyViews = totalStoryViews;
 
         return offer;
     }));
