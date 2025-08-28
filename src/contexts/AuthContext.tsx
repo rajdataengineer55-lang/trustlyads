@@ -36,75 +36,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const { isAdmin, isCheckingAdmin, checkAdminStatus } = useAdmin();
 
+  // This effect runs once on mount to handle the redirect result and set up the auth listener.
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        await setPersistence(auth, browserSessionPersistence);
-
-        // Check for redirect result first
-        const result = await getRedirectResult(auth);
+    // We set persistence at the very beginning.
+    setPersistence(auth, browserSessionPersistence)
+      .then(() => {
+        // First, check if we're coming back from a Google sign-in.
+        return getRedirectResult(auth);
+      })
+      .then((result) => {
         if (result) {
-          // This means a sign-in just completed.
-          // onAuthStateChanged will handle setting the user.
+          // A user has successfully signed in via redirect.
           toast({
             title: "Signed In",
             description: `Welcome, ${result.user.displayName}!`,
           });
+          // The onAuthStateChanged listener below will handle setting the user state.
         }
-      } catch (error: any) {
+      })
+      .catch((error) => {
         console.error("Error during auth initialization or redirect:", error);
         toast({
           variant: "destructive",
           title: "Sign In Failed",
           description: "Could not complete sign in after redirect. Please try again.",
         });
-      }
-
-      // Now, set up the listener for ongoing auth state changes.
-      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-        setLoading(true);
-        if (currentUser) {
-          console.log("AuthContext: User state changed. Logged in UID:", currentUser.uid);
-          setUser(currentUser);
-          await checkAdminStatus(currentUser);
-        } else {
-          console.log("AuthContext: User state changed. Not logged in.");
-          setUser(null);
-          await checkAdminStatus(null);
-        }
-        setLoading(false);
+      })
+      .finally(() => {
+        // After handling any potential redirect, set up the listener for ongoing auth state changes.
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+          setLoading(true);
+          if (currentUser) {
+            setUser(currentUser);
+            await checkAdminStatus(currentUser);
+          } else {
+            setUser(null);
+            await checkAdminStatus(null);
+          }
+          setLoading(false);
+        });
+        
+        // Return the unsubscribe function to be called on component unmount.
+        return () => unsubscribe();
       });
-
-      return unsubscribe;
-    };
-
-    const unsubscribePromise = initializeAuth();
-
-    return () => {
-      unsubscribePromise.then(unsubscribe => {
-        if (unsubscribe) {
-          unsubscribe();
-        }
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // The empty dependency array ensures this effect runs only once on mount.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    setLoading(true); // Set loading state to give user feedback
     try {
       await signInWithRedirect(auth, provider);
+      // The user will be redirected, and the logic in the useEffect will handle the result.
     } catch (error: any) {
-      console.error("Error signing in with Google:", error);
+      console.error("Error starting sign in with Google redirect:", error);
       toast({
         variant: "destructive",
         title: "Sign In Failed",
-        description: "Could not sign in with Google. Please try again.",
+        description: "Could not start the sign-in process. Please try again.",
       });
+      setLoading(false); // Reset loading on error
     }
   };
 
   const signInWithEmail = async (email: string, password: string) => {
+    setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       // The onAuthStateChanged listener will handle the rest
@@ -119,6 +116,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Sign In Failed",
         description,
       });
+    } finally {
+      // The onAuthStateChanged listener will set loading to false.
     }
   };
 
