@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { getActiveStories, type Story } from "@/lib/stories";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -120,6 +120,10 @@ export function StoriesViewer() {
 
       <Dialog open={!!selectedOfferId} onOpenChange={(isOpen) => !isOpen && closeStory()}>
         <DialogContent className="p-0 bg-black border-0 max-w-md w-full h-full sm:h-[90vh] sm:max-h-[640px] flex flex-col gap-0 rounded-none sm:rounded-lg">
+           <DialogTitle className="sr-only">Story Viewer: {currentStory?.businessName}</DialogTitle>
+           <DialogDescription className="sr-only">
+              A story from {currentStory?.businessName}. Use the sides of the screen to navigate between story slides.
+           </DialogDescription>
           {currentStory && (
             <div className="relative w-full h-full flex flex-col">
               <div className="absolute top-2 left-0 right-0 px-2 flex items-center gap-1 z-10">
