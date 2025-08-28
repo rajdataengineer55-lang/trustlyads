@@ -31,6 +31,16 @@ const reviewSchema = z.object({
     comment: z.string().min(10, "Comment must be at least 10 characters."),
 });
 
+// Helper function for safe decoding
+const safeDecodeURIComponent = (uri: string) => {
+  try {
+    return decodeURIComponent(uri);
+  } catch (e) {
+    // If it fails, return the original URI
+    return uri;
+  }
+};
+
 
 export default function OfferDetailsPage() {
   const params = useParams();
@@ -249,7 +259,7 @@ export default function OfferDetailsPage() {
                 <div className="lg:col-span-3">
                     <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
                         <Image
-                            src={mainImage || 'https://placehold.co/600x400.png'}
+                            src={mainImage ? safeDecodeURIComponent(mainImage) : 'https://placehold.co/600x400.png'}
                             alt={offer.title}
                             fill
                             className="object-cover transition-all duration-300 ease-in-out hover:scale-105"
@@ -280,7 +290,7 @@ export default function OfferDetailsPage() {
                           {allImages.map((img, i) => (
                               <div key={i} className="relative aspect-square cursor-pointer" onClick={() => setMainImage(img)}>
                                 <Image 
-                                  src={img} 
+                                  src={safeDecodeURIComponent(img)} 
                                   alt={`thumbnail ${i + 1}`} 
                                   fill 
                                   className={cn("rounded-md object-cover transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
@@ -474,7 +484,7 @@ export default function OfferDetailsPage() {
                         <Link href={`/offer/${similarOffer.id}`} passHref className="block">
                           <div className="relative aspect-[4/3]">
                             <Image
-                              src={similarOffer.image || 'https://placehold.co/600x400.png'}
+                              src={similarOffer.image ? safeDecodeURIComponent(similarOffer.image) : 'https://placehold.co/600x400.png'}
                               alt={similarOffer.title}
                               fill
                               className="object-cover transition-transform duration-300 group-hover:scale-105"

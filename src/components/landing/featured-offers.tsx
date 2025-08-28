@@ -23,6 +23,16 @@ interface FeaturedOffersProps {
   sortOption: string;
 }
 
+// Helper function for safe decoding
+const safeDecodeURIComponent = (uri: string) => {
+  try {
+    return decodeURIComponent(uri);
+  } catch (e) {
+    // If it fails, return the original URI
+    return uri;
+  }
+};
+
 export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm, sortOption }: FeaturedOffersProps) {
   const { offers, loading: offersLoading } = useOffers();
   const { loading: authLoading, isAdmin } = useAuth();
@@ -102,9 +112,6 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     <>
     <section id="featured-offers" className="w-full py-10 sm:py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <h2 className="text-3xl font-headline font-bold text-center mb-12">
-          Featured Offers
-        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAndSortedOffers.map((offer) => {
             const isNew = offer.createdAt && (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
@@ -115,7 +122,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                       <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
                         <div className="relative aspect-[4/3] w-full">
                           <Image
-                            src={offer.image || 'https://placehold.co/600x400.png'}
+                            src={offer.image ? safeDecodeURIComponent(offer.image) : 'https://placehold.co/600x400.png'}
                             alt={offer.title}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
