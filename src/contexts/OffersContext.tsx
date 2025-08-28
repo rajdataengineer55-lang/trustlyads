@@ -75,7 +75,9 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
         const offersFromDb = await getOffersFromDb();
-        setOffers(offersFromDb);
+        // Sort on the client to ensure consistent ordering for all users
+        const sortedOffers = offersFromDb.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        setOffers(sortedOffers);
     } catch (error) {
         console.error("Failed to fetch offers:", error);
     } finally {

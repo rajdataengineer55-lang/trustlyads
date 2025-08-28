@@ -63,15 +63,16 @@ const mapDocToOffer = (doc: any): Offer => {
 
 // Get all offers with subcollection of reviews and aggregated story views
 export const getOffers = async (): Promise<Offer[]> => {
-  const isAdmin = auth.currentUser && (await auth.currentUser.getIdTokenResult()).claims.admin;
+  const isAdmin = auth.currentUser && (await auth.currentUser.getIdTokenResult(true)).claims.admin;
   
   let offersQuery;
   if (isAdmin) {
-    // Admins get all offers, including hidden ones
+    // Admins get all offers, including hidden ones, sorted by date
     offersQuery = query(offersCollection, orderBy('createdAt', 'desc'));
   } else {
-    // Regular users only get visible offers
-    offersQuery = query(offersCollection, where('isHidden', '==', false), orderBy('createdAt', 'desc'));
+    // Regular users only get visible offers. Sorting will be done on the client.
+    // This query does not require a composite index.
+    offersQuery = query(offersCollection, where('isHidden', '==', false));
   }
 
   try {
