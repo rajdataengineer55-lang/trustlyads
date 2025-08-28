@@ -122,7 +122,7 @@ export function StoriesViewer() {
                 {selectedStories?.map((_, index) => (
                   <div key={index} className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
                     {index < currentStoryIndex && <div className="h-full bg-white w-full" />}
-                    {index === currentStoryIndex && currentStory.mediaType === 'image' && <Progress value={(index <= currentStoryIndex) ? 100 : 0} className="h-1 bg-white animate-story-progress" />}
+                    {index === currentStoryIndex && currentStory.mediaType === 'image' && <Progress value={100} className="h-1 bg-white animate-story-progress" />}
                   </div>
                 ))}
               </div>
