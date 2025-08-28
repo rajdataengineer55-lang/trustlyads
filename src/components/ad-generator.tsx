@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -134,7 +133,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     if (newImageFiles.length > 0) {
         setLoadingMessage("Uploading images...");
         try {
-            const newUrls = await uploadMultipleFiles(newImageFiles);
+            const newUrls = await uploadMultipleFiles(newImageFiles, 'offers');
             finalImageUrls.push(...newUrls);
         } catch (error: any) {
             console.error("Image upload failed:", error);

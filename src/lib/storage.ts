@@ -1,4 +1,3 @@
-
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { storage } from './firebase';
@@ -9,53 +8,60 @@ import { storage } from './firebase';
  * @param destination The folder path in storage (e.g., 'offers', 'stories').
  * @returns A promise that resolves with the download URL.
  */
-export const uploadFile = async (file: File, destination: 'offers' | 'stories' | string): Promise<string> => {
-    if (!file) {
-        throw new Error("File is required for upload.");
+export const uploadFile = async (
+  file: File,
+  destination: 'offers' | 'stories' | string
+): Promise<string> => {
+  if (!file) {
+    throw new Error("File is required for upload.");
+  }
+
+  const fileId = uuidv4();
+  const filePath = `${destination}/${fileId}-${file.name}`;
+  const fileRef = ref(storage, filePath);
+
+  try {
+    const snapshot = await uploadBytes(fileRef, file);
+    let downloadURL = await getDownloadURL(snapshot.ref);
+
+    // ** Fix for production URLs **
+    // Ensure the URL uses the correct .appspot.com domain for the REST API.
+    if (downloadURL.includes('.firebasestorage.app')) {
+      downloadURL = downloadURL.replace('.firebasestorage.app', '.appspot.com');
     }
-
-    const fileId = uuidv4();
-    const filePath = `${destination}/${fileId}-${file.name}`;
-    const fileRef = ref(storage, filePath);
-
-    try {
-        const snapshot = await uploadBytes(fileRef, file);
-        let downloadURL = await getDownloadURL(snapshot.ref);
-
-        // ** Fix for production URLs **
-        // Ensure the URL uses the correct .appspot.com domain for the REST API.
-        downloadURL = downloadURL.replace('.firebasestorage.app', '.appspot.com');
-        
-        return downloadURL;
-    } catch (error) {
-        console.error(`Upload failed for ${file.name}:`, error);
-        // Re-throwing the original error to be handled by the caller.
-        // The error object from Firebase often contains useful codes like 'storage/unauthorized', 
-        // which can indicate problems with Storage Security Rules.
-        throw error;
-    }
+    
+    return downloadURL;
+  } catch (error) {
+    console.error(`Upload failed for ${file.name}:`, error);
+    // Re-throwing the original error to be handled by the caller.
+    // The error object from Firebase often contains useful codes like 'storage/unauthorized', 
+    // which can indicate problems with Storage Security Rules.
+    throw error;
+  }
 };
 
 
 /**
- * Uploads multiple files to Firebase Storage using the client-side JS SDK.
- * @param files The FileList object from the file input.
+ * Uploads multiple files to Firebase Storage in the given destination.
+ * @param files The FileList or array of File objects.
+ * @param destination The folder path in storage (e.g., 'offers', 'stories').
  * @returns A promise that resolves with an array of download URLs.
  */
-export const uploadMultipleFiles = async (files: FileList | File[]): Promise<string[]> => {
+export const uploadMultipleFiles = async (
+  files: FileList | File[],
+  destination: 'offers' | 'stories' | string
+): Promise<string[]> => {
   if (!files || files.length === 0) {
     return [];
   }
 
   const filesArray = Array.from(files);
-
-  // This function is currently only used for offers, so it hardcodes the 'offers' destination.
-  // If it needs to be used for other types like 'stories', this should be refactored to accept a destination parameter.
-  const uploadPromises: Promise<string>[] = filesArray.map(file => uploadFile(file, 'offers'));
+  const uploadPromises: Promise<string>[] = filesArray.map(file =>
+    uploadFile(file, destination)
+  );
   
   try {
-    const downloadURLs = await Promise.all(uploadPromises);
-    return downloadURLs;
+    return await Promise.all(uploadPromises);
   } catch (error) {
     console.error("Multiple file upload failed:", error);
     throw error;
