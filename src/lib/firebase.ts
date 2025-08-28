@@ -34,3 +34,4 @@ if (typeof window !== 'undefined') {
 
 export { db, storage, auth };
 export default app;
+

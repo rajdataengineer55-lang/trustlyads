@@ -4,17 +4,18 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // Default: Deny all reads and writes unless explicitly allowed.
-    match /{allPaths=**} {
-      allow read, write: if false;
+    // Helper function to check if a user is signed in.
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Allow public read access to all images in the 'offers' and 'stories' folders.
-    // Allow write (upload, update, delete) only for authenticated users.
-    // In your app's flow, only the admin will be performing uploads.
-    match /{folder}/{fileName} where folder IN ['offers', 'stories'] {
-       allow read: if true;
-       allow write: if request.auth != null;
+    // Allow anyone to read images (so they display on the website).
+    // Allow any authenticated user to write (upload). In practice, this is only
+    // the admin user via the admin panel, but this rule allows for future
+    // features where regular users might upload content.
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
     }
   }
 }

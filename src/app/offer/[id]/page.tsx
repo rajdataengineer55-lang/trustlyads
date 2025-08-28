@@ -31,12 +31,13 @@ const reviewSchema = z.object({
     comment: z.string().min(10, "Comment must be at least 10 characters."),
 });
 
-// Helper function for safe decoding
+// Helper function for safe decoding to prevent server crashes
+// Moved outside the component to ensure it's available during server-side rendering.
 const safeDecodeURIComponent = (uri: string) => {
   try {
     return decodeURIComponent(uri);
   } catch (e) {
-    // If it fails, return the original URI
+    // If decoding fails (e.g., for an unencoded placeholder URL), return the original URI
     return uri;
   }
 };
