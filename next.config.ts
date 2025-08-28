@@ -24,12 +24,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "localpulse-9e3lz.firebasestorage.app",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "www.trustlyads.in",
         port: "",
         pathname: "/**",

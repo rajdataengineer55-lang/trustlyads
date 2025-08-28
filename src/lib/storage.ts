@@ -22,14 +22,8 @@ export const uploadFile = async (
 
   try {
     const snapshot = await uploadBytes(fileRef, file);
-    let downloadURL = await getDownloadURL(snapshot.ref);
-
-    // ** Fix for production URLs **
-    // Ensure the URL uses the correct .appspot.com domain for the REST API.
-    if (downloadURL.includes('.firebasestorage.app')) {
-      downloadURL = downloadURL.replace('.firebasestorage.app', '.appspot.com');
-    }
-    
+    // The download URL will now be correct because of the updated firebase.ts config
+    const downloadURL = await getDownloadURL(snapshot.ref);
     return downloadURL;
   } catch (error) {
     console.error(`Upload failed for ${file.name}:`, error);
