@@ -32,12 +32,10 @@ const reviewSchema = z.object({
 });
 
 // Helper function for safe decoding to prevent server crashes
-// Moved outside the component to ensure it's available during server-side rendering.
 const safeDecodeURIComponent = (uri: string) => {
   try {
     return decodeURIComponent(uri);
   } catch (e) {
-    // If decoding fails (e.g., for an unencoded placeholder URL), return the original URI
     return uri;
   }
 };
@@ -259,14 +257,15 @@ export default function OfferDetailsPage() {
             </Link>
             <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
                 <div className="lg:col-span-3">
-                    <div className="relative mb-4 aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
+                    <div className="relative mb-4 w-full overflow-hidden rounded-lg shadow-lg bg-muted">
                         <Image
-                            src={mainImageUrl.includes('firebasestorage.googleapis.com') ? safeDecodeURIComponent(mainImageUrl) : mainImageUrl}
+                            src={safeDecodeURIComponent(mainImageUrl)}
                             alt={offer.title}
-                            fill
-                            className="object-cover transition-all duration-300 ease-in-out hover:scale-105"
+                            width={800}
+                            height={600}
+                            className="object-cover w-full h-auto aspect-[4/3] transition-all duration-300 ease-in-out hover:scale-105"
                             data-ai-hint={offer.hint}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 33vw"
+                            priority
                         />
                          <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-black text-white font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base animate-blink">
                           {offer.discount}
@@ -294,12 +293,12 @@ export default function OfferDetailsPage() {
                             return (
                               <div key={i} className="relative aspect-square cursor-pointer" onClick={() => setMainImage(img)}>
                                 <Image 
-                                  src={imageUrl.includes('firebasestorage.googleapis.com') ? safeDecodeURIComponent(imageUrl) : imageUrl} 
+                                  src={safeDecodeURIComponent(imageUrl)}
                                   alt={`thumbnail ${i + 1}`} 
-                                  fill 
-                                  className={cn("rounded-md object-cover transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                  width={100}
+                                  height={100}
+                                  className={cn("rounded-md object-cover w-full h-full transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
                                   data-ai-hint="placeholder image"
-                                  sizes="10vw" 
                                 />
                               </div>
                             )
@@ -489,14 +488,14 @@ export default function OfferDetailsPage() {
                       <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
                         <CardContent className="p-0">
                           <Link href={`/offer/${similarOffer.id}`} passHref className="block">
-                            <div className="relative aspect-[4/3]">
+                            <div className="relative aspect-[4/3] bg-muted">
                               <Image
-                                src={imageUrl.includes('firebasestorage.googleapis.com') ? safeDecodeURIComponent(imageUrl) : imageUrl}
+                                src={safeDecodeURIComponent(imageUrl)}
                                 alt={similarOffer.title}
-                                fill
-                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                width={600}
+                                height={400}
+                                className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
                                 data-ai-hint={similarOffer.hint}
-                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                               />
                               <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                                   <h3 className="text-lg font-headline font-bold text-white truncate">{similarOffer.title}</h3>

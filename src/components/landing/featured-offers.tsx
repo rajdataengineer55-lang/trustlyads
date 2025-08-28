@@ -23,13 +23,10 @@ interface FeaturedOffersProps {
   sortOption: string;
 }
 
-// Helper function for safe decoding to prevent server crashes
-// Moved outside the component to ensure it's available during server-side rendering.
 const safeDecodeURIComponent = (uri: string) => {
   try {
     return decodeURIComponent(uri);
   } catch (e) {
-    // If decoding fails (e.g., for an unencoded placeholder URL), return the original URI
     return uri;
   }
 };
@@ -122,14 +119,14 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
                   <CardContent className="p-0 flex flex-col flex-grow">
                       <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
-                        <div className="relative aspect-[4/3] w-full">
+                        <div className="relative aspect-[4/3] w-full bg-muted">
                           <Image
-                            src={imageUrl.includes('firebasestorage.googleapis.com') ? safeDecodeURIComponent(imageUrl) : imageUrl}
+                            src={safeDecodeURIComponent(imageUrl)}
                             alt={offer.title}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            width={600}
+                            height={400}
+                            className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
                             data-ai-hint={offer.hint}
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                           />
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                             <h3 className="text-lg sm:text-xl font-headline font-bold text-white truncate">{offer.title}</h3>

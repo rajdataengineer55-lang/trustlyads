@@ -85,14 +85,14 @@ export function Stories({ selectedLocation }: StoriesProps) {
                 <CarouselItem key={story.id} className="basis-1/4 sm:basis-1/5 md:basis-1/8 lg:basis-1/12">
                     <Link href={`/offer/${story.offerId}`} className="block group text-center">
                         <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full p-1 ring-2 ring-primary/50 group-hover:ring-primary transition-all duration-300">
-                             <div className="relative w-full h-full rounded-full overflow-hidden">
+                             <div className="relative w-full h-full rounded-full overflow-hidden bg-muted">
                                 {story.imageUrls && story.imageUrls.length > 0 && (
                                     <Image
                                         src={story.imageUrls[0]}
                                         alt={`Story from ${story.businessName}`}
-                                        fill
-                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                        sizes="(max-width: 640px) 64px, 80px"
+                                        width={80}
+                                        height={80}
+                                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                                     />
                                 )}
                              </div>
@@ -111,3 +111,5 @@ export function Stories({ selectedLocation }: StoriesProps) {
     </section>
   );
 }
+
+    
