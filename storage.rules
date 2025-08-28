@@ -1,21 +1,23 @@
-
 rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // Helper function to check if a user is signed in.
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Allow anyone to read images (so they display on the website).
-    // Allow any authenticated user to write (upload). In practice, this is only
-    // the admin user via the admin panel, but this rule allows for future
-    // features where regular users might upload content.
-    match /{allPaths=**} {
-      allow read: if true;
-      allow write: if isSignedIn();
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    // Rules for specific folders
+    match /{folder}/{allPaths=**} {
+      // Allow public read for images in 'offers' and 'stories' folders
+      allow read: if folder in ['offers', 'stories'];
+      
+      // Only allow authenticated admins to write to these folders
+      allow write: if folder in ['offers', 'stories'] && isAdmin();
     }
   }
 }
