@@ -181,5 +181,3 @@ export const incrementOfferClick = async (id: string) => {
         clicks: increment(1)
     });
 };
-
-

@@ -26,12 +26,14 @@ export function StoryCreator() {
 
   const filteredOffers = selectedLocation
     ? offers.filter(o => {
-        const mainLocation = locations.find(loc => loc.subLocations?.includes(selectedLocation));
+        // Find if the selected location is a main location with sub-locations
+        const mainLocation = locations.find(loc => loc.name === selectedLocation && loc.subLocations);
         if (mainLocation) {
-          // If the selected location is a sub-location, check against the offer's location
-          return o.location === selectedLocation;
+          // If it is, include offers from the main location and all its sub-locations
+          const locationsToShow = [mainLocation.name, ...(mainLocation.subLocations || [])];
+          return locationsToShow.includes(o.location);
         }
-        // If the selected location is a main location (or has no sub-locations), check that too
+        // Otherwise, it's a sub-location or a main location without subs, so match directly
         return o.location === selectedLocation;
       }).filter(o => !o.isHidden)
     : [];
@@ -78,6 +80,7 @@ export function StoryCreator() {
                         location.subLocations ? (
                         <SelectGroup key={location.name}>
                             <SelectLabel>{location.name}</SelectLabel>
+                             <SelectItem value={location.name}>All of {location.name}</SelectItem>
                             {location.subLocations.map((sub) => (
                               <SelectItem key={`${location.name}-${sub}`} value={sub}>
                                   {sub}
@@ -132,5 +135,3 @@ export function StoryCreator() {
     </div>
   );
 }
-
-    

@@ -73,35 +73,27 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { isAdmin, loading: authLoading } = useAuth();
 
-  const fetchOffers = useCallback(async (forceAdmin: boolean = false) => {
+  const fetchOffers = useCallback(async (forAdmin: boolean = false) => {
     setLoading(true);
     try {
-        if (isAdmin || forceAdmin) {
-            const allOffers = await getAllOffers();
-            setOffers(allOffers);
-        } else {
-            const publicOffers = await getPublicOffers();
-            setOffers(publicOffers);
-        }
+        const fetchedOffers = forAdmin ? await getAllOffers() : await getPublicOffers();
+        setOffers(fetchedOffers);
     } catch (error) {
         console.error("Failed to fetch offers:", error);
         setOffers([]);
     } finally {
         setLoading(false);
     }
-  }, [isAdmin]);
+  }, []);
 
   useEffect(() => {
-    // On initial load, always fetch public offers.
-    // This ensures non-logged-in users see the data.
-    getPublicOffers().then(publicOffers => {
-        setOffers(publicOffers);
-        setLoading(false);
-    });
-  }, []);
+    // Initial fetch for non-logged-in users.
+    fetchOffers(false);
+  }, [fetchOffers]);
   
   useEffect(() => {
-    // When the user's admin status is resolved, refetch if they are an admin.
+    // This effect runs when the authentication state is resolved.
+    // If the user turns out to be an admin, we re-fetch all data.
     if (!authLoading && isAdmin) {
         fetchOffers(true); // Force fetch all offers for the admin
     }

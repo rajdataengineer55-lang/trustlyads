@@ -108,8 +108,15 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         const currentFiles = Array.from(files);
         const newFilePreviews = currentFiles.map(file => URL.createObjectURL(file));
 
-        setImagePreviews(prev => [...prev, ...newFilePreviews]);
-        setNewImageFiles(prev => [...prev, ...currentFiles]);
+        if (isEditMode) {
+          // In edit mode, new files replace old previews.
+          setImagePreviews(newFilePreviews);
+          setNewImageFiles(currentFiles);
+        } else {
+          // In create mode, new files add to existing previews.
+          setImagePreviews(prev => [...prev, ...newFilePreviews]);
+          setNewImageFiles(prev => [...prev, ...currentFiles]);
+        }
     }
   };
   
@@ -245,5 +252,3 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
-
-    
