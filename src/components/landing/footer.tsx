@@ -40,8 +40,8 @@ export function Footer() {
                 <h4 className="font-headline font-semibold mb-4">Contact Us</h4>
                 <ul className="space-y-2">
                     <li>
-                      <a href="mailto:dandurajkumarworld24@gmail.com" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
-                        <MessageCircle className="h-4 w-4" /> Email
+                      <a href="mailto:trustlyads@gmail.com" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4" /> trustlyads@gmail.com
                       </a>
                     </li>
                     <li>
