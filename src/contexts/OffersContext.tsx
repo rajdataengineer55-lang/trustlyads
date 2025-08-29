@@ -104,15 +104,9 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Initial fetch for non-logged-in users.
-    fetchOffers(false);
-  }, [fetchOffers]);
-  
-  useEffect(() => {
-    // This effect runs when the authentication state is resolved.
-    // If the user turns out to be an admin, we re-fetch all data.
-    if (!authLoading && isAdmin) {
-        fetchOffers(true); // Force fetch all offers for the admin
+    // This effect now correctly waits for the auth state to be resolved before fetching.
+    if (!authLoading) {
+        fetchOffers(isAdmin);
     }
   }, [authLoading, isAdmin, fetchOffers]);
 
