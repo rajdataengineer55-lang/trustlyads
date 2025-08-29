@@ -116,6 +116,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                         alt={offer.title}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                       />
                        <Badge variant="default" className="absolute top-3 left-3 bg-accent text-accent-foreground font-bold">
                           {offer.discount}
