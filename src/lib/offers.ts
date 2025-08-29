@@ -62,9 +62,10 @@ const mapDocToOffer = (doc: any): Offer => {
 export const getOffers = async (): Promise<Offer[]> => {
   // This function runs on the server, where `auth.currentUser` is not available.
   // We fetch only visible offers, and rely on security rules to control admin access to hidden ones.
+  // The query now explicitly looks for `isHidden: false` which is compatible with `orderBy`.
   const offersQuery = query(
     offersCollection, 
-    where('isHidden', '!=', true), 
+    where('isHidden', '==', false), 
     orderBy('createdAt', 'desc')
   );
 
