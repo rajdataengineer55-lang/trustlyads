@@ -16,6 +16,9 @@ import {
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/hooks/use-admin';
+import { Header } from '@/components/landing/header';
+import { Footer } from '@/components/landing/footer';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface AuthContextType {
   user: User | null;
@@ -105,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       // The onAuthStateChanged listener will handle the rest
-    } catch (error: any) {
+    } catch (error: any)       {
        console.error("Error signing in with email:", error);
        let description = "An unknown error occurred. Please try again.";
        if(error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
@@ -140,9 +143,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const authLoading = loading || isCheckingAdmin;
+  
+  const value = { user, loading: authLoading, isAdmin, isCheckingAdmin, signInWithGoogle, signInWithEmail, signOut };
+  
+  if (authLoading) {
+    return (
+        <AuthContext.Provider value={value}>
+            <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-1">
+                    <div className="container mx-auto px-4 md:px-6 py-10">
+                        <div className="space-y-8">
+                            <Skeleton className="h-40 w-full" />
+                            <Skeleton className="h-24 w-full" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                                <Skeleton className="h-64 w-full" />
+                                <Skeleton className="h-64 w-full" />
+                                <Skeleton className="h-64 w-full" />
+                                <Skeleton className="h-64 w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        </AuthContext.Provider>
+    );
+  }
 
   return (
-    <AuthContext.Provider value={{ user, loading: authLoading, isAdmin, isCheckingAdmin, signInWithGoogle, signInWithEmail, signOut }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
