@@ -140,11 +140,14 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                     </div>
                   </Link>
                   <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
-                    <div className="flex items-center text-sm text-muted-foreground mb-3">
-                        <MapPin className="h-4 w-4 mr-2 shrink-0" />
-                        <span className="truncate">{offer.location}</span>
+                    <div className="space-y-3">
+                        <p className="font-semibold text-base truncate">{offer.business}</p>
+                        <div className="flex items-start text-sm text-muted-foreground">
+                            <MapPin className="h-4 w-4 mr-2 shrink-0 mt-0.5" />
+                            <span className="truncate">{offer.location}{offer.nearbyLocation ? `, ${offer.nearbyLocation}` : ''}</span>
+                        </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-2 my-4">
                       {offer.tags?.slice(0, 3).map((tag) => (
                         <Badge key={tag} variant="secondary">{tag}</Badge>                            
                       ))}
