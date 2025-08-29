@@ -307,15 +307,16 @@ export default function OfferDetailsPage() {
                 </div>
 
                 <div className="lg:col-span-2">
-                    <Card className="h-full">
-                        <CardContent className="p-4 sm:p-6 flex flex-col h-full">
-                            <h1 className="text-2xl sm:text-3xl font-headline font-bold mb-2">{offer.title}</h1>
-                            <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>
-                            
-                            <LocationInfo />
+                    <Card>
+                        <CardContent className="p-4 sm:p-6 space-y-6">
+                            <div>
+                              <h1 className="text-2xl sm:text-3xl font-headline font-bold mb-2">{offer.title}</h1>
+                              <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>
+                              <LocationInfo />
+                            </div>
 
                              {offer.locationLink && (
-                                <div className="mb-6">
+                                <div className="mb-2">
                                     <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => handleTrackedClick(offer.locationLink!)}>
                                         <Navigation className="mr-2 h-4 w-4" />
                                         Get Directions
@@ -323,14 +324,13 @@ export default function OfferDetailsPage() {
                                 </div>
                              )}
 
-
-                            <div className="flex flex-wrap gap-2 mb-6">
+                            <div className="flex flex-wrap gap-2">
                             {offer.tags?.map((tag) => (
                                 <Badge key={tag} variant="secondary">{tag}</Badge>
                             ))}
                             </div>
                             
-                            <div className="mt-auto">
+                            <div>
                              {user ? (
                                 <ContactActions />
                              ) : (
