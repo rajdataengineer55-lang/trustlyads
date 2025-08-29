@@ -14,12 +14,6 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    allowedDevOrigins: [
-      "http://localhost:9003",
-      "https://9003-firebase-studio-1755798338059.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev",
-    ],
-  },
 };
 
 export default nextConfig;
