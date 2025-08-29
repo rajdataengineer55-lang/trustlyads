@@ -13,6 +13,7 @@ import {
   incrementOfferClick as incrementClickInDb,
   type OfferData,
 } from '@/lib/offers';
+import { useAuth } from './AuthContext';
 
 export interface Review {
   id: string;
@@ -69,21 +70,26 @@ const OffersContext = createContext<OffersContextType | undefined>(undefined);
 export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isAdmin, loading: authLoading } = useAuth();
 
   const fetchOffers = useCallback(async () => {
+    // Prevent fetching until auth status is resolved.
+    if (authLoading) return;
+    
     setLoading(true);
     try {
-        const offersFromDb = await getOffersFromDb();
-        // Sort on the client to ensure consistent ordering for all users
-        const sortedOffers = offersFromDb.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-        setOffers(sortedOffers);
+        // Pass the isAdmin status to the fetch function.
+        const offersFromDb = await getOffersFromDb(isAdmin);
+        // The data is already sorted by the database query.
+        setOffers(offersFromDb);
     } catch (error) {
         console.error("Failed to fetch offers:", error);
     } finally {
         setLoading(false);
     }
-  }, []);
+  }, [isAdmin, authLoading]);
 
+  // Refetch offers whenever the admin status changes.
   useEffect(() => {
     fetchOffers();
   }, [fetchOffers]);

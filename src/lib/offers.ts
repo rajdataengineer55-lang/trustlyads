@@ -14,6 +14,8 @@ import {
     Timestamp,
     increment,
     where,
+    Query,
+    DocumentData,
 } from 'firebase/firestore';
 import type { Offer, Review } from '@/contexts/OffersContext';
 
@@ -59,15 +61,23 @@ const mapDocToOffer = (doc: any): Offer => {
 };
 
 // Get all offers with subcollection of reviews
-export const getOffers = async (): Promise<Offer[]> => {
-  // This function runs on the server, where `auth.currentUser` is not available.
-  // We fetch only visible offers, and rely on security rules to control admin access to hidden ones.
-  // The query now explicitly looks for `isHidden: false` which is compatible with `orderBy`.
-  const offersQuery = query(
-    offersCollection, 
-    where("isHidden", "==", false), 
-    orderBy("createdAt", "desc")
-  );
+// The isAdmin flag determines whether to fetch hidden offers or not.
+export const getOffers = async (isAdmin: boolean = false): Promise<Offer[]> => {
+  let offersQuery: Query<DocumentData>;
+
+  if (isAdmin) {
+    // If the user is an admin, fetch all offers and order them.
+    // This relies on Firestore security rules to ensure only admins can do this.
+    offersQuery = query(offersCollection, orderBy("createdAt", "desc"));
+  } else {
+    // For regular users or server-side rendering, only fetch visible offers.
+    // This query is compatible with default security rules and indexes.
+    offersQuery = query(
+      offersCollection,
+      where("isHidden", "==", false),
+      orderBy("createdAt", "desc")
+    );
+  }
 
   try {
     const querySnapshot = await getDocs(offersQuery);
