@@ -25,7 +25,15 @@ export function StoryCreator() {
   };
 
   const filteredOffers = selectedLocation
-    ? offers.filter(o => o.location === selectedLocation && !o.isHidden)
+    ? offers.filter(o => {
+        const mainLocation = locations.find(loc => loc.subLocations?.includes(selectedLocation));
+        if (mainLocation) {
+          // If the selected location is a sub-location, check against the offer's location
+          return o.location === selectedLocation;
+        }
+        // If the selected location is a main location (or has no sub-locations), check that too
+        return o.location === selectedLocation;
+      }).filter(o => !o.isHidden)
     : [];
 
   const selectedOffer = offers.find(o => o.id === selectedOfferId);
@@ -124,3 +132,5 @@ export function StoryCreator() {
     </div>
   );
 }
+
+    
