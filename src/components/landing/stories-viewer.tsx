@@ -7,7 +7,7 @@ import { getActiveStories, incrementStoryView, type Story } from "@/lib/stories"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 
@@ -101,27 +101,36 @@ export function StoriesViewer() {
     <>
       <section className="py-6 bg-background/50 border-b">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="flex gap-4 overflow-x-auto pb-2 -mb-2 no-scrollbar">
-            {Array.from(storiesByOffer.entries()).map(([offerId, stories]) => {
-              const story = stories[0];
-              const businessImageUrl = story.businessImage || 'https://placehold.co/60x60.png';
-              
-              return (
-              <button key={offerId} onClick={() => openStory(offerId)} className="flex flex-col items-center gap-2 flex-shrink-0 text-center w-20 group">
-                <div className="relative h-16 w-16 rounded-full p-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 group-hover:scale-105 transition-transform duration-200">
-                  <div className="bg-background rounded-full h-full w-full p-0.5">
-                    <Image
-                      src={businessImageUrl}
-                      alt={story.businessName}
-                      width={60}
-                      height={60}
-                      className="rounded-full object-cover w-full h-full"
-                    />
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-semibold text-lg">Recent Stories</h2>
+            <div className="text-sm text-muted-foreground hidden sm:flex items-center gap-1">
+              Swipe for more <ArrowRight className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="relative">
+            <div className="flex gap-4 overflow-x-auto pb-2 -mb-2 no-scrollbar">
+              {Array.from(storiesByOffer.entries()).map(([offerId, stories]) => {
+                const story = stories[0];
+                const businessImageUrl = story.businessImage || 'https://placehold.co/60x60.png';
+                
+                return (
+                <button key={offerId} onClick={() => openStory(offerId)} className="flex flex-col items-center gap-2 flex-shrink-0 text-center w-20 group">
+                  <div className="relative h-16 w-16 rounded-full p-1 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 group-hover:scale-105 transition-transform duration-200">
+                    <div className="bg-background rounded-full h-full w-full p-0.5">
+                      <Image
+                        src={businessImageUrl}
+                        alt={story.businessName}
+                        width={60}
+                        height={60}
+                        className="rounded-full object-cover w-full h-full"
+                      />
+                    </div>
                   </div>
-                </div>
-                <p className="text-xs font-medium truncate w-full">{story.businessName}</p>
-              </button>
-            )})}
+                  <p className="text-xs font-medium truncate w-full">{story.businessName}</p>
+                </button>
+              )})}
+            </div>
+            <div className="absolute top-0 right-0 bottom-4 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none" />
           </div>
         </div>
       </section>
