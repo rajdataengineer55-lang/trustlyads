@@ -10,7 +10,7 @@ import {
   signOut as firebaseSignOut, 
   signInWithEmailAndPassword,
   setPersistence,
-  browserSessionPersistence,
+  browserLocalPersistence,
   type User 
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // This effect runs once on mount to handle the redirect result and set up the auth listener.
   useEffect(() => {
     // We set persistence at the very beginning.
-    setPersistence(auth, browserSessionPersistence)
+    setPersistence(auth, browserLocalPersistence)
       .then(() => {
         // First, check if we're coming back from a Google sign-in.
         return getRedirectResult(auth);
