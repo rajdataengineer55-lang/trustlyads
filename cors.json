@@ -1,24 +1,8 @@
-
 [
-  {
-    "origin": [
-      "*"
-    ],
-    "method": [
-      "GET"
-    ],
-    "responseHeader": [
-      "Content-Type"
-    ],
-    "maxAgeSeconds": 3600
-  },
   {
     "origin": [
       "http://localhost:3000",
       "http://localhost:9003",
-      "https://9000-firebase-studio-1755798338059.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev",
-      "https://6000-firebase-studio-1755798338059.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev",
-      "https://9003-firebase-studio-1755798338059.cluster-fkltigo73ncaixtmokrzxhwsfc.cloudworkstations.dev",
       "https://localpulse-9e3lz.web.app",
       "https://localpulse-9e3lz.firebaseapp.com",
       "https://trustlyads.in",
