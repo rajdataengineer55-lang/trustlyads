@@ -5,60 +5,54 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Helper functions
-    function isAdmin() {
-      return request.auth.token.admin == true;
-    }
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-    function isAuthenticated() {
+    function isAuth() {
       return request.auth != null;
     }
-    
-    // OFFERS
-    match /offers/{offerId} {
-      // READ: Anyone can get a single offer. List is more complex.
-      // Admins can list everything.
-      // Users can list only non-hidden offers.
-      allow get: if true;
-      allow list: if isAdmin() || request.query.where.isHidden == false;
 
-      // WRITE: Only admins can create, update, or delete offers.
-      // We allow authenticated users to update 'views' and 'clicks' via increment.
-      allow create, delete: if isAdmin();
-      allow update: if isAdmin() || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'clicks']));
+    function isAdmin() {
+      return isAuth() && request.auth.token.admin == true;
+    }
+
+    // Offers Collection
+    match /offers/{offerId} {
+      // READ: Anyone can read an offer if it is not hidden. Admins can read all offers.
+      allow read: if resource.data.isHidden == false || isAdmin();
       
-      // REVIEWS SUBCOLLECTION
+      // CREATE, UPDATE, DELETE: Only admins can create, update, or delete offers.
+      allow write: if isAdmin();
+
+      // Reviews Subcollection
       match /reviews/{reviewId} {
-        // READ: Anyone can read reviews.
-        allow get, list: if true;
-        // WRITE: Authenticated users can create reviews. Only admins can update/delete.
-        allow create: if isAuthenticated();
+        // READ: Anyone can read reviews for a visible offer.
+        allow read: if get(/databases/$(database)/documents/offers/$(offerId)).data.isHidden == false || isAdmin();
+        
+        // CREATE: Any authenticated user can create a review.
+        allow create: if isAuth();
+
+        // UPDATE, DELETE: Only admins can modify or delete reviews.
         allow update, delete: if isAdmin();
       }
     }
 
-    // STORIES
-    // Stories are temporary and linked to offers.
+    // Stories Collection
     match /stories/{storyId} {
-      // READ: Anyone can read stories (needed for viewer).
-      // Listing is restricted to recent stories (handled by query in code, secured by read rule).
-      allow get, list: if true;
-      // CREATE: Only admins can create stories.
-      allow create: if isAdmin();
-      // UPDATE: Any authenticated user can update ONLY the 'views' count.
-      allow update: if isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']);
-      // DELETE: No one can delete stories; they expire automatically via TTL.
-      allow delete: if false;
+      // READ: Anyone can read any story. They are public and temporary.
+      allow read: if true;
+      
+      // CREATE, UPDATE, DELETE: Only admins can manage stories.
+      allow write: if isAdmin();
     }
 
-    // FOLLOWERS
-    // Document ID is the user's UID.
+    // Followers Collection
     match /followers/{userId} {
-        // READ: Publicly readable to get total count.
-        allow get, list: if true;
-        // WRITE: Only the owner of the document can create or delete their follow status.
-        allow create, delete: if isOwner(userId);
+      // READ: Anyone can read the list of followers (though the app logic only uses the count).
+      allow read: if true;
+
+      // CREATE, DELETE: An authenticated user can only follow/unfollow for themselves.
+      allow create, delete: if isAuth() && request.auth.uid == userId;
+
+      // UPDATE: No one can update a follower document.
+      allow update: if false;
     }
   }
 }
