@@ -15,7 +15,12 @@ import { Skeleton } from '../ui/skeleton';
 import { addFollower, removeFollower, isFollowing, getFollowersCount } from '@/lib/followers';
 import { useToast } from '@/hooks/use-toast';
 
-export function Header() {
+interface HeaderProps {
+  selectedLocation: string | null;
+  setSelectedLocation: (location: string | null) => void;
+}
+
+export function Header({ selectedLocation, setSelectedLocation }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, loading, signInWithGoogle, signOut } = useAuth();
   const { toast } = useToast();
@@ -135,32 +140,34 @@ export function Header() {
           {isMobile ? (
              <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                <span className="text-xs">Locations</span>
+                <span className="text-xs truncate">{selectedLocation || 'Locations'}</span>
                 <ChevronDown className="h-3 w-3" />
              </Button>
           ) : (
             <Button variant="ghost" className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-5 w-5" />
-              <span>Tirupati, Vellore, Chittoor & more</span>
+              <span className="truncate">{selectedLocation || 'Tirupati, Vellore, Chittoor & more'}</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
           )}
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          <DropdownMenuItem onSelect={() => setSelectedLocation(null)}>All Locations</DropdownMenuItem>
+          <DropdownMenuSeparator />
           {locations.map((location) => (
             location.subLocations ? (
               <DropdownMenuSub key={location.name}>
-                <DropdownMenuSubTrigger>{location.name}</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger onSelect={() => setSelectedLocation(location.name)}>{location.name}</DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
                     {location.subLocations.map((subLocation) => (
-                      <DropdownMenuItem key={subLocation}>{subLocation}</DropdownMenuItem>
+                      <DropdownMenuItem key={subLocation} onSelect={() => setSelectedLocation(subLocation)}>{subLocation}</DropdownMenuItem>
                     ))}
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
             ) : (
-              <DropdownMenuItem key={location.name}>{location.name}</DropdownMenuItem>
+              <DropdownMenuItem key={location.name} onSelect={() => setSelectedLocation(location.name)}>{location.name}</DropdownMenuItem>
             )
           ))}
         </DropdownMenuContent>

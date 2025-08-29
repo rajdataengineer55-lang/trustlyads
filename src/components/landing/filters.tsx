@@ -46,7 +46,7 @@ export function Filters({
     return (
         <section id="filters" className="py-8 bg-background/50 border-t border-b">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-center">
                     <div className="w-full lg:col-span-2 md:col-span-3 sm:col-span-2">
                          <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -73,33 +73,6 @@ export function Filters({
                             </SelectContent>
                         </Select>
                     </div>
-                     <div className="w-full">
-                        <Select onValueChange={(value) => setSelectedLocation(value === 'all' ? null : value)} value={selectedLocation || 'all'}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Filter by Location" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Locations</SelectItem>
-                                {locations.map((location) =>
-                                    location.subLocations ? (
-                                    <SelectGroup key={location.name}>
-                                        <SelectLabel>{location.name}</SelectLabel>
-                                        <SelectItem value={location.name}>All of {location.name}</SelectItem>
-                                        {location.subLocations.map((sub) => (
-                                        <SelectItem key={`${location.name}-${sub}`} value={sub}>
-                                            {sub}
-                                        </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                    ) : (
-                                    <SelectItem key={location.name} value={location.name}>
-                                        {location.name}
-                                    </SelectItem>
-                                    )
-                                )}
-                            </SelectContent>
-                        </Select>
-                    </div>
                     
                     <div className="w-full">
                          <Select onValueChange={(value: SortOption) => setSortOption(value)} value={sortOption}>
@@ -114,7 +87,7 @@ export function Filters({
                     </div>
                     
                     {hasActiveFilters && (
-                        <div className="w-full text-center sm:col-span-2 md:col-span-3 lg:col-span-5">
+                        <div className="w-full text-center sm:col-span-2 md:col-span-3 lg:col-span-4">
                             <Button variant="ghost" onClick={handleClearFilters}>
                                 <X className="mr-2 h-4 w-4" />
                                 Clear All Filters

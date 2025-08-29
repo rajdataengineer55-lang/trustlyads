@@ -21,7 +21,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header 
+        selectedLocation={selectedLocation}
+        setSelectedLocation={setSelectedLocation}
+      />
       <main className="flex-1">
         <Hero 
           searchTerm={searchTerm}
