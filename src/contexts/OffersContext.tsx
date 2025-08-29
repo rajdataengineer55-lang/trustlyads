@@ -25,7 +25,7 @@ export interface Review {
 }
 
 export interface Offer {
-  id: string;
+  id:string;
   title: string;
   description: string;
   business: string;
@@ -76,18 +76,13 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const fetchOffers = useCallback(async () => {
     setLoading(true);
     try {
-        // Always fetch public offers first for non-admins or initial load.
-        const publicOffers = await getPublicOffers();
-        
         if (isAdmin) {
             // If the user is an admin, fetch all offers to get hidden ones too.
             const allOffers = await getAllOffers();
-            // Create a map of all offers for easy lookup
-            const allOffersMap = new Map(allOffers.map(o => [o.id, o]));
-            // The final list for an admin is the full list from getAllOffers
-            setOffers(Array.from(allOffersMap.values()).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+            setOffers(allOffers);
         } else {
             // For regular users, just set the public offers.
+            const publicOffers = await getPublicOffers();
             setOffers(publicOffers);
         }
     } catch (error) {
@@ -99,7 +94,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     }
   }, [isAdmin]);
 
-  // Effect to fetch offers when the component mounts or when admin status changes.
+  // This effect ensures that we only fetch offers once the authentication status is known.
   useEffect(() => {
     // We wait for the auth state to be resolved before fetching.
     if (!authLoading) {
