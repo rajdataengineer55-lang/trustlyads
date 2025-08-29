@@ -53,7 +53,8 @@
     {
       "collectionGroup": "stories",
       "fieldPath": "createdAt",
-      "ttl": true
+      "ttl": true,
+      "indexes": []
     }
   ]
 }

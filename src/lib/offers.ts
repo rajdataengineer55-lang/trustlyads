@@ -65,14 +65,14 @@ export const getOffers = async (): Promise<Offer[]> => {
   // The query now explicitly looks for `isHidden: false` which is compatible with `orderBy`.
   const offersQuery = query(
     offersCollection, 
-    where('isHidden', '==', false), 
-    orderBy('createdAt', 'desc')
+    where("isHidden", "==", false), 
+    orderBy("createdAt", "desc")
   );
 
   try {
-    const offersSnapshot = await getDocs(offersQuery);
+    const querySnapshot = await getDocs(offersQuery);
 
-    const offers = await Promise.all(offersSnapshot.docs.map(async (offerDoc) => {
+    const offers = await Promise.all(querySnapshot.docs.map(async (offerDoc) => {
         const offer = mapDocToOffer(offerDoc);
         
         const reviewsCollection = collection(db, 'offers', offer.id, 'reviews');
