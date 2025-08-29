@@ -74,7 +74,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
            <h2 className="text-3xl font-headline font-bold text-center mb-12">
             Featured Offers
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             <Skeleton className="h-[380px] w-full" />
             <Skeleton className="h-[380px] w-full" />
             <Skeleton className="h-[380px] w-full" />
@@ -103,7 +103,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     <>
     <section id="featured-offers" className="w-full py-10 sm:py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {filteredAndSortedOffers.map((offer) => {
             if (!offer.createdAt) return null; // Guard against missing createdAt
             const isNew = (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
