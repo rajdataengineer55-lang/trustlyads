@@ -1,7 +1,7 @@
 
 'use client';
 
-import { db } from './firebase';
+import { db, storage } from './firebase';
 import {
   collection,
   addDoc,
@@ -14,7 +14,10 @@ import {
   doc,
   updateDoc,
   increment,
+  deleteDoc,
 } from 'firebase/firestore';
+import { ref, deleteObject } from 'firebase/storage';
+
 
 export interface Story {
   id: string;
@@ -95,5 +98,32 @@ export const incrementStoryView = async (storyId: string) => {
     });
   } catch (error) {
     console.error(`Failed to increment view for story ${storyId}:`, error);
+  }
+};
+
+
+/**
+ * Deletes a story document from Firestore and its associated file from Storage.
+ * @param storyId The ID of the story document to delete.
+ * @param mediaUrl The public URL of the media file to delete from Storage.
+ */
+export const deleteStory = async (storyId: string, mediaUrl: string) => {
+  // Delete the Firestore document
+  const storyDocRef = doc(db, 'stories', storyId);
+  await deleteDoc(storyDocRef);
+
+  // Delete the file from Firebase Storage
+  // We need to create a reference from the download URL to delete the file.
+  try {
+    const fileRef = ref(storage, mediaUrl);
+    await deleteObject(fileRef);
+  } catch (error: any) {
+    // It's possible the file doesn't exist or rules prevent deletion.
+    // We log the error but don't throw, as the primary goal (deleting the DB record) is complete.
+    if (error.code === 'storage/object-not-found') {
+      console.warn(`Story file not found in Storage, but DB record was deleted: ${mediaUrl}`);
+    } else {
+      console.error(`Failed to delete story file from Storage: ${mediaUrl}`, error);
+    }
   }
 };
