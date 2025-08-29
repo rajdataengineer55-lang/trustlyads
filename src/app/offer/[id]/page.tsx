@@ -308,7 +308,7 @@ export default function OfferDetailsPage() {
 
                 <div className="lg:col-span-2">
                     <Card>
-                        <CardContent className="p-4 sm:p-6 space-y-6">
+                        <CardContent className="p-4 sm:p-6 space-y-4">
                             <div>
                               <h1 className="text-2xl sm:text-3xl font-headline font-bold mb-2">{offer.title}</h1>
                               <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>

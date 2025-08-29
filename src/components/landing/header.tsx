@@ -16,11 +16,11 @@ import { addFollower, removeFollower, isFollowing, getFollowersCount } from '@/l
 import { useToast } from '@/hooks/use-toast';
 
 interface HeaderProps {
-  selectedLocation: string | null;
-  setSelectedLocation: (location: string | null) => void;
+  selectedLocation?: string | null;
+  setSelectedLocation?: (location: string | null) => void;
 }
 
-export function Header({ selectedLocation, setSelectedLocation }: HeaderProps) {
+export function Header({ selectedLocation, setSelectedLocation = () => {} }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, loading, signInWithGoogle, signOut } = useAuth();
   const { toast } = useToast();

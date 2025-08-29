@@ -42,11 +42,14 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     }
 
     if (selectedLocation) {
+        // Find if the selected location is a main location with sub-locations
         const mainLocation = locations.find(loc => loc.name === selectedLocation && loc.subLocations);
         if (mainLocation?.subLocations) {
+            // If it is, include offers from the main location and all its sub-locations
             const locationsToShow = [mainLocation.name, ...mainLocation.subLocations];
             filtered = filtered.filter(offer => locationsToShow.includes(offer.location));
         } else {
+            // Otherwise, it's a sub-location or a main location without subs, so match directly
             filtered = filtered.filter(offer => offer.location === selectedLocation);
         }
     }
