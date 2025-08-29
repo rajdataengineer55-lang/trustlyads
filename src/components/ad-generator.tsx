@@ -105,10 +105,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-        if ((imagePreviews.length + files.length) > 10) {
-            toast({ variant: "destructive", title: "Image Limit Exceeded", description: "You can upload a maximum of 10 images." });
-            return;
-        }
         const currentFiles = Array.from(files);
         const newFilePreviews = currentFiles.map(file => URL.createObjectURL(file));
 
@@ -209,7 +205,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         <Card>
           <CardHeader><CardTitle>Offer Media</CardTitle><CardDescription>Upload images for your offer. The first image will be the cover photo.</CardDescription></CardHeader>
           <CardContent>
-            <FormField control={form.control} name="images" render={({ field }) => (<FormItem><FormLabel>Offer Images (up to 10)</FormLabel><FormControl><Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" /></FormControl><FormDescription>Click an image to select it as the main cover photo.</FormDescription>
+            <FormField control={form.control} name="images" render={({ field }) => (<FormItem><FormLabel>Offer Images</FormLabel><FormControl><Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" /></FormControl><FormDescription>Click an image to select it as the main cover photo.</FormDescription>
                 {imagePreviews.length > 0 && (<div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">{imagePreviews.map((src, i) => (<div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}><Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />{selectedMainImageIndex === i && (<div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>)}</div>))}</div>)}
                 {imagePreviews.length === 0 && !isEditMode && (<div className="mt-2 rounded-md border border-dashed border-gray-300 p-4 text-center"><Image src="https://placehold.co/600x400.png" alt="Placeholder" width={100} height={100} className="mx-auto rounded-md object-cover" data-ai-hint="food biryani" /><p className="text-xs text-muted-foreground mt-2">Image previews will appear here</p></div>)}
               <FormMessage /></FormItem>)} />
@@ -249,3 +245,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    

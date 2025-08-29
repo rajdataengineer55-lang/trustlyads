@@ -36,10 +36,6 @@ export function StoryUploader({ offer, onFinished }: StoryUploaderProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit
-        toast({ variant: "destructive", title: "File too large", description: "Story media must be under 10MB." });
-        return;
-      }
       form.setValue("media", e.target.files as FileList);
       setPreview(URL.createObjectURL(file));
     }
@@ -109,3 +105,5 @@ export function StoryUploader({ offer, onFinished }: StoryUploaderProps) {
     </Form>
   );
 }
+
+    
