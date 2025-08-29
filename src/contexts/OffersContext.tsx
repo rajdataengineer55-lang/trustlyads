@@ -33,7 +33,6 @@ export interface Offer {
   locationLink?: string;
   image: string;
   otherImages?: string[];
-  hint: string;
   discount: string;
   tags: string[];
   allowCall: boolean;

@@ -118,7 +118,6 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                             width={600}
                             height={400}
                             className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
-                            data-ai-hint={offer.hint}
                           />
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                             <h3 className="text-lg sm:text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
@@ -142,7 +141,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                         <div className="flex-grow space-y-3">
                           <div className="flex items-center text-sm text-muted-foreground">
                               <Building className="h-4 w-4 mr-2 shrink-0" />
-                              <p className="truncate font-medium text-foreground">{offer.business}</p>
+                              <p className="font-medium text-foreground">{offer.business}</p>
                           </div>
                           <div className="flex items-start text-sm text-muted-foreground">
                             <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />

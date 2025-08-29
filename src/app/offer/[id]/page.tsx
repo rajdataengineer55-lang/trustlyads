@@ -264,7 +264,6 @@ export default function OfferDetailsPage() {
                             width={800}
                             height={600}
                             className="object-cover w-full h-auto aspect-[4/3] transition-all duration-300 ease-in-out hover:scale-105"
-                            data-ai-hint={offer.hint}
                             priority
                         />
                          <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-black text-white font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base animate-blink">
@@ -495,7 +494,6 @@ export default function OfferDetailsPage() {
                                 width={600}
                                 height={400}
                                 className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
-                                data-ai-hint={similarOffer.hint}
                               />
                               <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                                   <h3 className="text-lg font-headline font-bold text-white truncate">{similarOffer.title}</h3>

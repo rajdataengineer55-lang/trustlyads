@@ -147,11 +147,10 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
     const mainImage = finalImageUrls[selectedMainImageIndex] || finalImageUrls[0];
     const otherImages = finalImageUrls.filter((_, index) => index !== selectedMainImageIndex);
-    const hint = [values.offerTitle, values.business, values.businessType, values.tags?.split(',').map(tag => tag.trim()).filter(Boolean).join(' ')].filter(Boolean).join(' ').toLowerCase();
 
     const offerData: OfferData = {
         title: values.offerTitle, description: values.offerCompleteDetails, business: values.business, category: values.businessType, location: values.location,
-        nearbyLocation: values.nearbyLocation, locationLink: values.locationLink, image: mainImage, otherImages: otherImages || [], hint: hint,
+        nearbyLocation: values.nearbyLocation, locationLink: values.locationLink, image: mainImage, otherImages: otherImages || [],
         discount: values.discount, tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [], allowCall: values.allowCall ?? false,
         phoneNumber: values.phoneNumber, allowChat: values.allowChat ?? false, chatLink: values.chatLink, allowSchedule: values.allowSchedule ?? false,
         scheduleLink: values.scheduleLink, isHidden: isEditMode && offerToEdit ? offerToEdit.isHidden : false,
@@ -250,5 +249,3 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
-
-    

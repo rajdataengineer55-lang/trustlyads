@@ -23,7 +23,6 @@ export interface Story {
   businessImage: string;
   mediaUrl: string;
   mediaType: 'image' | 'video';
-  hint: string;
   createdAt: Date;
   views: number;
 }
@@ -34,7 +33,6 @@ export interface StoryData {
   businessImage: string;
   mediaUrl: string;
   mediaType: 'image' | 'video';
-  hint: string;
 }
 
 const storiesCollection = collection(db, 'stories');

@@ -48,7 +48,6 @@ export function StoryUploader({ offer, onFinished }: StoryUploaderProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     const file = values.media[0];
-    const hint = [offer.title, offer.business, offer.category, ...offer.tags].filter(Boolean).join(' ').toLowerCase();
 
     try {
       const mediaUrl = await uploadFile(file, 'stories');
@@ -58,7 +57,6 @@ export function StoryUploader({ offer, onFinished }: StoryUploaderProps) {
         businessImage: offer.image,
         mediaUrl: mediaUrl,
         mediaType: file.type.startsWith("video") ? "video" : "image",
-        hint: hint,
       });
       toast({ title: "Story Uploaded!", description: `Your story for "${offer.title}" is now live for 24 hours.` });
       onFinished();

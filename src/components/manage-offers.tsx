@@ -121,7 +121,7 @@ export function ManageOffers() {
                         <TableRow key={offer.id}>
                             <TableCell className="pl-6">
                                 <div className="flex items-center gap-4">
-                                    <Image src={offer.image || 'https://placehold.co/64x48.png'} alt={offer.title} width={64} height={48} className="rounded-md object-cover bg-muted" data-ai-hint={offer.hint} />
+                                    <Image src={offer.image || 'https://placehold.co/64x48.png'} alt={offer.title} width={64} height={48} className="rounded-md object-cover bg-muted" />
                                     <span className="font-medium truncate">{offer.title}</span>
                                 </div>
                             </TableCell>
