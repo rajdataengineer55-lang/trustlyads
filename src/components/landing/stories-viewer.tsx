@@ -7,7 +7,7 @@ import { getActiveStories, incrementStoryView, type Story } from "@/lib/stories"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { X, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ArrowRight, Eye } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -164,6 +164,10 @@ export function StoriesViewer() {
                  <Link href={`/offer/${currentStory.offerId}`} onClick={closeStory}>
                    <p className="text-white text-sm font-bold hover:underline">{currentStory.businessName}</p>
                  </Link>
+                 <div className="flex items-center gap-1.5 text-white/80 text-xs">
+                    <Eye className="h-4 w-4" />
+                    <span>{currentStory.views}</span>
+                 </div>
               </div>
 
               <Button variant="ghost" size="icon" onClick={closeStory} className="absolute top-4 right-2 z-20 text-white hover:bg-white/20 hover:text-white">

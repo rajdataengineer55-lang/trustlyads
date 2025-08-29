@@ -15,6 +15,7 @@ import {
     type OfferData,
 } from '@/lib/offers';
 import { useAuth } from './AuthContext';
+import { getActiveStories } from '@/lib/stories';
 
 export interface Review {
   id: string;
@@ -76,8 +77,24 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const fetchOffers = useCallback(async (forAdmin: boolean = false) => {
     setLoading(true);
     try {
-        const fetchedOffers = forAdmin ? await getAllOffers() : await getPublicOffers();
-        setOffers(fetchedOffers);
+        const [fetchedOffers, activeStories] = await Promise.all([
+           forAdmin ? getAllOffers() : getPublicOffers(),
+           getActiveStories()
+        ]);
+        
+        // Create a map of offerId to total story views
+        const storyViewsMap = new Map<string, number>();
+        activeStories.forEach(story => {
+          storyViewsMap.set(story.offerId, (storyViewsMap.get(story.offerId) || 0) + story.views);
+        });
+
+        // Assign story views to each offer
+        const offersWithStoryViews = fetchedOffers.map(offer => ({
+          ...offer,
+          storyViews: storyViewsMap.get(offer.id) || 0,
+        }));
+        
+        setOffers(offersWithStoryViews);
     } catch (error) {
         console.error("Failed to fetch offers:", error);
         setOffers([]);

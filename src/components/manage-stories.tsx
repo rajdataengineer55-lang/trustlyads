@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Trash2, Clapperboard, Video, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Clapperboard, Video, Image as ImageIcon, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
@@ -127,14 +127,17 @@ export function ManageStories() {
                             ) : (
                                 <video src={story.mediaUrl} className="w-full h-full object-cover" muted loop playsInline />
                             )}
-                            <div className="absolute inset-0 bg-black/40 flex flex-col justify-between p-2 text-white">
-                                <div className="flex items-center gap-1.5 bg-black/50 p-1 rounded-md text-xs">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-between p-2 text-white">
+                                <div className="flex items-center gap-1.5 bg-black/50 p-1 rounded-md text-xs self-start">
                                    {story.mediaType === 'image' ? <ImageIcon className="h-3 w-3" /> : <Video className="h-3 w-3" />}
                                    <span>{story.mediaType}</span>
                                 </div>
                                 <div className="text-xs">
                                     <p>Posted {formatDistanceToNow(new Date(story.createdAt), { addSuffix: true })}</p>
-                                    <p>{story.views || 0} views</p>
+                                    <div className="flex items-center gap-1">
+                                      <Eye className="h-3 w-3" />
+                                      <span>{story.views || 0} views</span>
+                                    </div>
                                 </div>
                             </div>
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
