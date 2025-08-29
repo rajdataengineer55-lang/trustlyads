@@ -54,7 +54,7 @@ export interface Offer {
 interface OffersContextType {
   offers: Offer[];
   loading: boolean;
-  fetchOffers: () => Promise<void>; // Expose fetchOffers
+  fetchOffers: (forceAdmin?: boolean) => Promise<void>; // Expose fetchOffers
   addOffer: (offer: OfferData) => Promise<void>;
   updateOffer: (id: string, updatedOfferData: Partial<OfferData>) => Promise<void>;
   deleteOffer: (id: string) => Promise<void>;
@@ -73,48 +73,54 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { isAdmin, loading: authLoading } = useAuth();
 
-  const fetchOffers = useCallback(async () => {
+  const fetchOffers = useCallback(async (forceAdmin: boolean = false) => {
     setLoading(true);
     try {
-        if (isAdmin) {
-            // If the user is an admin, fetch all offers to get hidden ones too.
+        if (isAdmin || forceAdmin) {
             const allOffers = await getAllOffers();
             setOffers(allOffers);
         } else {
-            // For regular users, just set the public offers.
             const publicOffers = await getPublicOffers();
             setOffers(publicOffers);
         }
     } catch (error) {
         console.error("Failed to fetch offers:", error);
-        // In case of error, fall back to an empty list.
         setOffers([]);
     } finally {
         setLoading(false);
     }
   }, [isAdmin]);
 
-  // This effect ensures that we only fetch offers once the authentication status is known.
   useEffect(() => {
-    // We wait for the auth state to be resolved before fetching.
-    if (!authLoading) {
-      fetchOffers();
+    // On initial load, always fetch public offers.
+    // This ensures non-logged-in users see the data.
+    getPublicOffers().then(publicOffers => {
+        setOffers(publicOffers);
+        setLoading(false);
+    });
+  }, []);
+  
+  useEffect(() => {
+    // When the user's admin status is resolved, refetch if they are an admin.
+    if (!authLoading && isAdmin) {
+        fetchOffers(true); // Force fetch all offers for the admin
     }
-  }, [authLoading, fetchOffers]);
+  }, [authLoading, isAdmin, fetchOffers]);
+
 
   const addOffer = async (offer: OfferData) => {
     await addOfferToDb(offer);
-    await fetchOffers(); // Refetch after adding
+    await fetchOffers(true); // Refetch after adding, forcing admin view
   };
 
   const updateOffer = async (id: string, updatedOfferData: Partial<OfferData>) => {
     await updateOfferInDb(id, updatedOfferData);
-    await fetchOffers(); // Refetch after updating
+    await fetchOffers(true); // Refetch after updating, forcing admin view
   };
   
   const deleteOffer = async (id: string) => {
     await deleteOfferFromDb(id);
-    await fetchOffers(); // Refetch after deleting
+    await fetchOffers(true); // Refetch after deleting, forcing admin view
   };
   
   const boostOffer = (id: string) => {
@@ -132,26 +138,24 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   
   const addReview = async (offerId: string, review: Omit<Review, 'id' | 'createdAt'>) => {
     await addReviewToDb(offerId, review);
-    await fetchOffers(); // Refetch to show new review
+    await fetchOffers(isAdmin); // Refetch to show new review
   };
 
   const toggleOfferVisibility = async (id: string) => {
     const offer = getOfferById(id);
     if(offer) {
         await toggleVisibilityInDb(id, !offer.isHidden);
-        await fetchOffers(); // Refetch to update status
+        await fetchOffers(true); // Refetch to update status, forcing admin view
     }
   };
 
   const incrementOfferView = async (id: string) => {
     await incrementViewInDb(id);
-    // Optimistically update UI to avoid full refetch
     setOffers(prev => prev.map(o => o.id === id ? {...o, views: (o.views || 0) + 1} : o));
   };
 
   const incrementOfferClick = async (id: string) => {
     await incrementClickInDb(id);
-    // Optimistically update UI to avoid full refetch
     setOffers(prev => prev.map(o => o.id === id ? {...o, clicks: (o.clicks || 0) + 1} : o));
   };
 
