@@ -1,9 +1,10 @@
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
 import { storage } from './firebase';
+import { getFileHash } from './crypto';
 
 /**
  * Uploads a single file to a specified destination in Firebase Storage.
+ * It uses a content hash of the file as the filename to prevent duplicates.
  * @param file The file to upload.
  * @param destination The folder path in storage (e.g., 'offers', 'stories').
  * @returns A promise that resolves with the download URL.
@@ -16,13 +17,17 @@ export const uploadFile = async (
     throw new Error("File is required for upload.");
   }
 
-  const fileId = uuidv4();
-  // Encode the filename to handle spaces, parentheses, etc.
-  const safeFileName = encodeURIComponent(file.name);
-  const filePath = `${destination}/${fileId}-${safeFileName}`;
+  // Generate a unique ID based on file content to prevent duplicates
+  const fileHash = await getFileHash(file);
+  const fileExtension = file.name.split('.').pop() || '';
+  const uniqueFileName = `${fileHash}.${fileExtension}`;
+  
+  const filePath = `${destination}/${uniqueFileName}`;
   const fileRef = ref(storage, filePath);
 
   try {
+    // Note: uploadBytes will overwrite if a file with the same name exists.
+    // This is the desired behavior for our content-hashing approach.
     const snapshot = await uploadBytes(fileRef, file);
     const downloadURL = await getDownloadURL(snapshot.ref);
     return downloadURL;
