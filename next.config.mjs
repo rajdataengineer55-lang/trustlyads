@@ -8,11 +8,10 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "firebasestorage.googleapis.com",
-        pathname: "/v0/b/localpulse-9e3lz.firebasestorage.app/**",
+        hostname: "placehold.co",
       },
     ],
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
