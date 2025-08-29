@@ -5,13 +5,12 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, EyeOff, MapPin, Clock, Building } from "lucide-react";
+import { ArrowRight, EyeOff, MapPin } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
-import { formatDistanceToNow } from 'date-fns';
 import { useMemo } from "react";
 import { locations } from "@/lib/locations";
 
@@ -105,56 +104,42 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAndSortedOffers.map((offer) => {
-            if (!offer.createdAt) return null; // Guard against missing createdAt
-            const isNew = (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
             const imageUrl = offer.image || 'https://placehold.co/600x400.png';
 
             return (
-              <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
+              <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
                 <CardContent className="p-0 flex flex-col flex-grow">
                   <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
                     <div className="relative aspect-[4/3] w-full bg-muted">
                       <Image
                         src={imageUrl}
                         alt={offer.title}
-                        width={600}
-                        height={400}
-                        className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                          <h3 className="text-lg font-headline font-bold text-white truncate">{offer.title}</h3>
-                      </div>
-                      <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
+                       <Badge variant="default" className="absolute top-3 left-3 bg-accent text-accent-foreground font-bold">
                           {offer.discount}
                       </Badge>
                       {offer.isHidden && (
-                          <Badge variant="destructive" className="absolute top-4 left-4 font-bold">
+                          <Badge variant="destructive" className="absolute top-3 right-3 font-bold">
                             <EyeOff className="mr-2 h-4 w-4" /> Hidden
-                          </Badge>
-                      )}
-                      {isNew && !offer.isHidden && (
-                          <Badge variant="secondary" className="absolute top-4 left-4 font-bold bg-green-500 text-white">
-                              Just Listed
                           </Badge>
                       )}
                     </div>
                   </Link>
-                  <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
-                    <div className="space-y-3">
-                        <p className="font-semibold text-base truncate">{offer.business}</p>
-                        <div className="flex items-start text-sm text-muted-foreground">
-                            <MapPin className="h-4 w-4 mr-2 shrink-0 mt-0.5" />
-                            <span className="truncate">{offer.location}{offer.nearbyLocation ? `, ${offer.nearbyLocation}` : ''}</span>
-                        </div>
+                  <div className="p-4 bg-card flex flex-col flex-grow">
+                    <div className="space-y-2 flex-grow">
+                      <h3 className="text-lg font-bold uppercase text-primary">{offer.title}</h3>
+                      <p className="font-semibold text-lg">{offer.business}</p>
+                      <p className="text-sm text-muted-foreground">{offer.category}</p>
+                      <div className="flex items-start text-sm text-muted-foreground pt-1">
+                        <MapPin className="h-4 w-4 mr-2 shrink-0 mt-0.5" />
+                        <span className="line-clamp-2">{offer.location}{offer.nearbyLocation ? `, ${offer.nearbyLocation}` : ''}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 my-4">
-                      {offer.tags?.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="secondary">{tag}</Badge>                            
-                      ))}
-                    </div>
-                    <div className="mt-auto">
+                    <div className="mt-4">
                         <Link href={`/offer/${offer.id}`} passHref>
-                          <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                          <Button className="w-full font-semibold">
                                View Details
                               <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
