@@ -3,15 +3,16 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { 
-  getOffers as getOffersFromDb, 
-  addOffer as addOfferToDb, 
-  updateOffer as updateOfferInDb, 
-  deleteOffer as deleteOfferFromDb,
-  addReview as addReviewToDb,
-  toggleOfferVisibility as toggleVisibilityInDb,
-  incrementOfferView as incrementViewInDb,
-  incrementOfferClick as incrementClickInDb,
-  type OfferData,
+    getPublicOffers,
+    getAllOffers,
+    addOffer as addOfferToDb, 
+    updateOffer as updateOfferInDb, 
+    deleteOffer as deleteOfferFromDb,
+    addReview as addReviewToDb,
+    toggleOfferVisibility as toggleVisibilityInDb,
+    incrementOfferView as incrementViewInDb,
+    incrementOfferClick as incrementClickInDb,
+    type OfferData,
 } from '@/lib/offers';
 import { useAuth } from './AuthContext';
 
@@ -73,26 +74,38 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const { isAdmin, loading: authLoading } = useAuth();
 
   const fetchOffers = useCallback(async () => {
-    // Prevent fetching until auth status is resolved.
-    if (authLoading) return;
-    
     setLoading(true);
     try {
-        // Pass the isAdmin status to the fetch function.
-        const offersFromDb = await getOffersFromDb(isAdmin);
-        // The data is already sorted by the database query.
-        setOffers(offersFromDb);
+        // Always fetch public offers first for non-admins or initial load.
+        const publicOffers = await getPublicOffers();
+        
+        if (isAdmin) {
+            // If the user is an admin, fetch all offers to get hidden ones too.
+            const allOffers = await getAllOffers();
+            // Create a map of all offers for easy lookup
+            const allOffersMap = new Map(allOffers.map(o => [o.id, o]));
+            // The final list for an admin is the full list from getAllOffers
+            setOffers(Array.from(allOffersMap.values()).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+        } else {
+            // For regular users, just set the public offers.
+            setOffers(publicOffers);
+        }
     } catch (error) {
         console.error("Failed to fetch offers:", error);
+        // In case of error, fall back to an empty list.
+        setOffers([]);
     } finally {
         setLoading(false);
     }
-  }, [isAdmin, authLoading]);
+  }, [isAdmin]);
 
-  // Refetch offers whenever the admin status changes.
+  // Effect to fetch offers when the component mounts or when admin status changes.
   useEffect(() => {
-    fetchOffers();
-  }, [fetchOffers]);
+    // We wait for the auth state to be resolved before fetching.
+    if (!authLoading) {
+      fetchOffers();
+    }
+  }, [authLoading, fetchOffers]);
 
   const addOffer = async (offer: OfferData) => {
     await addOfferToDb(offer);

@@ -60,27 +60,10 @@ const mapDocToOffer = (doc: any): Offer => {
   } as Offer;
 };
 
-// Get all offers with subcollection of reviews
-// The isAdmin flag determines whether to fetch hidden offers or not.
-export const getOffers = async (isAdmin: boolean = false): Promise<Offer[]> => {
-  let offersQuery: Query<DocumentData>;
-
-  if (isAdmin) {
-    // If the user is an admin, fetch all offers and order them.
-    // This relies on Firestore security rules to ensure only admins can do this.
-    offersQuery = query(offersCollection, orderBy("createdAt", "desc"));
-  } else {
-    // For regular users or server-side rendering, only fetch visible offers.
-    // This query is compatible with default security rules and indexes.
-    offersQuery = query(
-      offersCollection,
-      where("isHidden", "==", false),
-      orderBy("createdAt", "desc")
-    );
-  }
-
+// Generic fetch function that processes reviews
+const fetchOffersWithReviews = async (q: Query<DocumentData>): Promise<Offer[]> => {
   try {
-    const querySnapshot = await getDocs(offersQuery);
+    const querySnapshot = await getDocs(q);
 
     const offers = await Promise.all(querySnapshot.docs.map(async (offerDoc) => {
         const offer = mapDocToOffer(offerDoc);
@@ -107,6 +90,23 @@ export const getOffers = async (isAdmin: boolean = false): Promise<Offer[]> => {
     // Return empty array on error to prevent site crash
     return [];
   }
+};
+
+
+// Fetches ONLY public offers. Safe for server-side and non-admin clients.
+export const getPublicOffers = async (): Promise<Offer[]> => {
+    const publicOffersQuery = query(
+      offersCollection,
+      where("isHidden", "==", false),
+      orderBy("createdAt", "desc")
+    );
+    return fetchOffersWithReviews(publicOffersQuery);
+};
+
+// Fetches ALL offers. Should ONLY be called for authenticated admins.
+export const getAllOffers = async (): Promise<Offer[]> => {
+    const allOffersQuery = query(offersCollection, orderBy("createdAt", "desc"));
+    return fetchOffersWithReviews(allOffersQuery);
 };
 
 
@@ -181,3 +181,5 @@ export const incrementOfferClick = async (id: string) => {
         clicks: increment(1)
     });
 };
+
+
