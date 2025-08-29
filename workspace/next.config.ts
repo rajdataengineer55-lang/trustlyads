@@ -14,6 +14,11 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    // This is required to fix a build issue with the `handlebars` dependency used by Genkit.
+    // It tells Next.js to treat `handlebars` as an external package.
+    serverComponentsExternalPackages: ["handlebars"],
+  }
 };
 
 export default nextConfig;

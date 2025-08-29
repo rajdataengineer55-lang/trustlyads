@@ -232,7 +232,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         <Card>
           <CardHeader><CardTitle>Location Details</CardTitle><CardDescription>Help customers find your business.</CardDescription></CardHeader>
           <CardContent className="space-y-4">
-            <FormField control={form.control} name="location" render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><Select onValuechange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a location" /></SelectTrigger></FormControl><SelectContent>{locations.map((location) => location.subLocations ? (<SelectGroup key={location.name}><SelectLabel>{location.name}</SelectLabel>{location.subLocations.map((sub) => (<SelectItem key={`${location.name}-${sub}`} value={sub}>{sub}</SelectItem>))}</SelectGroup>) : (<SelectItem key={location.name} value={location.name}>{location.name}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="location" render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a location" /></SelectTrigger></FormControl><SelectContent>{locations.map((location) => location.subLocations ? (<SelectGroup key={location.name}><SelectLabel>{location.name}</SelectLabel>{location.subLocations.map((sub) => (<SelectItem key={`${location.name}-${sub}`} value={sub}>{sub}</SelectItem>))}</SelectGroup>) : (<SelectItem key={location.name} value={location.name}>{location.name}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="nearbyLocation" render={({ field }) => (<FormItem><FormLabel>Nearby Location / Landmark</FormLabel><FormControl><Input placeholder="e.g., Opposite the post office" {...field} /></FormControl><FormDescription>Provide a well-known nearby place.</FormDescription><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="locationLink" render={({ field }) => (<FormItem><FormLabel>Business Location Link</FormLabel><FormControl><Input type="url" placeholder="e.g., https://maps.app.goo.gl/your-link" {...field} /></FormControl><FormDescription>Enter the Google Maps link for your business.</FormDescription><FormMessage /></FormItem>)} />
           </CardContent>
@@ -326,3 +326,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
