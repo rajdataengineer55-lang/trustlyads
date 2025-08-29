@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, EyeOff, MapPin } from "lucide-react";
+import { ArrowRight, EyeOff, MapPin, Calendar, Tag } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,7 +13,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { locations } from "@/lib/locations";
-
+import { formatDistanceToNow } from 'date-fns';
+import { categories } from "@/lib/categories";
 
 interface FeaturedOffersProps {
   selectedCategory: string | null;
@@ -27,6 +28,11 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
   const { loading: authLoading, isAdmin } = useAuth();
   
   const loading = offersLoading || authLoading;
+
+  const getCategoryIcon = (categoryName: string) => {
+    const category = categories.find(cat => cat.name === categoryName);
+    return category ? category.icon : <Tag className="h-4 w-4 mr-2 shrink-0 mt-0.5" />;
+  };
 
   const filteredAndSortedOffers = useMemo(() => {
     let filtered = offers.filter(offer => isAdmin || !offer.isHidden);
@@ -118,6 +124,9 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                       />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                          <h3 className="text-lg font-headline font-bold text-white truncate">{offer.title}</h3>
+                      </div>
                        <Badge variant="default" className="absolute top-3 left-3 bg-accent text-accent-foreground font-bold">
                           {offer.discount}
                       </Badge>
@@ -129,14 +138,26 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                     </div>
                   </Link>
                   <div className="p-4 bg-card flex flex-col flex-grow">
-                    <div className="space-y-2 flex-grow">
-                      <h3 className="text-lg font-bold uppercase text-primary">{offer.title}</h3>
-                      <p className="font-semibold text-lg">{offer.business}</p>
-                      <p className="text-sm text-muted-foreground">{offer.category}</p>
-                      <div className="flex items-start text-sm text-muted-foreground pt-1">
+                    <div className="space-y-3 flex-grow">
+                      <p className="font-bold text-lg text-foreground">{offer.business}</p>
+                      
+                      <div className="flex items-start text-sm text-muted-foreground">
+                        <div className="flex-shrink-0 w-5 text-center">{getCategoryIcon(offer.category)}</div>
+                        <span className="ml-1 line-clamp-2">{offer.category}</span>
+                      </div>
+                      
+                      <div className="flex items-start text-sm text-muted-foreground">
                         <MapPin className="h-4 w-4 mr-2 shrink-0 mt-0.5" />
                         <span className="line-clamp-2">{offer.location}{offer.nearbyLocation ? `, ${offer.nearbyLocation}` : ''}</span>
                       </div>
+                      
+                       <div className="flex items-start text-sm text-muted-foreground">
+                        <Calendar className="h-4 w-4 mr-2 shrink-0 mt-0.5" />
+                        <span className="line-clamp-2">
+                           Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
+                      
                     </div>
                     <div className="mt-4">
                         <Link href={`/offer/${offer.id}`} passHref>
