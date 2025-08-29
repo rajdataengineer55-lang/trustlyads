@@ -111,70 +111,54 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
 
             return (
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
-                  <CardContent className="p-0 flex flex-col flex-grow">
-                      <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
-                        <div className="relative aspect-[4/3] w-full bg-muted">
-                          <Image
-                            src={imageUrl}
-                            alt={offer.title}
-                            width={600}
-                            height={400}
-                            className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
-                          />
-                        <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 bg-gradient-to-t from-black/80 to-transparent">
-                            <h3 className="text-sm sm:text-lg font-headline font-bold text-white truncate">{offer.title}</h3>
-                        </div>
-                        <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-black text-white font-bold py-1 px-2 text-xs sm:text-sm animate-blink">
-                          {offer.discount}
-                        </Badge>
-                        {offer.isHidden && (
-                            <Badge variant="destructive" className="absolute top-2 left-2 sm:top-4 sm:left-4 font-bold py-1 px-2 text-xs sm:text-sm">
-                              <EyeOff className="mr-2 h-4 w-4" /> Hidden
-                            </Badge>
-                        )}
-                        {isNew && !offer.isHidden && (
-                            <Badge variant="secondary" className="absolute top-2 left-2 sm:top-4 sm:left-4 font-bold py-1 px-2 text-xs sm:text-sm bg-green-500 text-white">
-                                Just Listed
-                            </Badge>
-                        )}
-                        </div>
-                      </Link>
-                      <div className="p-3 sm:p-4 bg-card flex flex-col flex-grow">
-                        <div className="flex-grow space-y-3">
-                          <p className="font-semibold text-foreground truncate flex items-center gap-2">
-                              <Building className="h-4 w-4 shrink-0 text-muted-foreground" />
-                              {offer.business}
-                          </p>
-                          <div className="flex items-start text-xs sm:text-sm text-muted-foreground">
-                            <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
-                            <div>
-                              <p className="truncate font-medium">{offer.location}</p>
-                              {offer.nearbyLocation && <p className="truncate text-xs">{offer.nearbyLocation}</p>}
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap gap-1 pt-1">
-                            {offer.tags?.slice(0,2).map((tag) => (
-                              <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0.5">{tag}</Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="pt-3 mt-auto">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-                                {offer.createdAt && (
-                                <div className="flex items-center">
-                                    <Clock className="h-3 w-3 mr-1.5" />
-                                    <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
-                                </div>
-                                )}
-                            </div>
-                            <Link href={`/offer/${offer.id}`} passHref>
-                              <Button className="w-full h-9 text-sm">
-                                      View Details <ArrowRight className="ml-2 h-4 w-4" />
-                              </Button>
-                            </Link>
-                        </div>
+                <CardContent className="p-0 flex flex-col flex-grow">
+                  <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
+                    <div className="relative aspect-[4/3] w-full bg-muted">
+                      <Image
+                        src={imageUrl}
+                        alt={offer.title}
+                        width={600}
+                        height={400}
+                        className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                          <h3 className="text-lg font-headline font-bold text-white truncate">{offer.title}</h3>
                       </div>
-                  </CardContent>
+                      <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
+                          {offer.discount}
+                      </Badge>
+                      {offer.isHidden && (
+                          <Badge variant="destructive" className="absolute top-4 left-4 font-bold">
+                            <EyeOff className="mr-2 h-4 w-4" /> Hidden
+                          </Badge>
+                      )}
+                      {isNew && !offer.isHidden && (
+                          <Badge variant="secondary" className="absolute top-4 left-4 font-bold bg-green-500 text-white">
+                              Just Listed
+                          </Badge>
+                      )}
+                    </div>
+                  </Link>
+                  <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
+                    <div className="flex items-center text-sm text-muted-foreground mb-3">
+                        <MapPin className="h-4 w-4 mr-2 shrink-0" />
+                        <span className="truncate">{offer.location}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {offer.tags?.slice(0, 3).map((tag) => (
+                        <Badge key={tag} variant="secondary">{tag}</Badge>                            
+                      ))}
+                    </div>
+                    <div className="mt-auto">
+                        <Link href={`/offer/${offer.id}`} passHref>
+                          <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                               View Details
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
           )})}
         </div>
