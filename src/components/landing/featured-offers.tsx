@@ -140,31 +140,33 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                         </div>
                       </Link>
                       <div className="p-3 sm:p-4 bg-card flex flex-col flex-grow">
-                        <div className="flex-grow space-y-2">
-                          <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
-                              <Building className="h-4 w-4 mr-2 shrink-0" />
-                              <p className="font-medium text-foreground truncate">{offer.business}</p>
-                          </div>
+                        <div className="flex-grow space-y-3">
+                          <p className="font-semibold text-foreground truncate flex items-center gap-2">
+                              <Building className="h-4 w-4 shrink-0 text-muted-foreground" />
+                              {offer.business}
+                          </p>
                           <div className="flex items-start text-xs sm:text-sm text-muted-foreground">
                             <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
                             <div>
-                              <p className="truncate font-medium text-foreground">{offer.location}</p>
+                              <p className="truncate font-medium">{offer.location}</p>
                               {offer.nearbyLocation && <p className="truncate text-xs">{offer.nearbyLocation}</p>}
                             </div>
                           </div>
-                          {offer.createdAt && (
-                          <div className="flex items-center text-xs text-muted-foreground">
-                              <Clock className="h-3 w-3 mr-1.5" />
-                              <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
-                          </div>
-                          )}
-                          <div className="flex flex-wrap gap-1 min-h-[20px]">
+                          <div className="flex flex-wrap gap-1 pt-1">
                             {offer.tags?.slice(0,2).map((tag) => (
                               <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0.5">{tag}</Badge>
                             ))}
                           </div>
                         </div>
                         <div className="pt-3 mt-auto">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+                                {offer.createdAt && (
+                                <div className="flex items-center">
+                                    <Clock className="h-3 w-3 mr-1.5" />
+                                    <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
+                                </div>
+                                )}
+                            </div>
                             <Link href={`/offer/${offer.id}`} passHref>
                               <Button className="w-full h-9 text-sm">
                                       View Details <ArrowRight className="ml-2 h-4 w-4" />
