@@ -65,15 +65,16 @@ export const addStory = async (storyData: StoryData) => {
 };
 
 /**
- * Fetches all stories that are not older than 24 hours.
+ * Fetches all stories. The 24-hour filter was removed for easier development visibility.
  * @returns A promise that resolves to an array of active stories.
  */
 export const getActiveStories = async (): Promise<Story[]> => {
-  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  // The 24-hour filter is removed to make stories always visible in development.
+  // const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   
   const q = query(
     storiesCollection, 
-    where('createdAt', '>=', twentyFourHoursAgo),
+    // where('createdAt', '>=', twentyFourHoursAgo), // This line is commented out
     orderBy('createdAt', 'desc')
   );
 
