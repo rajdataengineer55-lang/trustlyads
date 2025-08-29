@@ -74,11 +74,12 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
            <h2 className="text-3xl font-headline font-bold text-center mb-12">
             Featured Offers
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Skeleton className="h-[420px] w-full" />
-            <Skeleton className="h-[420px] w-full" />
-            <Skeleton className="h-[420px] w-full" />
-            <Skeleton className="h-[420px] w-full" />
+          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4">
+            <Skeleton className="h-[380px] w-full" />
+            <Skeleton className="h-[380px] w-full" />
+            <Skeleton className="h-[380px] w-full" />
+            <Skeleton className="h-[380px] w-full" />
+            <Skeleton className="h-[380px] w-full" />
           </div>
         </div>
       </section>
@@ -102,7 +103,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     <>
     <section id="featured-offers" className="w-full py-10 sm:py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
           {filteredAndSortedOffers.map((offer) => {
             if (!offer.createdAt) return null; // Guard against missing createdAt
             const isNew = (new Date().getTime() - new Date(offer.createdAt).getTime()) < 24 * 60 * 60 * 1000;
@@ -120,31 +121,31 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                             height={400}
                             className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
                           />
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                            <h3 className="text-lg sm:text-xl font-headline font-bold text-white truncate">{offer.title}</h3>
+                        <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 bg-gradient-to-t from-black/80 to-transparent">
+                            <h3 className="text-sm sm:text-lg font-headline font-bold text-white truncate">{offer.title}</h3>
                         </div>
-                        <Badge variant="default" className="absolute top-4 right-4 bg-black text-white font-bold py-1 px-3 animate-blink">
+                        <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-black text-white font-bold py-1 px-2 text-xs sm:text-sm animate-blink">
                           {offer.discount}
                         </Badge>
                         {offer.isHidden && (
-                            <Badge variant="destructive" className="absolute top-4 left-4 font-bold py-1 px-3">
+                            <Badge variant="destructive" className="absolute top-2 left-2 sm:top-4 sm:left-4 font-bold py-1 px-2 text-xs sm:text-sm">
                               <EyeOff className="mr-2 h-4 w-4" /> Hidden
                             </Badge>
                         )}
                         {isNew && !offer.isHidden && (
-                            <Badge variant="secondary" className="absolute top-4 left-4 font-bold py-1 px-3 bg-green-500 text-white">
+                            <Badge variant="secondary" className="absolute top-2 left-2 sm:top-4 sm:left-4 font-bold py-1 px-2 text-xs sm:text-sm bg-green-500 text-white">
                                 Just Listed
                             </Badge>
                         )}
                         </div>
                       </Link>
-                      <div className="p-4 sm:p-6 bg-card flex flex-col flex-grow">
-                        <div className="flex-grow space-y-3">
-                          <div className="flex items-center text-sm text-muted-foreground">
+                      <div className="p-3 sm:p-4 bg-card flex flex-col flex-grow">
+                        <div className="flex-grow space-y-2">
+                          <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
                               <Building className="h-4 w-4 mr-2 shrink-0" />
-                              <p className="font-medium text-foreground">{offer.business}</p>
+                              <p className="font-medium text-foreground truncate">{offer.business}</p>
                           </div>
-                          <div className="flex items-start text-sm text-muted-foreground">
+                          <div className="flex items-start text-xs sm:text-sm text-muted-foreground">
                             <MapPin className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
                             <div>
                               <p className="truncate font-medium text-foreground">{offer.location}</p>
@@ -157,15 +158,15 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                               <span>Posted {formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
                           </div>
                           )}
-                          <div className="flex flex-wrap gap-2 min-h-[24px]">
-                            {offer.tags?.slice(0,3).map((tag) => (
-                              <Badge key={tag} variant="secondary">{tag}</Badge>
+                          <div className="flex flex-wrap gap-1 min-h-[20px]">
+                            {offer.tags?.slice(0,2).map((tag) => (
+                              <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0.5">{tag}</Badge>
                             ))}
                           </div>
                         </div>
-                        <div className="pt-4 mt-auto">
+                        <div className="pt-3 mt-auto">
                             <Link href={`/offer/${offer.id}`} passHref>
-                              <Button className="w-full">
+                              <Button className="w-full h-9 text-sm">
                                       View Details <ArrowRight className="ml-2 h-4 w-4" />
                               </Button>
                             </Link>
@@ -180,5 +181,3 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     </>
   );
 }
-
-    
