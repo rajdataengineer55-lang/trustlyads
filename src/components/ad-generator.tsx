@@ -216,7 +216,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
           <CardHeader><CardTitle>Business Details</CardTitle><CardDescription>Information about the business posting the offer.</CardDescription></CardHeader>
           <CardContent className="space-y-4">
             <FormField control={form.control} name="business" render={({ field }) => (<FormItem><FormLabel>Business Name</FormLabel><FormControl><Input placeholder="e.g., The Cozy Cafe" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="businessType" render={({ field }) => (<FormItem><FormLabel>Business Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a business type" /></SelectTrigger></FormControl><SelectContent>{Object.entries(businessTypes).map(([group, types]) => (<SelectGroup key={group}><SelectLabel>{group}</SelectLabel>{types.map(type => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="businessType" render={({ field }) => (<FormItem><FormLabel>Business Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a business type" /></SelectTrigger></FormControl><SelectContent>{Object.entries(businessTypes).map(([group, types]) => (<SelectGroup key={group}><SelectLabel>{group}</SelectLabel>{types.map(type => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectGroup>))}</SelectContent></Select><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
         <Card>
@@ -318,3 +318,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
