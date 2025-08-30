@@ -16,8 +16,6 @@ import {
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/hooks/use-admin';
-import { Header } from '@/components/landing/header';
-import { Footer } from '@/components/landing/footer';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface AuthContextType {
@@ -145,7 +143,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (loading) {
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            {/* Plain div to represent the header space, no context-dependent components */}
+            <div className="sticky top-0 z-50 w-full border-b h-14"></div>
             <main className="flex-1">
                 <div className="container mx-auto px-4 md:px-6 py-10">
                     <div className="space-y-8">
@@ -160,7 +159,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     </div>
                 </div>
             </main>
-            <Footer />
+             {/* Plain div to represent the footer space */}
+            <div className="border-t h-48"></div>
         </div>
     );
   }
