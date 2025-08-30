@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -110,10 +111,65 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-20 items-center gap-4">
-        <div className="items-center space-x-2 md:flex hidden">
-            <Logo />
+      <div className="container flex h-20 items-center justify-between gap-4">
+        {/* Logo and Desktop Location */}
+        <div className="flex items-center gap-4">
+            <div className="items-center space-x-2 md:flex hidden">
+                <Logo />
+            </div>
+            {/* Mobile Logo */}
+            <div className="md:hidden">
+                <Logo />
+            </div>
+             <div className="hidden md:flex items-center gap-2">
+                <LocationDropdown />
+            </div>
         </div>
+        
+        <div className="flex-1 flex items-center max-w-lg">
+            <div className="relative w-full">
+                <Input
+                    type="search"
+                    placeholder="Find Cars, Mobile Phones and more..."
+                    className="w-full pr-10 h-12"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Button size="icon" className="absolute right-0 top-0 h-full w-12 rounded-l-none bg-primary hover:bg-primary/90">
+                    <Search className="h-6 w-6 text-primary-foreground" />
+                </Button>
+            </div>
+        </div>
+        
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                        ENGLISH <ChevronDown className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem>English</DropdownMenuItem>
+                    <DropdownMenuItem>हिन्दी</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="ghost" size="icon">
+                <MessageCircle className="h-6 w-6" />
+            </Button>
+             <Button variant="ghost" size="icon">
+                <Bell className="h-6 w-6" />
+            </Button>
+
+            <UserMenu />
+
+            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" className="rounded-full font-bold text-base shadow-lg group">
+                Post Your Business
+              </Button>
+            </a>
+          </nav>
         
         {/* Mobile Menu Trigger */}
         <div className="md:hidden">
@@ -171,55 +227,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
             </SheetContent>
           </Sheet>
         </div>
-
-
-        <div className="hidden md:flex items-center gap-2">
-            <LocationDropdown />
-        </div>
-        
-        <div className="flex-1 flex items-center">
-            <div className="relative w-full">
-                <Input
-                    type="search"
-                    placeholder="Find Cars, Mobile Phones and more..."
-                    className="w-full pr-10 h-12"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <Button size="icon" className="absolute right-0 top-0 h-full w-12 rounded-l-none bg-primary hover:bg-primary/90">
-                    <Search className="h-6 w-6 text-primary-foreground" />
-                </Button>
-            </div>
-        </div>
-        
-        <nav className="hidden md:flex items-center gap-2">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                        ENGLISH <ChevronDown className="h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <DropdownMenuItem>English</DropdownMenuItem>
-                    <DropdownMenuItem>हिन्दी</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button variant="ghost" size="icon">
-                <MessageCircle className="h-6 w-6" />
-            </Button>
-             <Button variant="ghost" size="icon">
-                <Bell className="h-6 w-6" />
-            </Button>
-
-            <UserMenu />
-
-            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
-              <Button size="lg" className="rounded-full font-bold text-base shadow-lg group">
-                Post Your Business
-              </Button>
-            </a>
-          </nav>
       </div>
     </header>
   )
