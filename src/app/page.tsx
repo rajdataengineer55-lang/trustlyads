@@ -22,12 +22,11 @@ export default function Home() {
       <Header 
         selectedLocation={selectedLocation}
         setSelectedLocation={setSelectedLocation}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
       />
       <main className="flex-1">
-        <Hero 
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-        />
+        <Hero />
         <StoriesViewer />
         <Categories
           selectedCategory={selectedCategory}

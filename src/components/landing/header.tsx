@@ -3,21 +3,33 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogOut, Send } from "lucide-react"
+import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogOut, Send, Search, Bell, MessageCircle } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '../theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-
+import { Input } from '../ui/input';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   selectedLocation?: string | null;
   setSelectedLocation?: (location: string | null) => void;
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
 }
 
-export function Header({ selectedLocation, setSelectedLocation = () => {} }: HeaderProps) {
+const Logo = () => (
+    <svg width="60" height="30" viewBox="0 0 100 50" className="fill-primary">
+        <text x="0" y="40" fontFamily="Arial, sans-serif" fontSize="40" fontWeight="bold">
+            olx
+        </text>
+    </svg>
+);
+
+
+export function Header({ selectedLocation, setSelectedLocation = () => {}, searchTerm, setSearchTerm }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isAdmin, signInWithGoogle, signOut } = useAuth();
 
@@ -65,24 +77,16 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
     )
   }
 
-  const LocationDropdown = ({ isMobile = false }: { isMobile?: boolean }) => (
+  const LocationDropdown = () => (
      <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          {isMobile ? (
-             <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span className="text-xs truncate">{selectedLocation || 'Locations'}</span>
-                <ChevronDown className="h-3 w-3" />
-             </Button>
-          ) : (
-            <Button variant="ghost" className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-5 w-5" />
-              <span className="truncate">{selectedLocation || 'Tirupati, Vellore, Chittoor & more'}</span>
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          )}
+            <div className="flex items-center gap-2 p-2 rounded-md border border-input bg-background w-full sm:w-64 cursor-pointer">
+              <Search className="h-5 w-5 text-muted-foreground" />
+              <span className="flex-1 text-sm truncate">{selectedLocation || 'Tirupati, Andhra Pradesh'}</span>
+              <ChevronDown className="h-5 w-5" />
+            </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="w-64">
           <DropdownMenuItem onSelect={() => setSelectedLocation(null)}>All Locations</DropdownMenuItem>
           <DropdownMenuSeparator />
           {locations.map((location) => (
@@ -107,54 +111,25 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center">
-        <div className="flex-1 flex items-center gap-2">
-          <Link href="/" className="flex items-center space-x-2">
-              <Megaphone className="h-6 w-6 text-primary" />
-              <span className="font-bold sm:inline-block font-headline">
-                trustlyads.in
-              </span>
-          </Link>
-          <div className="md:hidden">
-            <LocationDropdown isMobile />
-          </div>
-        </div>
-
-        <div className="mr-4 hidden md:flex">
-          <nav className="flex items-center gap-2">
-             <LocationDropdown />
-             <Link href="/requests" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-                Requests
-             </Link>
-          </nav>
-        </div>
+      <div className="container flex h-20 items-center gap-4">
+        <Link href="/" className="items-center space-x-2 md:flex hidden">
+            <Logo />
+        </Link>
         
-        <div className="hidden flex-1 items-center justify-end space-x-2 md:flex">
-          <nav className="flex gap-2 items-center">
-            <Link href="/requests/new">
-                <Button>Post a Request</Button>
-            </Link>
-            <ThemeToggle />
-            <UserMenu />
-          </nav>
-        </div>
-
-        <div className="flex items-center justify-end md:hidden">
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        {/* Mobile Menu Trigger */}
+        <div className="md:hidden">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon">
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
+            <SheetContent side="left">
               <SheetHeader>
                 <SheetTitle>
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Megaphone className="h-6 w-6 text-primary" />
-                    <span className="font-bold sm:inline-block font-headline">
-                      trustlyads.in
-                    </span>
+                    <Logo />
                   </Link>
                 </SheetTitle>
               </SheetHeader>
@@ -197,6 +172,55 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
             </SheetContent>
           </Sheet>
         </div>
+
+
+        <div className="hidden md:flex items-center gap-2">
+            <LocationDropdown />
+        </div>
+        
+        <div className="flex-1 flex items-center">
+            <div className="relative w-full">
+                <Input
+                    type="search"
+                    placeholder="Find Cars, Mobile Phones and more..."
+                    className="w-full pr-10 h-12"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Button size="icon" className="absolute right-0 top-0 h-full w-12 rounded-l-none bg-primary hover:bg-primary/90">
+                    <Search className="h-6 w-6 text-primary-foreground" />
+                </Button>
+            </div>
+        </div>
+        
+        <nav className="hidden md:flex items-center gap-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                        ENGLISH <ChevronDown className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem>English</DropdownMenuItem>
+                    <DropdownMenuItem>हिन्दी</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="ghost" size="icon">
+                <MessageCircle className="h-6 w-6" />
+            </Button>
+             <Button variant="ghost" size="icon">
+                <Bell className="h-6 w-6" />
+            </Button>
+
+            <UserMenu />
+
+            <Link href="/requests/new">
+                <Button size="lg" className="rounded-full font-bold text-base shadow-lg group">
+                    <span className="text-xl mr-1 group-hover:animate-bounce">+</span> SELL
+                </Button>
+            </Link>
+          </nav>
       </div>
     </header>
   )
