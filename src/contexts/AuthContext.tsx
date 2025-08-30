@@ -1,4 +1,3 @@
-
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
@@ -11,6 +10,7 @@ import {
   signInWithEmailAndPassword,
   setPersistence,
   browserLocalPersistence,
+  inMemoryPersistence,
   type User 
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -29,68 +29,65 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Set persistence at the app's entry point, before any other auth logic runs.
-// This is crucial for the redirect flow to work reliably in production.
-setPersistence(auth, browserLocalPersistence);
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  
   const { isAdmin, isCheckingAdmin, checkAdminStatus } = useAdmin();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setLoading(true);
-      let userToProcess = currentUser;
-      let isRedirectResult = false;
+    const handleAuth = async () => {
+      // First, ensure persistence is set. This is crucial for the redirect flow to work.
+      await setPersistence(auth, browserLocalPersistence);
 
-      // First, check for a redirect result. This is crucial for new sign-ins.
+      // Then, check for the result of a redirect operation.
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          userToProcess = result.user; // This is the most up-to-date user object after redirect.
-          isRedirectResult = true;
+          // User just signed in via redirect.
           toast({
             title: "Signed In",
             description: `Welcome, ${result.user.displayName}!`,
           });
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error during getRedirectResult:", error);
-        if (error.code !== 'auth/redirect-cancelled-by-user') {
-          toast({
-            variant: "destructive",
-            title: "Sign In Failed",
-            description: "An unknown error occurred during sign-in. Please try again.",
-          });
+        toast({
+          variant: "destructive",
+          title: "Sign In Failed",
+          description: "An unknown error occurred during sign-in. Please try again.",
+        });
+      }
+
+      // Finally, set up the listener for ongoing auth state changes.
+      // This will also catch the user from getRedirectResult.
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        if (currentUser) {
+          setUser(currentUser);
+          await checkAdminStatus(currentUser);
+        } else {
+          setUser(null);
+          await checkAdminStatus(null);
         }
-        // Ensure we don't process a stale currentUser if redirect fails
-        userToProcess = null; 
-      }
-      
-      // Now, process the definitive user object, whether from redirect or existing session.
-      if (userToProcess) {
-        setUser(userToProcess);
-        await checkAdminStatus(userToProcess);
-      } else {
-        // This handles both explicit sign-outs and cases where there's no user session.
-        setUser(null);
-        await checkAdminStatus(null);
-      }
-      
-      setLoading(false);
-    });
-      
-    return () => unsubscribe();
+        setLoading(false); // Auth process is complete
+      });
+
+      return unsubscribe;
+    };
+
+    const unsubscribePromise = handleAuth();
+
+    return () => {
+      unsubscribePromise.then(unsub => unsub && unsub());
+    };
   }, [checkAdminStatus, toast]);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
+      // Ensure persistence is set before initiating the redirect.
+      await setPersistence(auth, browserLocalPersistence);
       await signInWithRedirect(auth, provider);
-      // The user will be redirected, and the logic in the useEffect will handle the result.
     } catch (error: any) {
       console.error("Error starting sign in with Google redirect:", error);
       toast({
@@ -103,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
+      await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, email, password);
       // The onAuthStateChanged listener will handle the rest
     } catch (error: any)       {
