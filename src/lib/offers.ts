@@ -33,15 +33,10 @@ export interface OfferData {
   otherImages?: string[];
   discount: string;
   tags: string[];
-  allowCall: boolean;
-  allowChat: boolean;
-  allowSchedule: boolean;
-  phoneNumber?: string;
-  chatLink?: string;
-  scheduleLink?: string;
   isHidden?: boolean;
   views?: number;
   clicks?: number;
+  postedBy?: string;
 }
 
 const offersCollection = collection(db, 'offers');

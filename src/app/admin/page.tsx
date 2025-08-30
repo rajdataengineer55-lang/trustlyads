@@ -47,19 +47,19 @@ export default function AdminPage() {
             <Header />
             <main className="flex-1 bg-background/50">
                  <div className="container mx-auto px-4 md:px-6 py-12">
-                     <Tabs defaultValue="post-offer" className="w-full">
+                     <Tabs defaultValue="post-ad" className="w-full">
                         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl mx-auto text-xs sm:text-sm">
-                            <TabsTrigger value="post-offer">Post Offer</TabsTrigger>
-                            <TabsTrigger value="manage-offers">Manage Offers</TabsTrigger>
+                            <TabsTrigger value="post-ad">Post Ad</TabsTrigger>
+                            <TabsTrigger value="manage-ads">Manage Ads</TabsTrigger>
                             <TabsTrigger value="post-story">Post Story</TabsTrigger>
                             <TabsTrigger value="manage-stories">Manage Stories</TabsTrigger>
                         </TabsList>
-                        <TabsContent value="post-offer">
+                        <TabsContent value="post-ad">
                             <section className="py-12 sm:py-16">
                                 <AdGenerator />
                             </section>
                         </TabsContent>
-                        <TabsContent value="manage-offers">
+                        <TabsContent value="manage-ads">
                             <section className="py-12 sm:py-16">
                                 <ManageOffers />
                             </section>

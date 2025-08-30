@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useOffers, type Offer, type Review } from '@/contexts/OffersContext';
 import { Header } from '@/components/landing/header';
@@ -10,7 +10,7 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, EyeOff, BarChart2, Eye, User } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, EyeOff, BarChart2, Eye, User, Send } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -31,20 +31,11 @@ const reviewSchema = z.object({
     comment: z.string().min(10, "Comment must be at least 10 characters."),
 });
 
-// Helper function for safe decoding to prevent server crashes
-const safeDecodeURIComponent = (uri: string) => {
-  try {
-    return decodeURIComponent(uri);
-  } catch (e) {
-    return uri;
-  }
-};
-
-
 export default function OfferDetailsPage() {
   const params = useParams();
-  const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick, fetchOffers } = useOffers();
-  const { user, signInWithGoogle, isAdmin } = useAuth();
+  const router = useRouter();
+  const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick } = useOffers();
+  const { user, isAdmin } = useAuth();
   
   const [offer, setOffer] = useState<Offer | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
@@ -59,7 +50,7 @@ export default function OfferDetailsPage() {
 
   useEffect(() => {
     if (user) {
-        form.setValue('author', user.displayName || '');
+        form.setValue('author', user.displayName || 'Anonymous');
     }
   }, [user, form]);
   
@@ -78,11 +69,9 @@ export default function OfferDetailsPage() {
             setMainImage(foundOffer.image);
           }
       } else {
-          setOffer(null); // Explicitly set to null if hidden and not admin
+          setOffer(null); 
       }
 
-
-      // Track view
       const viewedKey = `viewed-${id}`;
       if (!sessionStorage.getItem(viewedKey)) {
         incrementOfferView(id);
@@ -92,18 +81,12 @@ export default function OfferDetailsPage() {
   }, [id, getOfferById, incrementOfferView, isAdmin]);
 
   useEffect(() => {
-    // If offers are still loading from context, wait.
     if (offersLoading) return;
-    
-    // If offers are loaded, try to find the offer.
     loadOffer();
-
   }, [id, offersLoading, loadOffer]);
 
-  // If after the initial load, the offer is still not found, it's a 404.
   useEffect(() => {
       if (!offersLoading && !offer) {
-          // A small delay to ensure data processing is complete
           const timer = setTimeout(() => {
               const checkOffer = getOfferById(id);
               if (!checkOffer || (checkOffer.isHidden && !isAdmin)) {
@@ -114,19 +97,15 @@ export default function OfferDetailsPage() {
       }
   }, [offersLoading, offer, id, getOfferById, isAdmin]);
 
-  const handleTrackedClick = (url: string, isExternal: boolean = true) => {
-    if(!id) return;
+  const handlePostRequest = () => {
+    if (!id) return;
     incrementOfferClick(id);
-    if(isExternal) {
-        window.open(url, '_blank', 'noopener,noreferrer');
-    } else {
-        window.location.href = url;
-    }
-  };
+    router.push('/requests/new');
+  }
 
   const handleShare = async () => {
     if (!offer || !id) return;
-    incrementOfferClick(id); // Count sharing as a click
+    incrementOfferClick(id); 
 
     const shareData = {
       title: offer.title,
@@ -238,58 +217,27 @@ export default function OfferDetailsPage() {
   );
 
   const ContactActions = () => {
-    if (!user) {
-        return (
-            <div className="space-y-3 p-4 border rounded-lg bg-secondary/50 text-center">
-                <p className="font-semibold">Sign in to view contact options</p>
-                <Button onClick={signInWithGoogle} className="w-full">
-                    <User className="mr-2 h-4 w-4"/>
-                    Sign in to Contact
-                </Button>
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-3">
-            <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
-                <Share2 className="mr-4" /> Share Offer
+            <Button className="w-full justify-start text-base py-6" onClick={handlePostRequest}>
+                <Send className="mr-4" /> Post a Request for this Item
             </Button>
-            {offer.allowCall && offer.phoneNumber && (
-                <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(`tel:${offer.phoneNumber}`, false)}>
-                    <Phone className="mr-4" /> Call Now
+            <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
+                <Share2 className="mr-4" /> Share This Ad
+            </Button>
+            {offer.locationLink && (
+                <Button variant="outline" className="w-full justify-start text-base py-6" onClick={() => window.open(offer.locationLink, '_blank')}>
+                    <Navigation className="mr-4 h-4 w-4" />
+                    Get Directions
                 </Button>
-            )}
-            {offer.allowChat && offer.chatLink && (
-                <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(`https://${offer.chatLink}`)}>
-                    <MessageSquare className="mr-4" /> Chat on WhatsApp
-                </Button>
-            )}
-            {offer.allowSchedule && offer.scheduleLink && (
-                <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(offer.scheduleLink!)}>
-                    <CalendarIcon className="mr-4" /> Schedule a Meeting
-                </Button>
-            )}
+             )}
         </div>
     );
   };
   
   const ReviewForm = () => {
     if (!user) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Write a Review</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                    <p className="text-muted-foreground mb-4">You must be signed in to leave a review.</p>
-                    <Button onClick={signInWithGoogle}>
-                         <User className="mr-2 h-4 w-4"/>
-                        Sign In to Review
-                    </Button>
-                </CardContent>
-            </Card>
-        )
+        return null;
     }
 
     return (
@@ -373,7 +321,7 @@ export default function OfferDetailsPage() {
         <div className="container mx-auto px-4 md:px-6">
             <Link href="/" className="inline-flex items-center text-primary mb-6 sm:mb-8 hover:underline">
                  <ArrowLeft className="mr-2 h-4 w-4" />
-                 Back to all offers
+                 Back to all ads
             </Link>
             <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
                 <div className="lg:col-span-3">
@@ -437,15 +385,6 @@ export default function OfferDetailsPage() {
                               <LocationInfo />
                             </div>
 
-                             {offer.locationLink && (
-                                <div className="mb-2">
-                                    <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => handleTrackedClick(offer.locationLink!)}>
-                                        <Navigation className="mr-2 h-4 w-4" />
-                                        Get Directions
-                                    </Button>
-                                </div>
-                             )}
-
                             <div className="flex flex-wrap gap-2">
                             {offer.tags?.map((tag) => (
                                 <Badge key={tag} variant="secondary">{tag}</Badge>
@@ -464,7 +403,7 @@ export default function OfferDetailsPage() {
               <div className="space-y-8 lg:col-span-3">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Offer Description</CardTitle>
+                    <CardTitle>Ad Description</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground whitespace-pre-wrap">
@@ -510,7 +449,7 @@ export default function OfferDetailsPage() {
             {similarOffers.length > 0 && (
               <div className="mt-16">
                  <h2 className="text-2xl font-headline font-bold text-center mb-8">
-                  Similar Offers
+                  Similar Ads
                 </h2>
                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {similarOffers.map((similarOffer) => {
@@ -566,5 +505,3 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
-
-    

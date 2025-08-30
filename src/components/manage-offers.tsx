@@ -49,7 +49,7 @@ export function ManageOffers() {
   const confirmDelete = async () => {
     if (selectedOffer) {
       await deleteOffer(selectedOffer.id);
-      toast({ title: "Offer Deleted", description: `"${selectedOffer.title}" has been removed.` });
+      toast({ title: "Ad Deleted", description: `"${selectedOffer.title}" has been removed.` });
       setSelectedOffer(null);
     }
     setIsDeleteDialogOpen(false);
@@ -57,7 +57,7 @@ export function ManageOffers() {
 
   const handleBoostClick = (offer: Offer) => {
     boostOffer(offer.id);
-    toast({ title: "Offer Boosted!", description: `"${offer.title}" has been moved to the top of the list for this session.` });
+    toast({ title: "Ad Boosted!", description: `"${offer.title}" has been moved to the top of the list for this session.` });
   };
 
   const handleEditClick = (offer: Offer) => {
@@ -82,7 +82,7 @@ export function ManageOffers() {
 
   const handleToggleVisibility = async (offer: Offer) => {
     await toggleOfferVisibility(offer.id);
-    toast({ title: `Offer ${offer.isHidden ? 'Made Visible' : 'Hidden'}`, description: `"${offer.title}" is now ${offer.isHidden ? 'visible' : 'hidden from public view'}.` });
+    toast({ title: `Ad ${offer.isHidden ? 'Made Visible' : 'Hidden'}`, description: `"${offer.title}" is now ${offer.isHidden ? 'visible' : 'hidden from public view'}.` });
   };
 
   if (loading) {
@@ -97,8 +97,8 @@ export function ManageOffers() {
   return (
     <TooltipProvider>
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-headline font-bold">Manage Your Offers</h2>
-        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto"> Edit, delete, and manage all current offers. Use the actions menu to manage stories and visibility.</p>
+        <h2 className="text-3xl font-headline font-bold">Manage Your Ads</h2>
+        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto"> Edit, delete, and manage all current ads. Use the actions menu to manage stories and visibility.</p>
       </div>
 
        <Card>
@@ -107,7 +107,7 @@ export function ManageOffers() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-[300px] pl-6">Offer</TableHead>
+                        <TableHead className="w-[300px] pl-6">Ad</TableHead>
                         <TableHead>Business</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Views</TableHead>
@@ -136,7 +136,7 @@ export function ManageOffers() {
                                     <TooltipTrigger asChild>
                                         <div className="flex items-center gap-2"> <Eye className="h-4 w-4 text-muted-foreground" /> <span>{offer.views || 0}</span> </div>
                                     </TooltipTrigger>
-                                    <TooltipContent><p>Total times the offer page has been viewed.</p></TooltipContent>
+                                    <TooltipContent><p>Total times the ad page has been viewed.</p></TooltipContent>
                                 </Tooltip>
                             </TableCell>
                             <TableCell>
@@ -144,7 +144,7 @@ export function ManageOffers() {
                                     <TooltipTrigger asChild>
                                         <div className="flex items-center gap-2"> <BarChart2 className="h-4 w-4 text-muted-foreground" /> <span>{offer.clicks || 0}</span> </div>
                                     </TooltipTrigger>
-                                    <TooltipContent><p>Total clicks on contact buttons (Call, Chat, etc.).</p></TooltipContent>
+                                    <TooltipContent><p>Total clicks on the 'Post a Request' button on the ad page.</p></TooltipContent>
                                 </Tooltip>
                             </TableCell>
                              <TableCell>
@@ -152,12 +152,12 @@ export function ManageOffers() {
                                     <TooltipTrigger asChild>
                                         <div className="flex items-center gap-2"> <Layers className="h-4 w-4 text-muted-foreground" /> <span>{offer.storyViews || 0}</span> </div>
                                     </TooltipTrigger>
-                                    <TooltipContent><p>Total views across all stories for this offer.</p></TooltipContent>
+                                    <TooltipContent><p>Total views across all stories for this ad.</p></TooltipContent>
                                 </Tooltip>
                             </TableCell>
                             <TableCell className="text-right pr-6">
                                 <DropdownMenu>
-                                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /><span className="sr-only">Manage Offer</span></Button></DropdownMenuTrigger>
+                                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /><span className="sr-only">Manage Ad</span></Button></DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem onSelect={() => handleStoryUploaderClick(offer)}><Clapperboard className="mr-2 h-4 w-4" /> Add Story</DropdownMenuItem>
                                         <DropdownMenuSeparator />
@@ -178,7 +178,7 @@ export function ManageOffers() {
       </Card>
       
       <Dialog open={isEditDialogOpen} onOpenChange={(isOpen) => !isOpen && handleEditDialogClose()}>
-        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>Edit Offer</DialogTitle></DialogHeader>{selectedOffer && <AdGenerator offerToEdit={selectedOffer} onFinished={handleEditDialogClose} />}</DialogContent>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>Edit Ad</DialogTitle></DialogHeader>{selectedOffer && <AdGenerator offerToEdit={selectedOffer} onFinished={handleEditDialogClose} />}</DialogContent>
       </Dialog>
       
       <Dialog open={isStoryUploaderOpen} onOpenChange={(isOpen) => !isOpen && handleStoryUploaderClose()}>
@@ -186,7 +186,7 @@ export function ManageOffers() {
       </Dialog>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently delete the offer "{selectedOffer?.title}".</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+        <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently delete the ad "{selectedOffer?.title}".</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
       </AlertDialog>
     </TooltipProvider>
   );

@@ -14,12 +14,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Megaphone, Star, Edit } from "lucide-react";
 import Image from "next/image";
-import { Checkbox } from "@/components/ui/checkbox";
 import { locations } from "@/lib/locations";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
 import { cn } from "@/lib/utils";
 import type { OfferData } from "@/lib/offers";
 import { uploadMultipleFiles } from "@/lib/storage";
+import { useAuth } from "@/contexts/AuthContext";
 
 const formSchema = z.object({
   business: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -32,25 +32,19 @@ const formSchema = z.object({
   discount: z.string().min(1, { message: "Discount details are required." }),
   tags: z.string().optional(),
   images: z.custom<FileList>().optional(),
-  allowCall: z.boolean().default(false).optional(),
-  phoneNumber: z.string().optional(),
-  allowChat: z.boolean().default(false).optional(),
-  chatLink: z.string().optional(),
-  allowSchedule: z.boolean().default(false).optional(),
-  scheduleLink: z.string().optional(),
 });
 
 const businessTypes = {
+  "Medical & Pharmacy": ["Medical & Pharmacy"],
+  "Hotels & Restaurants": ["Hotels & Restaurants"],
+  "Wholesale & Retail": ["Wholesale & Retail"],
+  "Automobiles": ["Automobiles"],
+  "Real Estate & Property": ["Real Estate & Property"],
+  "Electrical & Electronics": ["Electrical & Electronics"],
+  "Building & Construction": ["Building & Construction"],
+  "Gold & Jewellery": ["Gold & Jewellery"],
   "Agriculture & Farming": ["Agriculture & Farming"],
-  "Services": ["Electrical Works & Wiring Services", "Plumbing & Borewell Services", "Welding & Fabrication Shops", "Furniture Makers & Wood Works", "Two-Wheeler & Bicycle Repair", "Tailoring & Stitching Units", "Event Management & Tent House Services", "Mobile Repair & Accessories Shops", "Printing Press & Flex Banner Shops", "Catering & Tiffin Services", "Courier & Parcel Services", "Bike/Car Wash & Detailing", "Photography & Videography Services", "Interior & Painting Services", "Scrap Collection & Recycling Services", "House Cleaning Services", "Water Supply Services"],
-  "Shops & Retail": ["Kirana & General Stores", "Supermarkets", "Clothing & Fashion", "Furniture & Home Appliances", "Goldsmith & Jewellery Shops", "Stationery & Book Shops", "Ayurvedic & Herbal Product Stores"],
-  "Health & Wellness": ["Hospitals & Clinics", "Medical Shops & Diagnostics", "Fitness Centers / Gyms", "Beauty Parlors & Salons"],
-  "Hotels, Food & Restaurants": ["Hotels", "Restaurants", "Biryani Points", "Tiffin Centers", "Bakeries & Sweet Shops", "Ice Cream Parlors", "Street Food / Fast Food", "Coffee & Tea Shops", "Fruit & Juice Centers"],
-  "Automobiles & Transport": ["Car Rentals", "Bike Rentals", "Auto / Taxi Services", "Bus & Travel Agencies", "Agriculture Equipment Rentals (Tractors, Sprayers, Harvesters)"],
-  "Education & Training": ["Schools & Colleges", "Coaching Centers", "Computer Training", "Skill Development Institutes"],
-  "Real Estate & Construction": ["Property Dealers", "Rental Houses", "Building Materials & Hardware"],
-  "Finance & Professional": ["Banks & ATMs", "Chartered Accountants", "Insurance Services", "Legal Advisors"],
-  "Gym": ["Gym"],
+  "Textile & Garments": ["Textile & Garments"],
 };
 
 interface AdGeneratorProps {
@@ -67,12 +61,13 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
   const { toast } = useToast();
   const { addOffer, updateOffer } = useOffers();
+  const { user } = useAuth();
 
   const isEditMode = !!offerToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { business: "", offerTitle: "", offerCompleteDetails: "", discount: "", tags: "", nearbyLocation: "", locationLink: "", allowCall: false, phoneNumber: "", allowChat: false, chatLink: "", allowSchedule: false, scheduleLink: "" },
+    defaultValues: { business: "", offerTitle: "", offerCompleteDetails: "", discount: "", tags: "", nearbyLocation: "", locationLink: "" },
   });
 
   useEffect(() => {
@@ -87,12 +82,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         offerCompleteDetails: offerToEdit.description,
         discount: offerToEdit.discount,
         tags: offerToEdit.tags.join(", "),
-        allowCall: offerToEdit.allowCall,
-        phoneNumber: offerToEdit.phoneNumber,
-        allowChat: offerToEdit.allowChat,
-        chatLink: offerToEdit.chatLink,
-        allowSchedule: offerToEdit.allowSchedule,
-        scheduleLink: offerToEdit.scheduleLink,
       });
       
       const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean);
@@ -122,6 +111,10 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
   
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({variant: "destructive", title: "Authentication Error", description: "You must be logged in to post an ad."});
+        return;
+    }
     setIsLoading(true);
     setLoadingMessage(isEditMode ? "Updating..." : "Posting...");
 
@@ -155,9 +148,9 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     const offerData: OfferData = {
         title: values.offerTitle, description: values.offerCompleteDetails, business: values.business, category: values.businessType, location: values.location,
         nearbyLocation: values.nearbyLocation, locationLink: values.locationLink, image: mainImage, otherImages: otherImages || [],
-        discount: values.discount, tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [], allowCall: values.allowCall ?? false,
-        phoneNumber: values.phoneNumber, allowChat: values.allowChat ?? false, chatLink: values.chatLink, allowSchedule: values.allowSchedule ?? false,
-        scheduleLink: values.scheduleLink, isHidden: isEditMode && offerToEdit ? offerToEdit.isHidden : false,
+        discount: values.discount, tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
+        isHidden: isEditMode && offerToEdit ? offerToEdit.isHidden : false,
+        postedBy: user.uid,
     };
 
     try {
@@ -166,7 +159,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
       } else {
         await addOffer(offerData);
       }
-      toast({ title: isEditMode ? "Offer Updated!" : "Offer Posted!", description: `Your offer has been successfully ${isEditMode ? 'updated' : 'posted'}.` });
+      toast({ title: isEditMode ? "Ad Updated!" : "Ad Posted!", description: `Your ad has been successfully ${isEditMode ? 'updated' : 'posted'}.` });
       if (onFinished) {
         onFinished();
       } else { 
@@ -203,38 +196,26 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         </Card>
         
         <Card>
-          <CardHeader><CardTitle>Offer Details</CardTitle><CardDescription>Describe the offer you are promoting.</CardDescription></CardHeader>
+          <CardHeader><CardTitle>Ad Details</CardTitle><CardDescription>Describe the ad you are promoting.</CardDescription></CardHeader>
           <CardContent className="space-y-4">
-            <FormField control={form.control} name="offerTitle" render={({ field }) => (<FormItem><FormLabel>Offer Title</FormLabel><FormControl><Input placeholder="e.g., Get 20% off all coffee" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="offerTitle" render={({ field }) => (<FormItem><FormLabel>Ad Title</FormLabel><FormControl><Input placeholder="e.g., Get 20% off all coffee" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="discount" render={({ field }) => (<FormItem><FormLabel>Discount / Price</FormLabel><FormControl><Input placeholder="e.g., 50% OFF, 2-for-1, ₹500" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="offerCompleteDetails" render={({ field }) => (<FormItem><FormLabel>Complete Offer Details</FormLabel><FormControl><Textarea placeholder="Describe your offer in detail..." {...field} rows={6} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="offerCompleteDetails" render={({ field }) => (<FormItem><FormLabel>Complete Ad Details</FormLabel><FormControl><Textarea placeholder="Describe your ad in detail..." {...field} rows={6} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="tags" render={({ field }) => (<FormItem><FormLabel>Tags</FormLabel><FormControl><Input placeholder="e.g., Today's Offer, Sale, New" {...field} /></FormControl><FormDescription>Separate tags with a comma.</FormDescription><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle>Offer Media</CardTitle><CardDescription>Upload images for your offer. The first image will be the cover photo.</CardDescription></CardHeader>
+          <CardHeader><CardTitle>Ad Media</CardTitle><CardDescription>Upload images for your ad. The first image will be the cover photo.</CardDescription></CardHeader>
           <CardContent>
-            <FormField control={form.control} name="images" render={({ field }) => (<FormItem><FormLabel>Offer Images</FormLabel><FormControl><Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" /></FormControl><FormDescription>Click an image to select it as the main cover photo.</FormDescription>
-                {imagePreviews.length > 0 && (<div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">{imagePreviews.map((src, i) => (<div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}><Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />{selectedMainImageIndex === i && (<div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>)}</div>))}</div>)}
+            <FormField control={form.control} name="images" render={({ field }) => (<FormItem><FormLabel>Ad Images</FormLabel><FormControl><Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" /></FormControl><FormDescription>Click an image to select it as the main cover photo.</FormDescription>
+                {imagePreviews.length > 0 && (<div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">{imagePreviews.map((src, i) => (<div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}><Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" /><div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div></div>))}</div>)}
                 {imagePreviews.length === 0 && !isEditMode && (<div className="mt-2 rounded-md border border-dashed border-gray-300 p-4 text-center"><Image src="https://placehold.co/600x400.png" alt="Placeholder" width={100} height={100} className="mx-auto rounded-md object-cover" data-ai-hint="food biryani" /><p className="text-xs text-muted-foreground mt-2">Image previews will appear here</p></div>)}
               <FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader><CardTitle>Communication Options</CardTitle><CardDescription>Select how customers can connect with you.</CardDescription></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-2 gap-y-4 pt-2">
-              <FormField control={form.control} name="allowCall" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-sm leading-none">Allow Call</FormLabel></FormItem>)} />
-              <FormField control={form.control} name="allowChat" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-sm leading-none">Allow Chat</FormLabel></FormItem>)} />
-              <FormField control={form.control} name="allowSchedule" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-sm leading-none">Schedule</FormLabel></FormItem>)} />
-            </div>
-            {form.watch("allowCall") && (<FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" placeholder="Enter phone number" {...field} /></FormControl><FormMessage /></FormItem>)} />)}
-            {form.watch("allowChat") && (<FormField control={form.control} name="chatLink" render={({ field }) => (<FormItem><FormLabel>Chat Link or ID</FormLabel><FormControl><Input placeholder="e.g., wa.me/91..." {...field} /></FormControl><FormMessage /></FormItem>)} />)}
-            {form.watch("allowSchedule") && (<FormField control={form.control} name="scheduleLink" render={({ field }) => (<FormItem><FormLabel>Scheduling URL</FormLabel><FormControl><Input type="url" placeholder="e.g., https://calendly.com/your-name" {...field} /></FormControl><FormMessage /></FormItem>)} />)}
-          </CardContent>
-        </Card>
+
         <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90 text-lg py-6">
-          {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />{loadingMessage}</>) : (<>{isEditMode ? <Edit className="mr-2 h-4 w-4" /> : <Megaphone className="mr-2 h-4 w-4" />}{isEditMode ? 'Update Offer' : 'Post Offer'}</>)}
+          {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />{loadingMessage}</>) : (<>{isEditMode ? <Edit className="mr-2 h-4 w-4" /> : <Megaphone className="mr-2 h-4 w-4" />}{isEditMode ? 'Update Ad' : 'Post Ad'}</>)}
         </Button>
       </form>
     </Form>
@@ -245,8 +226,8 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   return (
     <>
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-headline font-bold">Post and Manage Offers</h2>
-        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">Fill out the form below to post a new offer, or scroll down to manage existing ones.</p>
+        <h2 className="text-3xl font-headline font-bold">Post and Manage Ads</h2>
+        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">Fill out the form below to post a new ad, or scroll down to manage existing ones.</p>
       </div>
       <div className="max-w-3xl mx-auto">
         {AdForm}
@@ -254,7 +235,3 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
-
-    
-
-    

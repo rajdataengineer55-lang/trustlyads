@@ -50,6 +50,7 @@ export interface Offer {
   views?: number;
   clicks?: number;
   storyViews?: number;
+  postedBy?: string; // New field for business ID
 }
 
 interface OffersContextType {
@@ -173,5 +174,3 @@ export function useOffers() {
   }
   return context;
 }
-
-    
