@@ -21,11 +21,10 @@ interface HeaderProps {
 }
 
 const Logo = () => (
-    <svg width="60" height="30" viewBox="0 0 100 50" className="fill-primary">
-        <text x="0" y="40" fontFamily="Arial, sans-serif" fontSize="40" fontWeight="bold">
-            olx
-        </text>
-    </svg>
+    <Link href="/" className="flex items-center space-x-2">
+        <Megaphone className="h-8 w-8 text-primary" />
+        <span className="text-2xl font-bold font-headline">trustlyads.in</span>
+    </Link>
 );
 
 
@@ -112,9 +111,9 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center gap-4">
-        <Link href="/" className="items-center space-x-2 md:flex hidden">
+        <div className="items-center space-x-2 md:flex hidden">
             <Logo />
-        </Link>
+        </div>
         
         {/* Mobile Menu Trigger */}
         <div className="md:hidden">
@@ -128,9 +127,9 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
             <SheetContent side="left">
               <SheetHeader>
                 <SheetTitle>
-                  <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
+                  <div onClick={() => setIsMobileMenuOpen(false)}>
                     <Logo />
-                  </Link>
+                  </div>
                 </SheetTitle>
               </SheetHeader>
                <nav className="flex flex-col gap-2 py-6">
