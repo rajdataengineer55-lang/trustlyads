@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Megaphone, Star, Edit } from "lucide-react";
+import { Loader2, Megaphone, Star, Edit, UploadCloud } from "lucide-react";
 import Image from "next/image";
 import { locations } from "@/lib/locations";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
@@ -57,6 +58,8 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [selectedMainImageIndex, setSelectedMainImageIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { toast } = useToast();
   const { addOffer, updateOffer } = useOffers();
@@ -83,31 +86,62 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         tags: offerToEdit.tags.join(", "),
       });
       
-      const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean);
+      const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean) as string[];
       setImagePreviews(allImages);
       setNewImageFiles([]); 
       setSelectedMainImageIndex(0);
     }
   }, [offerToEdit, isEditMode, form]);
   
+  const processFiles = (files: File[]) => {
+    const currentFiles = Array.from(files);
+    const newFilePreviews = currentFiles.map(file => URL.createObjectURL(file));
+
+    if (isEditMode) {
+      setImagePreviews(newFilePreviews);
+      setNewImageFiles(currentFiles);
+    } else {
+      setImagePreviews(prev => [...prev, ...newFilePreviews]);
+      setNewImageFiles(prev => [...prev, ...currentFiles]);
+    }
+  }
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-        const currentFiles = Array.from(files);
-        const newFilePreviews = currentFiles.map(file => URL.createObjectURL(file));
-
-        if (isEditMode) {
-          // In edit mode, new files replace old previews.
-          setImagePreviews(newFilePreviews);
-          setNewImageFiles(currentFiles);
-        } else {
-          // In create mode, new files add to existing previews.
-          setImagePreviews(prev => [...prev, ...newFilePreviews]);
-          setNewImageFiles(prev => [...prev, ...currentFiles]);
-        }
+      processFiles(Array.from(files));
     }
   };
 
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      processFiles(Array.from(files));
+      if (fileInputRef.current) {
+        fileInputRef.current.files = files;
+      }
+    }
+  };
   
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
@@ -182,7 +216,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
           <CardHeader><CardTitle>Business Details</CardTitle><CardDescription>Information about the business posting the offer.</CardDescription></CardHeader>
           <CardContent className="space-y-4">
             <FormField control={form.control} name="business" render={({ field }) => (<FormItem><FormLabel>Business Name</FormLabel><FormControl><Input placeholder="e.g., The Cozy Cafe" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="businessType" render={({ field }) => (<FormItem><FormLabel>Business Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a business type" /></SelectTrigger></FormControl><SelectContent>{Object.entries(businessTypes).map(([group, types]) => (<SelectGroup key={group}><SelectLabel>{group}</SelectLabel>{types.map(type => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectGroup>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="businessType" render={({ field }) => (<FormItem><FormLabel>Business Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a business type" /></SelectTrigger></FormControl><SelectContent>{Object.entries(businessTypes).map(([group, types]) => (<SelectGroup key={group}><SelectLabel>{group}</SelectLabel>{types.map(type => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
         <Card>
@@ -204,12 +238,62 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle>Ad Media</CardTitle><CardDescription>Upload images for your ad. The first image will be the cover photo.</CardDescription></CardHeader>
+          <CardHeader><CardTitle>Ad Media</CardTitle><CardDescription>Upload up to 10 images for your ad. The first image will be the cover photo.</CardDescription></CardHeader>
           <CardContent>
-            <FormField control={form.control} name="images" render={({ field }) => (<FormItem><FormLabel>Ad Images</FormLabel><FormControl><Input type="file" accept="image/*" multiple onChange={handleImageChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" /></FormControl><FormDescription>Click an image to select it as the main cover photo.</FormDescription>
-                {imagePreviews.length > 0 && (<div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">{imagePreviews.map((src, i) => (<div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}><Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" /><div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div></div>))}</div>)}
-                {imagePreviews.length === 0 && !isEditMode && (<div className="mt-2 rounded-md border border-dashed border-gray-300 p-4 text-center"><Image src="https://placehold.co/600x400.png" alt="Placeholder" width={100} height={100} className="mx-auto rounded-md object-cover" data-ai-hint="food biryani" /><p className="text-xs text-muted-foreground mt-2">Image previews will appear here</p></div>)}
-              <FormMessage /></FormItem>)} />
+             <div 
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={cn(
+                "relative border-2 border-dashed border-muted-foreground/50 rounded-lg p-6 text-center cursor-pointer transition-colors duration-200",
+                isDragging ? "border-primary bg-primary/10" : "hover:border-primary/50 hover:bg-primary/5"
+              )}
+            >
+              {isDragging && (
+                <div className="absolute inset-0 bg-primary/20 flex items-center justify-center z-10">
+                  <p className="text-primary font-bold text-lg">Drop images here</p>
+                </div>
+              )}
+
+              <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground" />
+              <p className="mt-4 text-muted-foreground">
+                <span className="font-semibold text-primary">Click to upload</span> or drag and drop
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">PNG, JPG, or GIF (up to 10 files)</p>
+              
+              <FormField control={form.control} name="images" render={() => (
+                  <FormItem className="sr-only">
+                    <FormLabel>Ad Images</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="file" 
+                        accept="image/*" 
+                        multiple 
+                        ref={fileInputRef}
+                        onChange={handleImageChange} 
+                        className="hidden"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+              )} />
+            </div>
+
+            {imagePreviews.length > 0 && (
+              <div className="mt-6">
+                <FormDescription className="mb-2">Click an image to select it as the main cover photo.</FormDescription>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
+                    {imagePreviews.map((src, i) => (
+                        <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}>
+                            <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />
+                            {selectedMainImageIndex === i && <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>}
+                        </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
