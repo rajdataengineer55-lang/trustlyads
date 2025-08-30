@@ -45,7 +45,7 @@ export default function FaqPage() {
           <div className="container mx-auto px-4 md:px-6">
             <div className="max-w-3xl mx-auto text-center">
                 <Megaphone className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h1 className="text-3xl sm:text-4xl font-headline font-bold mb-4">Frequently Asked Questions</h1>
+                <h1 className="text-3xl sm:text-4xl font-bold mb-4">Frequently Asked Questions</h1>
                 <p className="text-muted-foreground">Find answers to common questions about our platform.</p>
             </div>
             <div className="max-w-3xl mx-auto mt-12">

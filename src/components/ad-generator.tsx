@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -226,7 +225,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   return (
     <>
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-headline font-bold">Post and Manage Ads</h2>
+        <h2 className="text-3xl font-bold">Post and Manage Ads</h2>
         <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">Fill out the form below to post a new ad, or scroll down to manage existing ones.</p>
       </div>
       <div className="max-w-3xl mx-auto">

@@ -379,7 +379,7 @@ export default function OfferDetailsPage() {
                     <Card>
                         <CardContent className="p-4 sm:p-6 space-y-4">
                             <div>
-                              <h1 className="text-2xl sm:text-4xl font-headline font-bold mb-2">{offer.title}</h1>
+                              <h1 className="text-2xl sm:text-4xl font-bold mb-2">{offer.title}</h1>
                               <p className="text-xl font-semibold text-primary mb-4">{offer.business}</p>
                               <LocationInfo />
                             </div>
@@ -447,7 +447,7 @@ export default function OfferDetailsPage() {
             
             {similarOffers.length > 0 && (
               <div className="mt-16">
-                 <h2 className="text-2xl font-headline font-bold text-center mb-8">
+                 <h2 className="text-2xl font-bold text-center mb-8">
                   Similar Ads
                 </h2>
                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -466,7 +466,7 @@ export default function OfferDetailsPage() {
                                 className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
                               />
                               <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                                  <h3 className="text-lg font-headline font-bold text-white truncate">{similarOffer.title}</h3>
+                                  <h3 className="text-lg font-bold text-white truncate">{similarOffer.title}</h3>
                               </div>
                               <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
                                 {similarOffer.discount}

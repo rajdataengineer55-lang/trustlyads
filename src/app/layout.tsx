@@ -1,6 +1,6 @@
 
 import type { Metadata, Viewport } from 'next';
-import { Roboto, Inter } from 'next/font/google';
+import { Open_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { OffersProvider } from '@/contexts/OffersContext';
@@ -9,17 +9,10 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
 
 
-const roboto = Roboto({
+const openSans = Open_Sans({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-headline',
-  weight: ['400', '700']
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-body',
+  variable: '--font-sans',
 });
 
 
@@ -45,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body className={cn("antialiased font-body", roboto.variable, inter.variable)}>
+      <body className={cn("antialiased font-sans", openSans.variable)}>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"

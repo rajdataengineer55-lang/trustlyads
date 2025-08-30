@@ -76,7 +76,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     return (
       <section id="featured-offers" className="w-full py-10 sm:py-12">
         <div className="container mx-auto px-4 md:px-6">
-           <h2 className="text-3xl font-headline font-bold text-center mb-12">
+           <h2 className="text-3xl font-bold text-center mb-12">
             Featured Offers
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -95,7 +95,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     return (
        <section id="featured-offers" className="w-full py-10 sm:py-12">
           <div className="container mx-auto px-4 md:px-6 text-center">
-            <h2 className="text-3xl font-headline font-bold mb-4">
+            <h2 className="text-3xl font-bold mb-4">
               Featured Offers
             </h2>
             <p className="text-muted-foreground">No offers found for the selected filters.</p>
@@ -125,7 +125,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                       />
                       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                          <h3 className="font-headline font-semibold text-white truncate text-lg">{offer.title}</h3>
+                          <h3 className="font-semibold text-white truncate text-lg">{offer.title}</h3>
                       </div>
                        <Badge variant="default" className="absolute top-3 left-3 bg-accent text-accent-foreground font-bold">
                           {offer.discount}

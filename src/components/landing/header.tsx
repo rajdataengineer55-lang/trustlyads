@@ -20,7 +20,7 @@ interface HeaderProps {
 const Logo = () => (
     <Link href="/" className="flex items-center space-x-2">
         <Megaphone className="h-7 w-7 text-primary" />
-        <span className="text-xl font-bold font-headline">trustlyads.in</span>
+        <span className="text-xl font-bold">trustlyads.in</span>
     </Link>
 );
 

@@ -18,14 +18,14 @@ export function Footer() {
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
               <Megaphone className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold font-headline">trustlyads.in</span>
+              <span className="text-2xl font-bold">trustlyads.in</span>
             </Link>
             <p className="text-muted-foreground">Connecting communities, one offer at a time.</p>
           </div>
           <div className="md:col-span-2">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
               <div>
-                <h4 className="font-headline font-semibold mb-4">Quick Links</h4>
+                <h4 className="font-semibold mb-4">Quick Links</h4>
                 <ul className="space-y-2">
                   {footerLinks.map((link) => (
                     <li key={link.name}>
@@ -37,7 +37,7 @@ export function Footer() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-headline font-semibold mb-4">Contact Us</h4>
+                <h4 className="font-semibold mb-4">Contact Us</h4>
                 <ul className="space-y-2">
                     <li>
                       <a href="mailto:trustlyads@gmail.com" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
@@ -57,7 +57,7 @@ export function Footer() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-headline font-semibold mb-4">Follow Us</h4>
+                <h4 className="font-semibold mb-4">Follow Us</h4>
                 <div className="flex space-x-4">
                   <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
                     <Facebook className="h-6 w-6" />

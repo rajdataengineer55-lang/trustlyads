@@ -97,7 +97,7 @@ export function ManageOffers() {
   return (
     <TooltipProvider>
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-headline font-bold">Manage Your Ads</h2>
+        <h2 className="text-3xl font-bold">Manage Your Ads</h2>
         <p className="mt-4 text-muted-foreground max-w-2xl mx-auto"> Edit, delete, and manage all current ads. Use the actions menu to manage stories and visibility.</p>
       </div>
 

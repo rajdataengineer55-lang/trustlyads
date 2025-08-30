@@ -93,7 +93,7 @@ export function ManageStories() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-headline font-bold">Manage Active Stories</h2>
+        <h2 className="text-3xl font-bold">Manage Active Stories</h2>
         <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
           View all currently active stories. Stories are automatically removed after 24 hours. You can manually delete them here.
         </p>
