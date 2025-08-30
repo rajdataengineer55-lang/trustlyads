@@ -9,7 +9,6 @@ import { ArrowRight, EyeOff, MapPin, Calendar, Tag } from "lucide-react";
 import { useOffers } from "@/contexts/OffersContext";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { locations } from "@/lib/locations";
@@ -25,9 +24,8 @@ interface FeaturedOffersProps {
 
 export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm, sortOption }: FeaturedOffersProps) {
   const { offers, loading: offersLoading } = useOffers();
-  const { loading: authLoading, isAdmin } = useAuth();
   
-  const loading = offersLoading || authLoading;
+  const loading = offersLoading;
 
   const getCategoryIcon = (categoryName: string) => {
     const category = categories.find(cat => cat.name === categoryName);
@@ -35,7 +33,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
   };
 
   const filteredAndSortedOffers = useMemo(() => {
-    let filtered = offers.filter(offer => isAdmin || !offer.isHidden);
+    let filtered = offers.filter(offer => !offer.isHidden);
 
     if (selectedCategory) {
       filtered = filtered.filter(offer => offer.category === selectedCategory);
@@ -73,7 +71,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
     // Default sort is 'newest' (which is the default from Firestore due to orderBy)
     return filtered;
 
-  }, [offers, isAdmin, selectedCategory, selectedLocation, searchTerm, sortOption]);
+  }, [offers, selectedCategory, selectedLocation, searchTerm, sortOption]);
   
   if (loading) {
     return (
