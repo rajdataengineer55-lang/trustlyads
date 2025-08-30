@@ -29,61 +29,71 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Set persistence at the app's entry point, before any other auth logic runs.
-// This is crucial for the redirect flow to work reliably in production.
-setPersistence(auth, browserLocalPersistence);
-
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // This now represents the initial auth check
+  const [loading, setLoading] = useState(true);
+  const [persistenceInitialized, setPersistenceInitialized] = useState(false);
   const { toast } = useToast();
   
   const { isAdmin, isCheckingAdmin, checkAdminStatus } = useAdmin();
 
-  // This effect runs once on mount to handle the redirect result and set up the auth listener.
+  // Effect to set persistence first. This is the most reliable way.
   useEffect(() => {
-    // We set persistence at the very beginning.
-    const initializeAuth = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          toast({
-            title: "Signed In",
-            description: `Welcome, ${result.user.displayName}!`,
-          });
-        }
-      } catch (error) {
-        console.error("Error during auth initialization or redirect:", error);
-        toast({
-          variant: "destructive",
-          title: "Sign In Failed",
-          description: "Could not complete sign in after redirect. Please try again.",
-        });
-      }
-
-      // After handling any potential redirect, set up the listener for ongoing auth state changes.
-      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-        if (currentUser) {
-          setUser(currentUser);
-          await checkAdminStatus(currentUser);
-        } else {
-          setUser(null);
-          // Set admin to false immediately for a logged-out user.
-          await checkAdminStatus(null); 
-        }
-        // This setLoading(false) is crucial. It marks the end of the initial check.
-        setLoading(false);
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+        setPersistenceInitialized(true);
+      })
+      .catch((error) => {
+        console.error("Error setting auth persistence:", error);
+        // Even if it fails, we should proceed, but it might cause issues.
+        setPersistenceInitialized(true); 
       });
-        
-      return unsubscribe;
-    };
-    
-    initializeAuth();
-    
-  // The empty dependency array ensures this effect runs only once on mount.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // This effect runs only after persistence has been initialized.
+  useEffect(() => {
+    if (!persistenceInitialized) return;
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        await checkAdminStatus(currentUser);
+      } else {
+        // This block also handles the result of a redirect sign-in.
+        try {
+          const result = await getRedirectResult(auth);
+          if (result) {
+            // User just signed in.
+            const signedInUser = result.user;
+            setUser(signedInUser);
+            await checkAdminStatus(signedInUser);
+            toast({
+              title: "Signed In",
+              description: `Welcome, ${signedInUser.displayName}!`,
+            });
+          } else {
+             // User is signed out.
+             setUser(null);
+             await checkAdminStatus(null);
+          }
+        } catch (error: any) {
+          console.error("Error during getRedirectResult:", error);
+          if (error.code !== 'auth/redirect-cancelled-by-user') {
+             toast({
+              variant: "destructive",
+              title: "Sign In Failed",
+              description: "Could not complete sign in after redirect. Please try again.",
+            });
+          }
+           setUser(null);
+           await checkAdminStatus(null);
+        }
+      }
+      setLoading(false);
+    });
+      
+    return () => unsubscribe();
+  }, [persistenceInitialized, checkAdminStatus, toast]);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -136,17 +146,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Combine loading states: initial auth check OR ongoing admin check.
   const isAppLoading = loading || isCheckingAdmin;
   
   const value = { user, loading: isAppLoading, isAdmin, isCheckingAdmin, signInWithGoogle, signInWithEmail, signOut };
   
-  // Render a full-page skeleton ONLY during the initial, one-time authentication check.
-  // This prevents any child components (and other contexts) from rendering before auth is ready.
   if (loading) {
     return (
         <div className="flex flex-col min-h-screen">
-            {/* Plain div to represent the header space, no context-dependent components */}
             <div className="sticky top-0 z-50 w-full border-b h-14 bg-background"></div>
             <main className="flex-1 bg-background/50">
                 <div className="container mx-auto px-4 md:px-6 py-10">
@@ -162,7 +168,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     </div>
                 </div>
             </main>
-             {/* Plain div to represent the footer space */}
             <div className="border-t h-48 bg-background"></div>
         </div>
     );
