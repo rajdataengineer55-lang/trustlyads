@@ -1,9 +1,9 @@
+
 "use client";
 
 import { useState } from "react";
 import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
-import { Categories } from "@/components/landing/categories";
 import { FeaturedOffers } from "@/components/landing/featured-offers";
 import { Footer } from "@/components/landing/footer";
 import { Filters, SortOption } from "@/components/landing/filters";
@@ -25,24 +25,20 @@ export default function Home() {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
+       <Filters 
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}
+          sortOption={sortOption}
+          setSortOption={setSortOption}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          categories={categoryData}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+      />
       <main className="flex-1">
         <Hero />
         <StoriesViewer />
-        <Categories
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-        />
-        <Filters 
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
-            sortOption={sortOption}
-            setSortOption={setSortOption}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            categories={categoryData}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-        />
         <FeaturedOffers 
           selectedCategory={selectedCategory} 
           selectedLocation={selectedLocation}
