@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -6,7 +5,6 @@ import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
 import { Categories } from "@/components/landing/categories";
 import { FeaturedOffers } from "@/components/landing/featured-offers";
-import { HowItWorks } from "@/components/landing/how-it-works";
 import { Footer } from "@/components/landing/footer";
 import { Filters, SortOption } from "@/components/landing/filters";
 import { categories as categoryData } from "@/lib/categories";
@@ -52,7 +50,6 @@ export default function Home() {
           sortOption={sortOption}
           searchTerm={searchTerm}
         />
-        <HowItWorks />
       </main>
       <Footer />
     </div>
