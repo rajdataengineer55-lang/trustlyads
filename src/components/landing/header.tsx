@@ -113,7 +113,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between gap-4">
         {/* Logo and Desktop Location */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-1 items-center gap-4">
             <div className="items-center space-x-2 md:flex hidden">
                 <Logo />
             </div>
@@ -123,21 +123,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
             </div>
              <div className="hidden md:flex items-center gap-2">
                 <LocationDropdown />
-            </div>
-        </div>
-        
-        <div className="flex-1 flex items-center max-w-lg">
-            <div className="relative w-full">
-                <Input
-                    type="search"
-                    placeholder="Find Cars, Mobile Phones and more..."
-                    className="w-full pr-10 h-12"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <Button size="icon" className="absolute right-0 top-0 h-full w-12 rounded-l-none bg-primary hover:bg-primary/90">
-                    <Search className="h-6 w-6 text-primary-foreground" />
-                </Button>
             </div>
         </div>
         
@@ -172,7 +157,8 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
           </nav>
         
         {/* Mobile Menu Trigger */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
+            <UserMenu />
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon">
