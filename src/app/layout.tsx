@@ -4,6 +4,7 @@ import { Poppins, PT_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { OffersProvider } from '@/contexts/OffersContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
 
@@ -52,10 +53,12 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
+          <AuthProvider>
             <OffersProvider>
               {children}
               <Toaster />
             </OffersProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

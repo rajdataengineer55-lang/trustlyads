@@ -8,8 +8,40 @@ import { ManageOffers } from "@/components/manage-offers";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StoryCreator } from "@/components/story-creator";
 import { ManageStories } from "@/components/manage-stories";
+import { useAuth } from "@/contexts/AuthContext";
+import { AdminLoginForm } from "@/components/admin-login-form";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminPage() {
+    const { isAdmin, loading } = useAuth();
+
+    if (loading) {
+        return (
+             <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-1 bg-background/50 flex items-center justify-center">
+                    <div className="container mx-auto px-4 md:px-6 py-12 text-center">
+                        <Skeleton className="h-10 w-1/3 mx-auto" />
+                        <Skeleton className="h-6 w-1/2 mx-auto mt-4" />
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        )
+    }
+
+    if (!isAdmin) {
+        return (
+            <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-1 bg-background/50 flex items-center justify-center">
+                    <AdminLoginForm />
+                </main>
+                <Footer />
+            </div>
+        )
+    }
+
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
