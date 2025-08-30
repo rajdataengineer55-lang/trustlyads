@@ -4,21 +4,17 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogOut, Send, Search, Bell, MessageCircle } from "lucide-react"
+import { Megaphone, MapPin, ChevronDown, Menu, LogOut, Send } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '../theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Input } from '../ui/input';
-import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   selectedLocation?: string | null;
   setSelectedLocation?: (location: string | null) => void;
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
 }
 
 const Logo = () => (
@@ -29,7 +25,7 @@ const Logo = () => (
 );
 
 
-export function Header({ selectedLocation, setSelectedLocation = () => {}, searchTerm, setSearchTerm }: HeaderProps) {
+export function Header({ selectedLocation, setSelectedLocation = () => {} }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isAdmin, signInWithGoogle, signOut } = useAuth();
 
@@ -83,7 +79,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
             <div className="flex items-center gap-2 p-2 rounded-md border border-input bg-background w-full sm:w-64 cursor-pointer">
               <MapPin className="h-5 w-5 text-muted-foreground" />
               <span className="flex-1 text-sm truncate">{selectedLocation || 'Tirupati, Andhra Pradesh'}</span>
-              <ChevronDown className="h-5 w-5" />
+              <ChevronDown className="h-4 w-4" />
             </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-64">
@@ -112,16 +108,12 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between gap-4">
+        
         <div className="flex items-center gap-4">
-          <div className="items-center space-x-2 md:flex hidden">
-              <Logo />
-          </div>
-          <div className="md:hidden">
-              <Logo />
-          </div>
+            <Logo />
         </div>
 
-        <div className="hidden md:flex flex-1 items-center gap-2">
+        <div className="hidden md:flex flex-1 items-center justify-start gap-2 px-8">
             <LocationDropdown />
         </div>
         
@@ -147,7 +139,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
             </a>
           </nav>
         
-        <div className="md:hidden flex items-center gap-2">
+        <div className="flex items-center gap-2 md:hidden">
             <UserMenu />
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -188,8 +180,12 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
                   
                   <div className="border-t my-4"></div>
 
+                  <div className="px-4">
+                     <LocationDropdown />
+                  </div>
+
                   <Link href="/requests/new" passHref>
-                    <Button className="w-full" onClick={() => setIsMobileMenuOpen(false)}>Post a Request</Button>
+                    <Button className="w-full mt-4" onClick={() => setIsMobileMenuOpen(false)}>Post a Request</Button>
                   </Link>
 
                   <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>

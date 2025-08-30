@@ -22,8 +22,6 @@ export default function Home() {
       <Header 
         selectedLocation={selectedLocation}
         setSelectedLocation={setSelectedLocation}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
       />
        <Filters 
           selectedLocation={selectedLocation}
