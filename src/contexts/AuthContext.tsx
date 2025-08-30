@@ -16,7 +16,6 @@ import {
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/hooks/use-admin';
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface AuthContextType {
   user: User | null;
@@ -148,23 +147,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return (
         <div className="flex flex-col min-h-screen">
             {/* Plain div to represent the header space, no context-dependent components */}
-            <div className="sticky top-0 z-50 w-full border-b h-14"></div>
-            <main className="flex-1">
+            <div className="sticky top-0 z-50 w-full border-b h-14 bg-background"></div>
+            <main className="flex-1 bg-background/50">
                 <div className="container mx-auto px-4 md:px-6 py-10">
                     <div className="space-y-8">
-                        <Skeleton className="h-40 w-full" />
-                        <Skeleton className="h-24 w-full" />
+                         <div className="animate-pulse rounded-md bg-muted h-40 w-full"></div>
+                         <div className="animate-pulse rounded-md bg-muted h-24 w-full"></div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                            <Skeleton className="h-64 w-full" />
-                            <Skeleton className="h-64 w-full" />
-                            <Skeleton className="h-64 w-full" />
-                            <Skeleton className="h-64 w-full" />
+                            <div className="animate-pulse rounded-md bg-muted h-64 w-full"></div>
+                            <div className="animate-pulse rounded-md bg-muted h-64 w-full"></div>
+                            <div className="animate-pulse rounded-md bg-muted h-64 w-full"></div>
+                            <div className="animate-pulse rounded-md bg-muted h-64 w-full"></div>
                         </div>
                     </div>
                 </div>
             </main>
              {/* Plain div to represent the footer space */}
-            <div className="border-t h-48"></div>
+            <div className="border-t h-48 bg-background"></div>
         </div>
     );
   }
