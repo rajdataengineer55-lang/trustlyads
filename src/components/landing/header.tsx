@@ -110,11 +110,16 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
       <div className="container flex h-20 items-center justify-between gap-4">
         
         <div className="flex items-center gap-4">
-            <Logo />
+            <div className="hidden md:flex">
+                 <Logo />
+            </div>
+            <div className='hidden sm:flex items-center gap-4'>
+                 <LocationDropdown />
+            </div>
         </div>
-
-        <div className="hidden md:flex flex-1 items-center justify-start gap-2 px-8">
-            <LocationDropdown />
+        
+        <div className="flex md:hidden items-center">
+            <Logo />
         </div>
         
         <nav className="hidden md:flex items-center gap-2">
@@ -129,6 +134,10 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                     <DropdownMenuItem>हिन्दी</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
+
+            <Link href="/requests/new" passHref>
+                <Button variant="outline">Post a Request</Button>
+            </Link>
 
             <UserMenu />
 
@@ -183,10 +192,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                   <div className="px-4">
                      <LocationDropdown />
                   </div>
-
-                  <Link href="/requests/new" passHref>
-                    <Button className="w-full mt-4" onClick={() => setIsMobileMenuOpen(false)}>Post a Request</Button>
-                  </Link>
 
                   <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
                       <Button className="w-full mt-4" variant="secondary">Post Your Business</Button>
