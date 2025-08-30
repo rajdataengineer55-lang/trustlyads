@@ -124,7 +124,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left">
+            <SheetContent side="right">
               <SheetHeader>
                 <SheetTitle>
                   <div onClick={() => setIsMobileMenuOpen(false)}>
