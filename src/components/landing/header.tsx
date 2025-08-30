@@ -112,21 +112,19 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between gap-4">
-        {/* Logo and Desktop Location */}
-        <div className="flex flex-1 items-center gap-4">
-            <div className="items-center space-x-2 md:flex hidden">
-                <Logo />
-            </div>
-            {/* Mobile Logo */}
-            <div className="md:hidden">
-                <Logo />
-            </div>
-             <div className="hidden md:flex items-center gap-2">
-                <LocationDropdown />
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="items-center space-x-2 md:flex hidden">
+              <Logo />
+          </div>
+          <div className="md:hidden">
+              <Logo />
+          </div>
+        </div>
+
+        <div className="hidden md:flex flex-1 items-center gap-2">
+            <LocationDropdown />
         </div>
         
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-2">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -140,13 +138,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="icon">
-                <MessageCircle className="h-6 w-6" />
-            </Button>
-             <Button variant="ghost" size="icon">
-                <Bell className="h-6 w-6" />
-            </Button>
-
             <UserMenu />
 
             <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
@@ -156,7 +147,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
             </a>
           </nav>
         
-        {/* Mobile Menu Trigger */}
         <div className="md:hidden flex items-center gap-2">
             <UserMenu />
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
