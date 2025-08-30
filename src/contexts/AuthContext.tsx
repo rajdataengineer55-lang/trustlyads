@@ -29,31 +29,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Set persistence at the app's entry point, before any other auth logic runs.
+// This is crucial for the redirect flow to work reliably in production.
+setPersistence(auth, browserLocalPersistence);
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [persistenceInitialized, setPersistenceInitialized] = useState(false);
   const { toast } = useToast();
   
   const { isAdmin, isCheckingAdmin, checkAdminStatus } = useAdmin();
 
-  // Effect to set persistence first. This is the most reliable way.
   useEffect(() => {
-    setPersistence(auth, browserLocalPersistence)
-      .then(() => {
-        setPersistenceInitialized(true);
-      })
-      .catch((error) => {
-        console.error("Error setting auth persistence:", error);
-        // Even if it fails, we should proceed, but it might cause issues.
-        setPersistenceInitialized(true); 
-      });
-  }, []);
-
-  // This effect runs only after persistence has been initialized.
-  useEffect(() => {
-    if (!persistenceInitialized) return;
-
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
@@ -93,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
       
     return () => unsubscribe();
-  }, [persistenceInitialized, checkAdminStatus, toast]);
+  }, [checkAdminStatus, toast]);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -148,9 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAppLoading = loading || isCheckingAdmin;
   
-  const value = { user, loading: isAppLoading, isAdmin, isCheckingAdmin, signInWithGoogle, signInWithEmail, signOut };
-  
-  if (loading) {
+  if (isAppLoading) {
     return (
         <div className="flex flex-col min-h-screen">
             <div className="sticky top-0 z-50 w-full border-b h-14 bg-background"></div>
@@ -174,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, loading: isAppLoading, isAdmin, isCheckingAdmin, signInWithGoogle, signInWithEmail, signOut }}>
       {children}
     </AuthContext.Provider>
   );
