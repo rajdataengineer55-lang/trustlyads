@@ -1,10 +1,9 @@
-
 "use client";
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogOut } from "lucide-react"
+import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogOut, Send } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -51,6 +50,12 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                     <DropdownMenuItem>Admin Panel</DropdownMenuItem>
                 </Link>
             )}
+             <Link href="/requests">
+                <DropdownMenuItem>
+                    <Send className="mr-2 h-4 w-4" />
+                    My Requests
+                </DropdownMenuItem>
+            </Link>
             <DropdownMenuItem onClick={signOut}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
@@ -116,16 +121,19 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
         </div>
 
         <div className="mr-4 hidden md:flex">
-          <nav className="flex items-center">
+          <nav className="flex items-center gap-2">
              <LocationDropdown />
+             <Link href="/requests" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+                Requests
+             </Link>
           </nav>
         </div>
         
         <div className="hidden flex-1 items-center justify-end space-x-2 md:flex">
           <nav className="flex gap-2 items-center">
-            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
-              <Button>Post Your Business</Button>
-            </a>
+            <Link href="/requests/new">
+                <Button>Post a Request</Button>
+            </Link>
             <ThemeToggle />
             <UserMenu />
           </nav>
@@ -163,6 +171,9 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                             <Button variant="ghost" className="w-full justify-start" onClick={() => setIsMobileMenuOpen(false)}>Admin Panel</Button>
                          </Link>
                        )}
+                       <Link href="/requests" passHref>
+                         <Button variant="ghost" className="w-full justify-start" onClick={() => setIsMobileMenuOpen(false)}>My Requests</Button>
+                       </Link>
                        <Button variant="ghost" className="w-full justify-start" onClick={() => { signOut(); setIsMobileMenuOpen(false); }}><LogOut className="mr-2 h-4 w-4"/> Sign Out</Button>
                     </>
                   ) : (
@@ -171,8 +182,12 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                   
                   <div className="border-t my-4"></div>
 
+                  <Link href="/requests/new" passHref>
+                    <Button className="w-full" onClick={() => setIsMobileMenuOpen(false)}>Post a Request</Button>
+                  </Link>
+
                   <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button className="w-full mt-4">Post Your Business</Button>
+                      <Button className="w-full mt-4" variant="secondary">Post Your Business</Button>
                   </a>
                   
                   <div className="absolute bottom-4 right-4">
@@ -186,5 +201,3 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
     </header>
   )
 }
-
-    
