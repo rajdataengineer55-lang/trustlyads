@@ -214,11 +214,11 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
 
             <UserMenu />
 
-            <Link href="/requests/new">
-                <Button size="lg" className="rounded-full font-bold text-base shadow-lg group">
-                    <span className="text-xl mr-1 group-hover:animate-bounce">+</span> SELL
-                </Button>
-            </Link>
+            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" className="rounded-full font-bold text-base shadow-lg group">
+                Post Your Business
+              </Button>
+            </a>
           </nav>
       </div>
     </header>
