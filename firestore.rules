@@ -1,58 +1,61 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
-    function isAuth() {
+    // Helper function to check if a user is an authenticated admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // Helper function to check if a user is authenticated
+    function isAuthenticated() {
       return request.auth != null;
     }
 
-    function isAdmin() {
-      return isAuth() && request.auth.token.admin == true;
+    // Helper function to check if the user is the owner of a document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Offers Collection
+    // Offers can be read by anyone, but only created, updated, or deleted by an admin.
     match /offers/{offerId} {
-      // READ: Anyone can read an offer if it is not hidden. Admins can read all offers.
-      allow read: if resource.data.isHidden == false || isAdmin();
-      
-      // CREATE, UPDATE, DELETE: Only admins can create, update, or delete offers.
+      allow read;
       allow write: if isAdmin();
 
-      // Reviews Subcollection
+      // Reviews can be read by anyone, but only created by any authenticated user.
+      // Admins can delete reviews.
       match /reviews/{reviewId} {
-        // READ: Anyone can read reviews for a visible offer.
-        allow read: if get(/databases/$(database)/documents/offers/$(offerId)).data.isHidden == false || isAdmin();
-        
-        // CREATE: Any authenticated user can create a review.
-        allow create: if isAuth();
-
-        // UPDATE, DELETE: Only admins can modify or delete reviews.
-        allow update, delete: if isAdmin();
+        allow read;
+        allow create: if isAuthenticated();
+        allow delete: if isAdmin();
       }
     }
 
-    // Stories Collection
-    match /stories/{storyId} {
-      // READ: Anyone can read any story. They are public and temporary.
-      allow read: if true;
-      
-      // CREATE, UPDATE, DELETE: Only admins can manage stories.
-      allow write: if isAdmin();
+    // Followers can be created/deleted by any authenticated user.
+    match /followers/{userId} {
+      allow read;
+      allow create, delete: if isOwner(userId);
     }
 
-    // Followers Collection
-    match /followers/{userId} {
-      // READ: Anyone can read the list of followers (though the app logic only uses the count).
-      allow read: if true;
+    // Stories can be read by anyone, but only created/deleted by an admin.
+    match /stories/{storyId} {
+        allow read;
+        allow create, delete: if isAdmin();
+    }
 
-      // CREATE, DELETE: An authenticated user can only follow/unfollow for themselves.
-      allow create, delete: if isAuth() && request.auth.uid == userId;
-
-      // UPDATE: No one can update a follower document.
-      allow update: if false;
+    // Requests can be created by any authenticated user.
+    // They can be read/updated by their owner or any admin.
+    match /requests/{requestId} {
+      allow create: if isAuthenticated();
+      allow read, update: if isOwner(resource.data.userId) || isAdmin();
+      
+      // Responses can be created by admins.
+      // They can be read by the request owner or admins.
+      match /responses/{responseId} {
+        allow read: if isOwner(get(/databases/$(database)/documents/requests/$(requestId)).data.userId) || isAdmin();
+        allow create: if isAdmin();
+      }
     }
   }
 }
