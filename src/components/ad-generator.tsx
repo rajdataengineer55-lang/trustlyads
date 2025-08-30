@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Megaphone, Star, Edit, Sparkles } from "lucide-react";
+import { Loader2, Megaphone, Star, Edit } from "lucide-react";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { locations } from "@/lib/locations";
@@ -20,7 +20,6 @@ import { useOffers, type Offer } from "@/contexts/OffersContext";
 import { cn } from "@/lib/utils";
 import type { OfferData } from "@/lib/offers";
 import { uploadMultipleFiles } from "@/lib/storage";
-import { generateAdCopy, GenerateAdCopyOutput } from "@/ai/flows/ad-copy-flow";
 
 const formSchema = z.object({
   business: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -39,8 +38,6 @@ const formSchema = z.object({
   chatLink: z.string().optional(),
   allowSchedule: z.boolean().default(false).optional(),
   scheduleLink: z.string().optional(),
-  // AI field
-  aiKeywords: z.string().optional(),
 });
 
 const businessTypes = {
@@ -67,7 +64,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [selectedMainImageIndex, setSelectedMainImageIndex] = useState(0);
-  const [isAiLoading, setIsAiLoading] = useState(false);
 
   const { toast } = useToast();
   const { addOffer, updateOffer } = useOffers();
@@ -76,7 +72,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { business: "", offerTitle: "", offerCompleteDetails: "", discount: "", tags: "", nearbyLocation: "", locationLink: "", allowCall: false, phoneNumber: "", allowChat: false, chatLink: "", allowSchedule: false, scheduleLink: "", aiKeywords: "" },
+    defaultValues: { business: "", offerTitle: "", offerCompleteDetails: "", discount: "", tags: "", nearbyLocation: "", locationLink: "", allowCall: false, phoneNumber: "", allowChat: false, chatLink: "", allowSchedule: false, scheduleLink: "" },
   });
 
   useEffect(() => {
@@ -123,38 +119,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         }
     }
   };
-
-  const handleGenerateWithAi = async () => {
-    const keywords = form.getValues("aiKeywords");
-    if (!keywords || keywords.trim().length < 3) {
-        toast({
-            variant: "destructive",
-            title: "More Keywords Needed",
-            description: "Please provide a few keywords about the offer for the AI.",
-        });
-        return;
-    }
-    setIsAiLoading(true);
-    try {
-        const result: GenerateAdCopyOutput = await generateAdCopy({ keywords });
-        form.setValue("offerTitle", result.title, { shouldValidate: true });
-        form.setValue("offerCompleteDetails", result.description, { shouldValidate: true });
-        form.setValue("tags", result.tags.join(", "), { shouldValidate: true });
-        toast({
-            title: "AI Content Generated!",
-            description: "The offer title, details, and tags have been filled in.",
-        });
-    } catch (error) {
-        console.error("AI generation failed:", error);
-        toast({
-            variant: "destructive",
-            title: "AI Generation Failed",
-            description: "Could not generate content. Please try again.",
-        });
-    } finally {
-        setIsAiLoading(false);
-    }
-};
 
   
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -239,42 +203,6 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         </Card>
         
         <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="text-accent" /> AI Content Generator
-                </CardTitle>
-                <CardDescription>
-                    Provide a few keywords and let AI write the ad copy for you.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <FormField
-                    control={form.control}
-                    name="aiKeywords"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Offer Keywords</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., chicken biryani, 20% off, family pack" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                                Enter a few comma-separated words about the deal.
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <Button type="button" variant="outline" onClick={handleGenerateWithAi} disabled={isAiLoading}>
-                    {isAiLoading ? (
-                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
-                    ) : (
-                        <><Sparkles className="mr-2 h-4 w-4" /> Generate with AI</>
-                    )}
-                </Button>
-            </CardContent>
-        </Card>
-
-        <Card>
           <CardHeader><CardTitle>Offer Details</CardTitle><CardDescription>Describe the offer you are promoting.</CardDescription></CardHeader>
           <CardContent className="space-y-4">
             <FormField control={form.control} name="offerTitle" render={({ field }) => (<FormItem><FormLabel>Offer Title</FormLabel><FormControl><Input placeholder="e.g., Get 20% off all coffee" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -326,5 +254,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
 
     
