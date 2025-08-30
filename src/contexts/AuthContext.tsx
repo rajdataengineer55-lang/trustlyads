@@ -38,32 +38,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const processAuth = async () => {
         try {
             await setPersistence(auth, browserLocalPersistence);
-            // Check for redirect result first
+            
             const result = await getRedirectResult(auth);
-            if (result) {
-                // This means the user is coming back from a successful sign-in
-                setUser(result.user);
-                await checkAdminStatus(result.user);
-                toast({ title: "Signed In", description: `Welcome back, ${result.user.displayName}!`});
-            }
-
-            // Then set up the state change listener
+            
             const unsubscribe = onIdTokenChanged(auth, async (currentUser) => {
-                setUser(currentUser);
-                if (currentUser) {
-                    await checkAdminStatus(currentUser);
-                }
-                setLoading(false);
+              let finalUser = currentUser;
+
+              // If there's a redirect result, that's our most recent user state.
+              if (result?.user) {
+                finalUser = result.user;
+              }
+
+              setUser(finalUser);
+              if (finalUser) {
+                  await checkAdminStatus(finalUser);
+                  if (result?.user) {
+                    toast({ title: "Signed In", description: `Welcome, ${finalUser.displayName || finalUser.email}!`});
+                  }
+              }
+              setLoading(false);
             });
 
             return unsubscribe;
+
         } catch (error) {
             console.error("Auth provider error:", error);
             setLoading(false);
         }
     };
     
-    processAuth();
+    const unsubscribePromise = processAuth();
+
+    return () => {
+      unsubscribePromise.then(unsubscribe => unsubscribe && unsubscribe());
+    }
+
   }, [checkAdminStatus, toast]);
 
   const signInWithEmail = useCallback(async (email: string, password: string) => {
@@ -75,13 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     const provider = new GoogleAuthProvider();
-    try {
-        await signInWithRedirect(auth, provider);
-    } catch(error) {
-        console.error("Google sign in failed:", error);
-        toast({ variant: "destructive", title: "Sign In Failed", description: "Could not sign in with Google." });
-    }
-  }, [toast]);
+    await signInWithRedirect(auth, provider);
+  }, []);
 
 
   const signOut = useCallback(async () => {
@@ -111,5 +115,3 @@ export function useAuth() {
   }
   return context;
 }
-
-    
