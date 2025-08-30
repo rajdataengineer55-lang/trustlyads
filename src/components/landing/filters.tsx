@@ -1,80 +1,55 @@
-
 "use client";
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { locations } from "@/lib/locations";
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
-import { Search, X } from "lucide-react";
-import { categories as categoryData } from "@/lib/categories"; // Renamed to avoid conflict
+import { Search, X, SlidersHorizontal } from "lucide-react";
+import { categories as categoryData } from "@/lib/categories"; 
 
 export type SortOption = 'newest' | 'trending';
 
 interface FiltersProps {
-    selectedLocation: string | null;
-    setSelectedLocation: (location: string | null) => void;
-    sortOption: SortOption;
-    setSortOption: (option: SortOption) => void;
     selectedCategory: string | null;
     setSelectedCategory: (category: string | null) => void;
-    categories: { name: string }[];
-    searchTerm: string;
-    setSearchTerm: (term: string) => void;
+    sortOption: SortOption;
+    setSortOption: (option: SortOption) => void;
 }
 
 export function Filters({ 
-    selectedLocation, 
-    setSelectedLocation, 
-    sortOption, 
-    setSortOption,
     selectedCategory,
     setSelectedCategory,
-    categories: filterCategories, // This prop comes from page.tsx and is already named categoryData
-    searchTerm,
-    setSearchTerm
+    sortOption, 
+    setSortOption,
 }: FiltersProps) {
     
     const handleClearFilters = () => {
-        setSelectedLocation(null);
         setSelectedCategory(null);
         setSortOption('newest');
-        setSearchTerm('');
     }
 
-    const hasActiveFilters = selectedLocation || selectedCategory || sortOption !== 'newest' || searchTerm;
+    const hasActiveFilters = selectedCategory || sortOption !== 'newest';
 
     return (
-        <section id="filters" className="py-8 bg-background/50 border-t border-b">
+        <section id="filters" className="py-4 bg-background/50 border-b">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-center">
-                    <div className="w-full lg:col-span-2 md:col-span-3 sm:col-span-2">
-                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input
-                                id="search-filters"
-                                type="search"
-                                placeholder="Search offers by name, business, or tag..."
-                                className="w-full pl-10"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    <div className="w-full">
+                 <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
                         <Select onValueChange={(value) => setSelectedCategory(value === 'all' ? null : value)} value={selectedCategory || 'all'}>
                             <SelectTrigger className="w-full">
+                                 <SlidersHorizontal className="h-4 w-4 mr-2" />
                                 <SelectValue placeholder="Filter by Category" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Categories</SelectItem>
-                                {filterCategories.map(cat => (
+                                {categoryData.map(cat => (
                                     <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
                     
-                    <div className="w-full">
+                    <div className="flex-1">
                          <Select onValueChange={(value: SortOption) => setSortOption(value)} value={sortOption}>
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Sort by" />
@@ -87,10 +62,10 @@ export function Filters({
                     </div>
                     
                     {hasActiveFilters && (
-                        <div className="w-full text-center sm:col-span-2 md:col-span-3 lg:col-span-4">
-                            <Button variant="ghost" onClick={handleClearFilters}>
+                        <div className="w-full sm:w-auto">
+                            <Button variant="ghost" onClick={handleClearFilters} className="w-full">
                                 <X className="mr-2 h-4 w-4" />
-                                Clear All Filters
+                                Clear
                             </Button>
                         </div>
                     )}

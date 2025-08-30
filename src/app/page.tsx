@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -9,6 +8,7 @@ import { Footer } from "@/components/landing/footer";
 import { Filters, SortOption } from "@/components/landing/filters";
 import { categories as categoryData } from "@/lib/categories";
 import { StoriesViewer } from "@/components/landing/stories-viewer";
+import { Categories } from "@/components/landing/categories";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -23,20 +23,16 @@ export default function Home() {
         selectedLocation={selectedLocation}
         setSelectedLocation={setSelectedLocation}
       />
-       <Filters 
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
+      <main className="flex-1">
+        <Hero searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <StoriesViewer />
+        <Categories selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory}/>
+         <Filters 
           sortOption={sortOption}
           setSortOption={setSortOption}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
-          categories={categoryData}
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
       />
-      <main className="flex-1">
-        <Hero />
-        <StoriesViewer />
         <FeaturedOffers 
           selectedCategory={selectedCategory} 
           selectedLocation={selectedLocation}
