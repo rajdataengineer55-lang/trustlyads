@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { MapPin, ChevronDown, Menu, LogOut, Send, MessageCircle, Bell, Megaphone } from "lucide-react"
+import { MapPin, ChevronDown, Menu, LogOut, Send, MessageCircle, Bell, Megaphone, Search } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -19,7 +19,7 @@ interface HeaderProps {
 const Logo = () => (
     <Link href="/" className="flex items-center space-x-2">
         <Megaphone className="h-7 w-7 text-primary" />
-        <span className="text-xl sm:text-2xl font-bold font-headline">trustlyads.in</span>
+        <span className="text-2xl font-bold font-headline">trustlyads.in</span>
     </Link>
 );
 
@@ -57,12 +57,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                     My Requests
                 </Button>
             </Link>
-             <Link href="/requests/new" passHref>
-                <Button variant="secondary" className='w-full'>Post a Request</Button>
-            </Link>
-            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button className="w-full mt-2" >Post Your Business</Button>
-            </a>
             <Button variant="ghost" onClick={() => {signOut(); setIsMobileMenuOpen(false);}} className="w-full justify-start mt-4">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
@@ -74,9 +68,9 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
   const LocationDropdown = () => (
      <DropdownMenu>
         <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-1">
+            <Button variant="ghost" className="hidden md:inline-flex items-center gap-1 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="font-semibold text-sm truncate pr-1">{selectedLocation || 'Locations'}</span>
+              <span className="font-semibold truncate pr-1">{selectedLocation || 'All Locations'}</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
         </DropdownMenuTrigger>
@@ -105,19 +99,39 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
       </DropdownMenu>
   );
 
+  const MainNav = () => (
+    <div className='flex items-center gap-2'>
+        <LocationDropdown />
+        <Link href="/requests/new" passHref>
+            <Button variant="secondary" className="hidden sm:inline-flex">Post a Request</Button>
+        </Link>
+        <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
+          <Button className="hidden sm:inline-flex">Post Your Business</Button>
+        </a>
+    </div>
+  )
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between gap-4">
         
         <div className="flex items-center gap-2">
-            <Logo />
+            <div className='md:hidden'>
+              <Logo />
+            </div>
+            <div className='hidden md:flex'>
+              <Logo />
+            </div>
         </div>
-        
-        <div className="flex items-center gap-1">
-            <LocationDropdown />
+
+        <div className="flex items-center gap-2">
+           <div className='hidden md:flex'>
+             <MainNav />
+           </div>
+            
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" className='md:hidden'>
                     <Menu className="h-6 w-6" />
                     <span className="sr-only">Open menu</span>
                 </Button>
@@ -132,6 +146,14 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                 </SheetHeader>
                 <nav className="flex flex-col gap-4 py-6">
                     <UserActions />
+                    <div className='mt-4'>
+                      <Link href="/requests/new" passHref>
+                          <Button variant="secondary" className='w-full'>Post a Request</Button>
+                      </Link>
+                      <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
+                          <Button className="w-full mt-2" >Post Your Business</Button>
+                      </a>
+                    </div>
                     <div className="absolute bottom-4 right-4">
                         <ThemeToggle />
                     </div>

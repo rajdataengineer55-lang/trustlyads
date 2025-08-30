@@ -1,4 +1,3 @@
-
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
 
@@ -10,11 +9,11 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-4xl font-headline font-bold mb-8">✨ About Us</h1>
-            <div className="prose dark:prose-invert max-w-none space-y-6 text-base">
-              <p>Welcome to trustlyads.in, a community-driven platform dedicated to empowering local businesses, entrepreneurs, and service providers. Our mission is simple – to connect rural talent, shops, and services with the right customers through digital promotion.</p>
+            <div className="prose dark:prose-invert max-w-none space-y-6 text-base sm:text-lg text-muted-foreground">
+              <p className="text-foreground">Welcome to trustlyads.in, a community-driven platform dedicated to empowering local businesses, entrepreneurs, and service providers. Our mission is simple – to connect rural talent, shops, and services with the right customers through digital promotion.</p>
               <p>In today’s world, every business deserves visibility. Whether you are a farmer, a small shop owner, a service provider, or a startup, we provide a trusted space to advertise, grow, and reach more people.</p>
               
-              <h2 className="text-xl sm:text-2xl font-headline font-bold mt-10 mb-4">🔹 What We Do</h2>
+              <h2 className="text-xl sm:text-2xl font-headline font-bold mt-10 mb-4 text-foreground">🔹 What We Do</h2>
               <ul className="list-disc list-inside space-y-2 pl-4">
                 <li>Promote local businesses through our digital ads platform</li>
                 <li>Help shops and services reach wider audiences</li>
@@ -22,7 +21,7 @@ export default function AboutPage() {
                 <li>Build a bridge of trust between customers and business owners</li>
               </ul>
               
-              <h2 className="text-xl sm:text-2xl font-headline font-bold mt-10 mb-4">🔹 Our Values</h2>
+              <h2 className="text-xl sm:text-2xl font-headline font-bold mt-10 mb-4 text-foreground">🔹 Our Values</h2>
               <ul className="list-disc list-inside space-y-2 pl-4">
                 <li>✔ Trust &amp; Transparency</li>
                 <li>✔ Affordable Promotion</li>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
@@ -380,8 +379,8 @@ export default function OfferDetailsPage() {
                     <Card>
                         <CardContent className="p-4 sm:p-6 space-y-4">
                             <div>
-                              <h1 className="text-2xl sm:text-3xl font-headline font-bold mb-2">{offer.title}</h1>
-                              <p className="text-lg font-semibold text-primary mb-4">{offer.business}</p>
+                              <h1 className="text-2xl sm:text-4xl font-headline font-bold mb-2">{offer.title}</h1>
+                              <p className="text-xl font-semibold text-primary mb-4">{offer.business}</p>
                               <LocationInfo />
                             </div>
 
@@ -406,7 +405,7 @@ export default function OfferDetailsPage() {
                     <CardTitle>Ad Description</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground whitespace-pre-wrap">
+                    <p className="text-muted-foreground whitespace-pre-wrap text-base">
                       {offer.description}
                     </p>
                   </CardContent>

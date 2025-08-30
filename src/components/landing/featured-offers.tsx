@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -126,7 +125,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                       />
                       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                          <h3 className="font-headline font-semibold text-white truncate text-base sm:text-lg">{offer.title}</h3>
+                          <h3 className="font-headline font-semibold text-white truncate text-lg">{offer.title}</h3>
                       </div>
                        <Badge variant="default" className="absolute top-3 left-3 bg-accent text-accent-foreground font-bold">
                           {offer.discount}
@@ -140,7 +139,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                   </Link>
                   <div className="p-4 bg-card flex flex-col flex-grow">
                     <div className="space-y-3 flex-grow">
-                      <p className="font-bold text-base sm:text-lg text-foreground">{offer.business}</p>
+                      <p className="font-bold text-base text-foreground">{offer.business}</p>
                       
                       <div className="flex items-start text-sm text-muted-foreground">
                         <div className="flex-shrink-0 w-5 text-center">{getCategoryIcon(offer.category)}</div>

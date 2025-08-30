@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,7 +48,7 @@ export function Categories({ selectedCategory, setSelectedCategory }: Categories
                           {category.icon}
                         </div>
                       </div>
-                      <p className="font-semibold text-xs sm:text-sm leading-tight">{category.name}</p>
+                      <p className="font-semibold text-sm leading-tight">{category.name}</p>
                     </CardContent>
                   </Card>
               </CarouselItem>
