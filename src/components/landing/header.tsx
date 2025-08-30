@@ -80,7 +80,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {}, searc
      <DropdownMenu>
         <DropdownMenuTrigger asChild>
             <div className="flex items-center gap-2 p-2 rounded-md border border-input bg-background w-full sm:w-64 cursor-pointer">
-              <Search className="h-5 w-5 text-muted-foreground" />
+              <MapPin className="h-5 w-5 text-muted-foreground" />
               <span className="flex-1 text-sm truncate">{selectedLocation || 'Tirupati, Andhra Pradesh'}</span>
               <ChevronDown className="h-5 w-5" />
             </div>
