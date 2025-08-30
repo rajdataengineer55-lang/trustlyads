@@ -89,6 +89,10 @@ export default {
             transform: 'translateY(0)',
           },
         },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
         'blink': {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.6' },
@@ -102,6 +106,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in-up': 'fade-in-up .5s ease-out backwards',
+        'fade-in': 'fade-in .5s ease-out forwards',
         'blink': 'blink 1.5s infinite ease-in-out',
         'story-progress': 'story-progress 5s linear',
       },
