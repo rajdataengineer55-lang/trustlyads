@@ -6,7 +6,6 @@ import { Hero } from "@/components/landing/hero";
 import { FeaturedOffers } from "@/components/landing/featured-offers";
 import { Footer } from "@/components/landing/footer";
 import { Filters, SortOption } from "@/components/landing/filters";
-import { categories as categoryData } from "@/lib/categories";
 import { StoriesViewer } from "@/components/landing/stories-viewer";
 import { Categories } from "@/components/landing/categories";
 

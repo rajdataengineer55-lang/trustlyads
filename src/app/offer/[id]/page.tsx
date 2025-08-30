@@ -405,7 +405,7 @@ export default function OfferDetailsPage() {
                     <CardTitle>Ad Description</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground whitespace-pre-wrap text-base">
+                    <p className="text-muted-foreground whitespace-pre-wrap text-base sm:text-lg">
                       {offer.description}
                     </p>
                   </CardContent>

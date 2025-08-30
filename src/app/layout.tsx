@@ -20,7 +20,6 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-body',
-  weight: ['400', '700']
 });
 
 

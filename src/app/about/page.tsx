@@ -25,7 +25,7 @@ export default function AboutPage() {
               <ul className="list-disc list-inside space-y-2 pl-4">
                 <li>✔ Trust &amp; Transparency</li>
                 <li>✔ Affordable Promotion</li>
-                <li>✔ Community Growth</li>
+<li>✔ Community Growth</li>
                 <li>✔ Digital Empowerment</li>
               </ul>
               

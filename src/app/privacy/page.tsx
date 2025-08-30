@@ -10,7 +10,7 @@ export default function PrivacyPage() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-4xl font-headline font-bold mb-8">Privacy Policy</h1>
-            <div className="prose dark:prose-invert max-w-none space-y-6 text-base">
+            <div className="prose dark:prose-invert max-w-none space-y-6 text-base sm:text-lg">
               <p>Your privacy is important to us. It is trustlyads.in's policy to respect your privacy regarding any information we may collect from you across our website.</p>
               
               <h2 className="text-xl sm:text-2xl font-headline font-bold mt-10 mb-4">1. Information We Collect</h2>

@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { ThemeToggle } from '../theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Input } from '../ui/input';
 
 interface HeaderProps {
   selectedLocation?: string | null;
@@ -19,7 +20,7 @@ interface HeaderProps {
 const Logo = () => (
     <Link href="/" className="flex items-center space-x-2">
         <Megaphone className="h-7 w-7 text-primary" />
-        <span className="text-2xl font-bold font-headline">trustlyads.in</span>
+        <span className="text-xl font-bold font-headline">trustlyads.in</span>
     </Link>
 );
 
@@ -68,7 +69,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
   const LocationDropdown = () => (
      <DropdownMenu>
         <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="hidden md:inline-flex items-center gap-1 text-sm">
+            <Button variant="ghost" className="flex items-center gap-1 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <span className="font-semibold truncate pr-1">{selectedLocation || 'All Locations'}</span>
               <ChevronDown className="h-4 w-4" />
@@ -100,13 +101,12 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
   );
 
   const MainNav = () => (
-    <div className='flex items-center gap-2'>
-        <LocationDropdown />
+    <div className='hidden md:flex items-center gap-2'>
         <Link href="/requests/new" passHref>
-            <Button variant="secondary" className="hidden sm:inline-flex">Post a Request</Button>
+            <Button variant="secondary">Post a Request</Button>
         </Link>
         <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
-          <Button className="hidden sm:inline-flex">Post Your Business</Button>
+          <Button>Post Your Business</Button>
         </a>
     </div>
   )
@@ -115,19 +115,15 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between gap-4">
         
-        <div className="flex items-center gap-2">
-            <div className='md:hidden'>
-              <Logo />
-            </div>
-            <div className='hidden md:flex'>
-              <Logo />
-            </div>
+        <div className="flex items-center gap-4">
+          <Logo />
+          <div className="hidden md:flex">
+             <LocationDropdown />
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
-           <div className='hidden md:flex'>
-             <MainNav />
-           </div>
+           <MainNav />
             
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
@@ -145,11 +141,9 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                     </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-4 py-6">
+                    <div className='md:hidden'><LocationDropdown /></div>
                     <UserActions />
                     <div className='mt-4'>
-                      <Link href="/requests/new" passHref>
-                          <Button variant="secondary" className='w-full'>Post a Request</Button>
-                      </Link>
                       <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
                           <Button className="w-full mt-2" >Post Your Business</Button>
                       </a>
