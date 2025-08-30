@@ -10,18 +10,19 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, EyeOff, BarChart2, Eye } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, EyeOff, BarChart2, Eye, User } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 const reviewSchema = z.object({
@@ -43,6 +44,7 @@ const safeDecodeURIComponent = (uri: string) => {
 export default function OfferDetailsPage() {
   const params = useParams();
   const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick, fetchOffers } = useOffers();
+  const { user, signInWithGoogle, isAdmin } = useAuth();
   
   const [offer, setOffer] = useState<Offer | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
@@ -54,6 +56,12 @@ export default function OfferDetailsPage() {
     resolver: zodResolver(reviewSchema),
     defaultValues: { author: "", rating: 0, comment: "" },
   });
+
+  useEffect(() => {
+    if (user) {
+        form.setValue('author', user.displayName || '');
+    }
+  }, [user, form]);
   
   const [hoverRating, setHoverRating] = useState(0);
   const currentRating = form.watch("rating");
@@ -64,11 +72,15 @@ export default function OfferDetailsPage() {
     let foundOffer = getOfferById(id);
 
     if (foundOffer) {
-      // Always visible since there is no admin concept anymore for visibility on client
-      setOffer(foundOffer);
-      if (foundOffer.image) {
-        setMainImage(foundOffer.image);
+      if (isAdmin || !foundOffer.isHidden) {
+          setOffer(foundOffer);
+          if (foundOffer.image) {
+            setMainImage(foundOffer.image);
+          }
+      } else {
+          setOffer(null); // Explicitly set to null if hidden and not admin
       }
+
 
       // Track view
       const viewedKey = `viewed-${id}`;
@@ -77,7 +89,7 @@ export default function OfferDetailsPage() {
         sessionStorage.setItem(viewedKey, 'true');
       }
     }
-  }, [id, getOfferById, incrementOfferView]);
+  }, [id, getOfferById, incrementOfferView, isAdmin]);
 
   useEffect(() => {
     // If offers are still loading from context, wait.
@@ -93,13 +105,14 @@ export default function OfferDetailsPage() {
       if (!offersLoading && !offer) {
           // A small delay to ensure data processing is complete
           const timer = setTimeout(() => {
-              if (!getOfferById(id)) {
+              const checkOffer = getOfferById(id);
+              if (!checkOffer || (checkOffer.isHidden && !isAdmin)) {
                   notFound();
               }
           }, 100);
           return () => clearTimeout(timer);
       }
-  }, [offersLoading, offer, id, getOfferById]);
+  }, [offersLoading, offer, id, getOfferById, isAdmin]);
 
   const handleTrackedClick = (url: string, isExternal: boolean = true) => {
     if(!id) return;
@@ -149,6 +162,14 @@ export default function OfferDetailsPage() {
 
   const onReviewSubmit = async (data: z.infer<typeof reviewSchema>) => {
     if (!offer) return;
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Not Signed In",
+            description: "You must be signed in to leave a review.",
+        });
+        return;
+    }
     const newReview: Omit<Review, 'id' | 'createdAt'> = {
         author: data.author,
         rating: data.rating,
@@ -159,7 +180,7 @@ export default function OfferDetailsPage() {
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
     });
-    form.reset({ author: "", rating: 0, comment: '' });
+    form.reset({ author: user.displayName || "", rating: 0, comment: '' });
   };
   
   if (offersLoading || !offer) {
@@ -216,28 +237,134 @@ export default function OfferDetailsPage() {
     </div>
   );
 
-  const ContactActions = () => (
-    <div className="space-y-3">
-        <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
-            <Share2 className="mr-4" /> Share Offer
-        </Button>
-        {offer.allowCall && offer.phoneNumber && (
-            <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(`tel:${offer.phoneNumber}`, false)}>
-                <Phone className="mr-4" /> Call Now
+  const ContactActions = () => {
+    if (!user) {
+        return (
+            <div className="space-y-3 p-4 border rounded-lg bg-secondary/50 text-center">
+                <p className="font-semibold">Sign in to view contact options</p>
+                <Button onClick={signInWithGoogle} className="w-full">
+                    <User className="mr-2 h-4 w-4"/>
+                    Sign in to Contact
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-3">
+            <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
+                <Share2 className="mr-4" /> Share Offer
             </Button>
-        )}
-        {offer.allowChat && offer.chatLink && (
-            <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(`https://${offer.chatLink}`)}>
-                <MessageSquare className="mr-4" /> Chat on WhatsApp
-            </Button>
-        )}
-        {offer.allowSchedule && offer.scheduleLink && (
-            <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(offer.scheduleLink!)}>
-                <CalendarIcon className="mr-4" /> Schedule a Meeting
-            </Button>
-        )}
-    </div>
-  );
+            {offer.allowCall && offer.phoneNumber && (
+                <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(`tel:${offer.phoneNumber}`, false)}>
+                    <Phone className="mr-4" /> Call Now
+                </Button>
+            )}
+            {offer.allowChat && offer.chatLink && (
+                <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(`https://${offer.chatLink}`)}>
+                    <MessageSquare className="mr-4" /> Chat on WhatsApp
+                </Button>
+            )}
+            {offer.allowSchedule && offer.scheduleLink && (
+                <Button className="w-full justify-start text-base py-6" variant="outline" onClick={() => handleTrackedClick(offer.scheduleLink!)}>
+                    <CalendarIcon className="mr-4" /> Schedule a Meeting
+                </Button>
+            )}
+        </div>
+    );
+  };
+  
+  const ReviewForm = () => {
+    if (!user) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Write a Review</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                    <p className="text-muted-foreground mb-4">You must be signed in to leave a review.</p>
+                    <Button onClick={signInWithGoogle}>
+                         <User className="mr-2 h-4 w-4"/>
+                        Sign In to Review
+                    </Button>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Write a Review</CardTitle>
+                <CardDescription>Share your experience with this business.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onReviewSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="author"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Your Name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Your name" {...field} readOnly className="bg-muted"/>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="rating"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Your Rating</FormLabel>
+                                    <FormControl>
+                                        <div className="flex items-center gap-1">
+                                            {[...Array(5)].map((_, i) => {
+                                                const ratingValue = i + 1;
+                                                return (
+                                                    <Star
+                                                        key={ratingValue}
+                                                        className={cn(
+                                                            "h-6 w-6 cursor-pointer transition-colors",
+                                                            (hoverRating || currentRating) >= ratingValue
+                                                                ? 'text-yellow-400 fill-yellow-400'
+                                                                : 'text-gray-300'
+                                                        )}
+                                                        onClick={() => field.onChange(ratingValue)}
+                                                        onMouseEnter={() => setHoverRating(ratingValue)}
+                                                        onMouseLeave={() => setHoverRating(0)}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="comment"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Your Review</FormLabel>
+                                    <FormControl>
+                                        <Textarea placeholder="Share your experience..." {...field} rows={4}/>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <Button type="submit">Submit Review</Button>
+                    </form>
+                </Form>
+            </CardContent>
+        </Card>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -269,14 +396,16 @@ export default function OfferDetailsPage() {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-4 mb-4">
-                        <Badge variant="secondary" className="font-bold py-1.5 px-3 text-sm">
-                            <Eye className="mr-2 h-4 w-4" /> {offer.views || 0} Views
-                        </Badge>
+                    {isAdmin && (
+                         <div className="flex items-center gap-4 mb-4">
                             <Badge variant="secondary" className="font-bold py-1.5 px-3 text-sm">
-                            <BarChart2 className="mr-2 h-4 w-4" /> {offer.clicks || 0} Clicks
-                        </Badge>
-                    </div>
+                                <Eye className="mr-2 h-4 w-4" /> {offer.views || 0} Views
+                            </Badge>
+                                <Badge variant="secondary" className="font-bold py-1.5 px-3 text-sm">
+                                <BarChart2 className="mr-2 h-4 w-4" /> {offer.clicks || 0} Clicks
+                            </Badge>
+                        </div>
+                    )}
 
                     {allImages.length > 1 && (
                       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
@@ -374,76 +503,7 @@ export default function OfferDetailsPage() {
               </div>
 
               <div className="lg:col-span-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Write a Review</CardTitle>
-                        <CardDescription>Share your experience with this business.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onReviewSubmit)} className="space-y-4">
-                                <FormField
-                                    control={form.control}
-                                    name="author"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Your Name</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Your name" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="rating"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Your Rating</FormLabel>
-                                            <FormControl>
-                                                <div className="flex items-center gap-1">
-                                                    {[...Array(5)].map((_, i) => {
-                                                        const ratingValue = i + 1;
-                                                        return (
-                                                            <Star
-                                                                key={ratingValue}
-                                                                className={cn(
-                                                                    "h-6 w-6 cursor-pointer transition-colors",
-                                                                    (hoverRating || currentRating) >= ratingValue
-                                                                        ? 'text-yellow-400 fill-yellow-400'
-                                                                        : 'text-gray-300'
-                                                                )}
-                                                                onClick={() => field.onChange(ratingValue)}
-                                                                onMouseEnter={() => setHoverRating(ratingValue)}
-                                                                onMouseLeave={() => setHoverRating(0)}
-                                                            />
-                                                        );
-                                                    })}
-                                                </div>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="comment"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Your Review</FormLabel>
-                                            <FormControl>
-                                                <Textarea placeholder="Share your experience..." {...field} rows={4}/>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <Button type="submit">Submit Review</Button>
-                            </form>
-                        </Form>
-                    </CardContent>
-                </Card>
+                <ReviewForm />
               </div>
             </div>
             
@@ -506,3 +566,5 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    

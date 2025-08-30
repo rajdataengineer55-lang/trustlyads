@@ -1,15 +1,17 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogOut, Heart } from "lucide-react"
+import { Megaphone, MapPin, ChevronDown, Menu, Phone, User, Info, LogOut } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '../theme-toggle';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+
 
 interface HeaderProps {
   selectedLocation?: string | null;
@@ -18,7 +20,45 @@ interface HeaderProps {
 
 export function Header({ selectedLocation, setSelectedLocation = () => {} }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { toast } = useToast();
+  const { user, isAdmin, signInWithGoogle, signOut } = useAuth();
+
+
+  const UserMenu = () => {
+    if (!user) {
+        return <Button onClick={signInWithGoogle}>Sign In</Button>
+    }
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Avatar>
+                    <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'}/>
+                    <AvatarFallback>{user.displayName?.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+            </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+            <DropdownMenuItem disabled>
+                <div className="flex flex-col">
+                    <span className="font-semibold">{user.displayName}</span>
+                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                </div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            {isAdmin && (
+                <Link href="/admin">
+                    <DropdownMenuItem>Admin Panel</DropdownMenuItem>
+                </Link>
+            )}
+            <DropdownMenuItem onClick={signOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+            </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  }
 
   const LocationDropdown = ({ isMobile = false }: { isMobile?: boolean }) => (
      <DropdownMenu>
@@ -83,20 +123,11 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
         
         <div className="hidden flex-1 items-center justify-end space-x-2 md:flex">
           <nav className="flex gap-2 items-center">
-            <Link href="/about" passHref>
-                <Button variant="ghost" size="icon" aria-label="About us">
-                    <Info />
-                </Button>
-            </Link>
-             <a href="tel:+919380002829">
-                <Button variant="ghost" size="icon" aria-label="Contact us">
-                    <Phone />
-                </Button>
-            </a>
             <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
               <Button>Post Your Business</Button>
             </a>
             <ThemeToggle />
+            <UserMenu />
           </nav>
         </div>
 
@@ -120,19 +151,30 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                 </SheetTitle>
               </SheetHeader>
                <nav className="flex flex-col gap-2 py-6">
-                  <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">Quick Links</div>
+                  <div className="px-3 py-2 text-sm font-semibold text-muted-foreground">Main Menu</div>
+                  {user ? (
+                    <>
+                       <div className="px-3 py-2">
+                        <p className="font-semibold">{user.displayName}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                       </div>
+                       {isAdmin && (
+                         <Link href="/admin" passHref>
+                            <Button variant="ghost" className="w-full justify-start" onClick={() => setIsMobileMenuOpen(false)}>Admin Panel</Button>
+                         </Link>
+                       )}
+                       <Button variant="ghost" className="w-full justify-start" onClick={() => { signOut(); setIsMobileMenuOpen(false); }}><LogOut className="mr-2 h-4 w-4"/> Sign Out</Button>
+                    </>
+                  ) : (
+                    <Button className="w-full" onClick={() => { signInWithGoogle(); setIsMobileMenuOpen(false); }}>Sign In</Button>
+                  )}
                   
-                  <Link href="/about" passHref>
-                    <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Info /> About</Button>
-                  </Link>
-                  <a href="tel:+919380002829">
-                    <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => setIsMobileMenuOpen(false)}><Phone /> Contact Us</Button>
-                  </a>
-                  
+                  <div className="border-t my-4"></div>
+
                   <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
                       <Button className="w-full mt-4">Post Your Business</Button>
                   </a>
-
+                  
                   <div className="absolute bottom-4 right-4">
                      <ThemeToggle />
                   </div>
@@ -144,3 +186,5 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
     </header>
   )
 }
+
+    

@@ -4,6 +4,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { 
     getAllOffers,
+    getPublicOffers,
     addOffer as addOfferToDb, 
     updateOffer as updateOfferInDb, 
     deleteOffer as deleteOfferFromDb,
@@ -14,6 +15,7 @@ import {
     type OfferData,
 } from '@/lib/offers';
 import { getActiveStories } from '@/lib/stories';
+import { useAuth } from './AuthContext';
 
 export interface Review {
   id: string;
@@ -70,24 +72,23 @@ const OffersContext = createContext<OffersContextType | undefined>(undefined);
 export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isAdmin } = useAuth();
 
-  const fetchOffers = useCallback(async (forAdmin: boolean = true) => {
+
+  const fetchOffers = useCallback(async () => {
     setLoading(true);
     try {
-        // Since there is no more user auth, we always fetch all offers for simplicity,
-        // and filter visibility on the client if needed (though it's not required by current implementation).
+        const fetchFunction = isAdmin ? getAllOffers : getPublicOffers;
         const [fetchedOffers, activeStories] = await Promise.all([
-           getAllOffers(),
+           fetchFunction(),
            getActiveStories()
         ]);
         
-        // Create a map of offerId to total story views
         const storyViewsMap = new Map<string, number>();
         activeStories.forEach(story => {
           storyViewsMap.set(story.offerId, (storyViewsMap.get(story.offerId) || 0) + story.views);
         });
 
-        // Assign story views to each offer
         const offersWithStoryViews = fetchedOffers.map(offer => ({
           ...offer,
           storyViews: storyViewsMap.get(offer.id) || 0,
@@ -100,26 +101,26 @@ export function OffersProvider({ children }: { children: ReactNode }) {
     } finally {
         setLoading(false);
     }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
-    fetchOffers(true);
+    fetchOffers();
   }, [fetchOffers]);
 
 
   const addOffer = async (offer: OfferData) => {
     await addOfferToDb(offer);
-    await fetchOffers(true); // Refetch after adding, forcing admin view
+    await fetchOffers(); 
   };
 
   const updateOffer = async (id: string, updatedOfferData: Partial<OfferData>) => {
     await updateOfferInDb(id, updatedOfferData);
-    await fetchOffers(true); // Refetch after updating, forcing admin view
+    await fetchOffers();
   };
   
   const deleteOffer = async (id: string) => {
     await deleteOfferFromDb(id);
-    await fetchOffers(true); // Refetch after deleting, forcing admin view
+    await fetchOffers();
   };
   
   const boostOffer = (id: string) => {
@@ -137,14 +138,14 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   
   const addReview = async (offerId: string, review: Omit<Review, 'id' | 'createdAt'>) => {
     await addReviewToDb(offerId, review);
-    await fetchOffers(true); // Refetch to show new review
+    await fetchOffers(); 
   };
 
   const toggleOfferVisibility = async (id: string) => {
     const offer = getOfferById(id);
     if(offer) {
         await toggleVisibilityInDb(id, !offer.isHidden);
-        await fetchOffers(true); // Refetch to update status, forcing admin view
+        await fetchOffers(); 
     }
   };
 
@@ -172,3 +173,5 @@ export function useOffers() {
   }
   return context;
 }
+
+    
