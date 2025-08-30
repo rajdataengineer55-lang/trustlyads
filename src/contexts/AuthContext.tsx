@@ -1,3 +1,4 @@
+
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
@@ -85,15 +86,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      // Ensure persistence is set before initiating the redirect.
-      await setPersistence(auth, browserLocalPersistence);
       await signInWithRedirect(auth, provider);
     } catch (error: any) {
       console.error("Error starting sign in with Google redirect:", error);
       toast({
         variant: "destructive",
         title: "Sign In Failed",
-        description: "Could not start the sign-in process. Please try again.",
+        description: "Could not start the sign-in process. Please check your connection and try again.",
       });
     }
   };
