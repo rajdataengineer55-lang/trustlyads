@@ -1,7 +1,7 @@
 
 'use client';
 
-import { db, auth } from './firebase';
+import { db } from './firebase';
 import {
   collection,
   doc,
@@ -15,25 +15,23 @@ import {
 const followersCollection = collection(db, 'followers');
 
 /**
- * Adds the current user to the followers list.
+ * Adds a user to the followers list.
  * @param userId The UID of the user to follow.
  */
 export const addFollower = async (userId: string) => {
-  if (!userId) throw new Error('User must be logged in to follow.');
-  const userEmail = auth.currentUser?.email; // Get email for storage
+  if (!userId) throw new Error('User ID is required to follow.');
   const followerDocRef = doc(db, 'followers', userId);
   await setDoc(followerDocRef, {
     followedAt: new Date(),
-    email: userEmail || 'unknown',
   });
 };
 
 /**
- * Removes the current user from the followers list.
+ * Removes a user from the followers list.
  * @param userId The UID of the user to unfollow.
  */
 export const removeFollower = async (userId: string) => {
-  if (!userId) throw new Error('User must be logged in to unfollow.');
+  if (!userId) throw new Error('User ID is required to unfollow.');
   const followerDocRef = doc(db, 'followers', userId);
   await deleteDoc(followerDocRef);
 };

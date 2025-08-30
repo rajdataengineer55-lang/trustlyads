@@ -3,7 +3,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { 
-    getPublicOffers,
     getAllOffers,
     addOffer as addOfferToDb, 
     updateOffer as updateOfferInDb, 
@@ -14,7 +13,6 @@ import {
     incrementOfferClick as incrementClickInDb,
     type OfferData,
 } from '@/lib/offers';
-import { useAuth } from './AuthContext';
 import { getActiveStories } from '@/lib/stories';
 
 export interface Review {
@@ -72,13 +70,14 @@ const OffersContext = createContext<OffersContextType | undefined>(undefined);
 export function OffersProvider({ children }: { children: ReactNode }) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
-  const { isAdmin, loading: authLoading } = useAuth();
 
-  const fetchOffers = useCallback(async (forAdmin: boolean = false) => {
+  const fetchOffers = useCallback(async (forAdmin: boolean = true) => {
     setLoading(true);
     try {
+        // Since there is no more user auth, we always fetch all offers for simplicity,
+        // and filter visibility on the client if needed (though it's not required by current implementation).
         const [fetchedOffers, activeStories] = await Promise.all([
-           forAdmin ? getAllOffers() : getPublicOffers(),
+           getAllOffers(),
            getActiveStories()
         ]);
         
@@ -104,11 +103,8 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // This effect now correctly waits for the auth state to be resolved before fetching.
-    if (!authLoading) {
-        fetchOffers(isAdmin);
-    }
-  }, [authLoading, isAdmin, fetchOffers]);
+    fetchOffers(true);
+  }, [fetchOffers]);
 
 
   const addOffer = async (offer: OfferData) => {
@@ -141,7 +137,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   
   const addReview = async (offerId: string, review: Omit<Review, 'id' | 'createdAt'>) => {
     await addReviewToDb(offerId, review);
-    await fetchOffers(isAdmin); // Refetch to show new review
+    await fetchOffers(true); // Refetch to show new review
   };
 
   const toggleOfferVisibility = async (id: string) => {

@@ -10,7 +10,7 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, LogIn, EyeOff, BarChart2, Eye } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, EyeOff, BarChart2, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -22,7 +22,6 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useAuth } from '@/contexts/AuthContext';
 
 
 const reviewSchema = z.object({
@@ -44,7 +43,6 @@ const safeDecodeURIComponent = (uri: string) => {
 export default function OfferDetailsPage() {
   const params = useParams();
   const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick, fetchOffers } = useOffers();
-  const { user, loading: authLoading, signInWithGoogle, isAdmin } = useAuth();
   
   const [offer, setOffer] = useState<Offer | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
@@ -57,13 +55,6 @@ export default function OfferDetailsPage() {
     defaultValues: { author: "", rating: 0, comment: "" },
   });
   
-  useEffect(() => {
-    if (user) {
-      form.setValue("author", user.displayName || "");
-    }
-  }, [user, form]);
-
-
   const [hoverRating, setHoverRating] = useState(0);
   const currentRating = form.watch("rating");
 
@@ -73,25 +64,20 @@ export default function OfferDetailsPage() {
     let foundOffer = getOfferById(id);
 
     if (foundOffer) {
-      const isVisible = !foundOffer.isHidden || isAdmin;
+      // Always visible since there is no admin concept anymore for visibility on client
+      setOffer(foundOffer);
+      if (foundOffer.image) {
+        setMainImage(foundOffer.image);
+      }
 
-      if (isVisible) {
-        setOffer(foundOffer);
-        if (foundOffer.image) {
-          setMainImage(foundOffer.image);
-        }
-
-        // Track view
-        const viewedKey = `viewed-${id}`;
-        if (!sessionStorage.getItem(viewedKey)) {
-          incrementOfferView(id);
-          sessionStorage.setItem(viewedKey, 'true');
-        }
-      } else {
-        setOffer(null); // Mark as not found if not visible
+      // Track view
+      const viewedKey = `viewed-${id}`;
+      if (!sessionStorage.getItem(viewedKey)) {
+        incrementOfferView(id);
+        sessionStorage.setItem(viewedKey, 'true');
       }
     }
-  }, [id, getOfferById, isAdmin, incrementOfferView]);
+  }, [id, getOfferById, incrementOfferView]);
 
   useEffect(() => {
     // If offers are still loading from context, wait.
@@ -162,21 +148,21 @@ export default function OfferDetailsPage() {
   };
 
   const onReviewSubmit = async (data: z.infer<typeof reviewSchema>) => {
-    if (!offer || !user) return;
+    if (!offer) return;
     const newReview: Omit<Review, 'id' | 'createdAt'> = {
         author: data.author,
         rating: data.rating,
         comment: data.comment,
     };
-    await addReview(offer.id, newReview); // This will trigger a refetch in the context now
+    await addReview(offer.id, newReview);
     toast({
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
     });
-    form.reset({ author: user.displayName || "", rating: 0, comment: '' });
+    form.reset({ author: "", rating: 0, comment: '' });
   };
   
-  if (authLoading || offersLoading || !offer) {
+  if (offersLoading || !offer) {
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
@@ -338,18 +324,7 @@ export default function OfferDetailsPage() {
                             </div>
                             
                             <div>
-                             {user ? (
                                 <ContactActions />
-                             ) : (
-                                <div className="space-y-3">
-                                  <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
-                                      <Share2 className="mr-4" /> Share Offer
-                                  </Button>
-                                  <Button onClick={signInWithGoogle} className="w-full justify-center text-base py-6">
-                                      <LogIn className="mr-4" /> Sign in to Contact
-                                  </Button>
-                                </div>
-                             )}
                             </div>
                         </CardContent>
                     </Card>
@@ -405,7 +380,6 @@ export default function OfferDetailsPage() {
                         <CardDescription>Share your experience with this business.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {user ? (
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onReviewSubmit)} className="space-y-4">
                                 <FormField
@@ -415,7 +389,7 @@ export default function OfferDetailsPage() {
                                         <FormItem>
                                             <FormLabel>Your Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Your name" {...field} readOnly className="bg-muted"/>
+                                                <Input placeholder="Your name" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -468,15 +442,6 @@ export default function OfferDetailsPage() {
                                 <Button type="submit">Submit Review</Button>
                             </form>
                         </Form>
-                      ) : (
-                        <div className="text-center py-4">
-                          <p className="text-muted-foreground mb-4">You must be signed in to write a review.</p>
-                          <Button onClick={signInWithGoogle}>
-                            <LogIn className="mr-2 h-4 w-4"/>
-                            Sign in to Review
-                          </Button>
-                        </div>
-                      )}
                     </CardContent>
                 </Card>
               </div>
