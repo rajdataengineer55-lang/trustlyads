@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
@@ -95,12 +96,6 @@ export default function OfferDetailsPage() {
           return () => clearTimeout(timer);
       }
   }, [offersLoading, offer, id, getOfferById, isAdmin]);
-
-  const handlePostRequest = () => {
-    if (!id) return;
-    incrementOfferClick(id);
-    router.push('/requests/new');
-  }
 
   const handleShare = async () => {
     if (!offer || !id) return;
@@ -218,9 +213,6 @@ export default function OfferDetailsPage() {
   const ContactActions = () => {
     return (
         <div className="space-y-3">
-            <Button className="w-full justify-start text-base py-6" onClick={handlePostRequest}>
-                <Send className="mr-4" /> Post a Request for this Item
-            </Button>
             <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
                 <Share2 className="mr-4" /> Share This Ad
             </Button>

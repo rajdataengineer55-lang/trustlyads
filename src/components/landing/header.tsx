@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -52,12 +53,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                     <Button variant="outline" className="w-full justify-start">Admin Panel</Button>
                 </Link>
             )}
-             <Link href="/requests" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button variant="outline" className="w-full justify-start">
-                    <Send className="mr-2 h-4 w-4" />
-                    My Requests
-                </Button>
-            </Link>
             <Button variant="ghost" onClick={() => {signOut(); setIsMobileMenuOpen(false);}} className="w-full justify-start mt-4">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
@@ -102,9 +97,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
 
   const MainNav = () => (
     <div className='hidden md:flex items-center gap-2'>
-        <Link href="/requests/new" passHref>
-            <Button variant="secondary">Post a Request</Button>
-        </Link>
         <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
           <Button>Post Your Business</Button>
         </a>
