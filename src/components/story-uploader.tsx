@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, UploadCloud } from "lucide-react";
@@ -81,6 +81,9 @@ export function StoryUploader({ offer, onFinished }: StoryUploaderProps) {
                   className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                 />
               </FormControl>
+              <FormDescription>
+                Recommended: 9:16 vertical format (1080x1920px), MP4, under 60s & 10MB.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -105,5 +108,3 @@ export function StoryUploader({ offer, onFinished }: StoryUploaderProps) {
     </Form>
   );
 }
-
-    

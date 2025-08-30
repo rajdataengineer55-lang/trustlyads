@@ -45,7 +45,7 @@ export function StoryCreator() {
        <div className="text-center mb-12">
         <h2 className="text-3xl font-headline font-bold">Post a New Story</h2>
         <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-          Select a location, then a business, to post a story for. Stories are visible for 24 hours.
+          Stories are a great way to post temporary updates. Select a business to post a story for. Stories are visible for 24 hours.
         </p>
       </div>
 
