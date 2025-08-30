@@ -42,40 +42,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        await checkAdminStatus(currentUser);
-      } else {
-        // This block also handles the result of a redirect sign-in.
-        try {
-          const result = await getRedirectResult(auth);
-          if (result) {
-            // User just signed in.
-            const signedInUser = result.user;
-            setUser(signedInUser);
-            await checkAdminStatus(signedInUser);
-            toast({
-              title: "Signed In",
-              description: `Welcome, ${signedInUser.displayName}!`,
-            });
-          } else {
-             // User is signed out.
-             setUser(null);
-             await checkAdminStatus(null);
-          }
-        } catch (error: any) {
-          console.error("Error during getRedirectResult:", error);
-          if (error.code !== 'auth/redirect-cancelled-by-user') {
-             toast({
-              variant: "destructive",
-              title: "Sign In Failed",
-              description: "Could not complete sign in after redirect. Please try again.",
-            });
-          }
-           setUser(null);
-           await checkAdminStatus(null);
+      setLoading(true);
+      let userToProcess = currentUser;
+      let isRedirectResult = false;
+
+      // First, check for a redirect result. This is crucial for new sign-ins.
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          userToProcess = result.user; // This is the most up-to-date user object after redirect.
+          isRedirectResult = true;
+          toast({
+            title: "Signed In",
+            description: `Welcome, ${result.user.displayName}!`,
+          });
         }
+      } catch (error: any) {
+        console.error("Error during getRedirectResult:", error);
+        if (error.code !== 'auth/redirect-cancelled-by-user') {
+          toast({
+            variant: "destructive",
+            title: "Sign In Failed",
+            description: "An unknown error occurred during sign-in. Please try again.",
+          });
+        }
+        // Ensure we don't process a stale currentUser if redirect fails
+        userToProcess = null; 
       }
+      
+      // Now, process the definitive user object, whether from redirect or existing session.
+      if (userToProcess) {
+        setUser(userToProcess);
+        await checkAdminStatus(userToProcess);
+      } else {
+        // This handles both explicit sign-outs and cases where there's no user session.
+        setUser(null);
+        await checkAdminStatus(null);
+      }
+      
       setLoading(false);
     });
       
