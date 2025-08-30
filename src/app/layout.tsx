@@ -1,6 +1,6 @@
 
 import type { Metadata, Viewport } from 'next';
-import { Poppins, PT_Sans } from 'next/font/google';
+import { Roboto, Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { OffersProvider } from '@/contexts/OffersContext';
@@ -9,14 +9,14 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
 
 
-const poppins = Poppins({
+const roboto = Roboto({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-headline',
   weight: ['400', '700']
 });
 
-const ptSans = PT_Sans({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-body',
@@ -46,7 +46,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body className={cn("antialiased font-body", poppins.variable, ptSans.variable)}>
+      <body className={cn("antialiased font-body", roboto.variable, inter.variable)}>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"
