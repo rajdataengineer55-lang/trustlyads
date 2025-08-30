@@ -30,6 +30,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Set persistence at the app's entry point, before any other auth logic runs.
+// This is crucial for the redirect flow to work reliably in production.
+setPersistence(auth, browserLocalPersistence);
+
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true); // This now represents the initial auth check
@@ -42,7 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // We set persistence at the very beginning.
     const initializeAuth = async () => {
       try {
-        await setPersistence(auth, browserLocalPersistence);
         const result = await getRedirectResult(auth);
         if (result) {
           toast({
