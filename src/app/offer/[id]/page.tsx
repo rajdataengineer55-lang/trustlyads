@@ -56,6 +56,13 @@ export default function OfferDetailsPage() {
     resolver: zodResolver(reviewSchema),
     defaultValues: { author: "", rating: 0, comment: "" },
   });
+  
+  useEffect(() => {
+    if (user) {
+      form.setValue("author", user.displayName || "");
+    }
+  }, [user, form]);
+
 
   const [hoverRating, setHoverRating] = useState(0);
   const currentRating = form.watch("rating");
@@ -166,7 +173,7 @@ export default function OfferDetailsPage() {
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
     });
-    form.reset({ author: "", rating: 0, comment: '' });
+    form.reset({ author: user.displayName || "", rating: 0, comment: '' });
   };
   
   if (authLoading || offersLoading || !offer) {
@@ -408,7 +415,7 @@ export default function OfferDetailsPage() {
                                         <FormItem>
                                             <FormLabel>Your Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Enter your name" {...field} />
+                                                <Input placeholder="Your name" {...field} readOnly className="bg-muted"/>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
