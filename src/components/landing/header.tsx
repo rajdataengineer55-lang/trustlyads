@@ -181,9 +181,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
           
           <div className="flex items-center gap-2 md:gap-4">
             <Logo />
-             <div className='hidden md:flex'>
-                <LocationDropdown />
-            </div>
+            <LocationDropdown />
           </div>
 
           <div className="flex items-center gap-2">
@@ -210,7 +208,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                       </SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col gap-4 py-6">
-                      <div className='md:hidden'><LocationDropdown /></div>
                       <MobileUserMenu />
                       <div className='mt-4'>
                         <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
@@ -225,7 +222,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
               </Sheet>
           </div>
         </div>
-         <DialogContent>
+        <DialogContent>
             <DialogHeader>
                 <DialogTitle>Sign In with Phone</DialogTitle>
                 <DialogDescription>
