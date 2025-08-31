@@ -111,7 +111,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
         <h2 className="text-3xl font-bold text-center mb-12">
           Featured Offers
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredAndSortedOffers.map((offer) => {
             const imageUrl = offer.image || 'https://placehold.co/600x400.png';
             return (
