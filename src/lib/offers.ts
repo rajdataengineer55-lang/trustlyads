@@ -32,6 +32,7 @@ export interface OfferData {
   image: string;
   otherImages?: string[];
   discount: string;
+  price?: number;
   tags: string[];
   isHidden?: boolean;
   views?: number;

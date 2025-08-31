@@ -393,7 +393,7 @@ export default function OfferDetailsPage() {
                                     alt={`thumbnail ${i + 1}`} 
                                     width={100}
                                     height={100}
-                                    className={cn("rounded-md object-contain w-full h-full transition-all", selectedIndex === i ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                    className={cn("rounded-md object-cover w-full h-full transition-all", selectedIndex === i ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
                                     data-ai-hint="placeholder image"
                                     />
                                 </div>
@@ -421,6 +421,9 @@ export default function OfferDetailsPage() {
                             <div>
                               <h1 className="text-2xl sm:text-4xl font-bold mb-2">{offer.title}</h1>
                               <p className="text-xl font-semibold text-primary mb-4">{offer.business}</p>
+                              {offer.price && (
+                                <p className="text-3xl font-bold mb-4">₹ {offer.price.toLocaleString()}</p>
+                              )}
                               <LocationInfo />
                             </div>
 
@@ -511,7 +514,7 @@ export default function OfferDetailsPage() {
                                 alt={similarOffer.title}
                                 width={600}
                                 height={400}
-                                className="object-contain w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                                className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
                               />
                               <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                                   <h3 className="text-lg font-bold text-white truncate">{similarOffer.title}</h3>

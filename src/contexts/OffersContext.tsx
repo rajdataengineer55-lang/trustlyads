@@ -38,6 +38,7 @@ export interface Offer {
   image: string;
   otherImages?: string[];
   discount: string;
+  price?: number;
   tags: string[];
   allowCall: boolean;
   allowChat: boolean;

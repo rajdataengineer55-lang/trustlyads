@@ -30,6 +30,7 @@ const formSchema = z.object({
   offerTitle: z.string().min(5, { message: "Offer title must be at least 5 characters." }),
   offerCompleteDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   discount: z.string().min(1, { message: "Discount details are required." }),
+  price: z.coerce.number().positive().optional(),
   tags: z.string().optional(),
   images: z.custom<FileList>().optional(),
 });
@@ -83,6 +84,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         offerTitle: offerToEdit.title,
         offerCompleteDetails: offerToEdit.description,
         discount: offerToEdit.discount,
+        price: offerToEdit.price,
         tags: offerToEdit.tags.join(", "),
       });
       
@@ -181,7 +183,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     const offerData: OfferData = {
         title: values.offerTitle, description: values.offerCompleteDetails, business: values.business, category: values.businessType, location: values.location,
         nearbyLocation: values.nearbyLocation, locationLink: values.locationLink, image: mainImage, otherImages: otherImages || [],
-        discount: values.discount, tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
+        discount: values.discount, price: values.price, tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
         isHidden: isEditMode && offerToEdit ? offerToEdit.isHidden : false,
         postedBy: user.uid,
     };
@@ -232,7 +234,10 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
           <CardHeader><CardTitle>Ad Details</CardTitle><CardDescription>Describe the ad you are promoting.</CardDescription></CardHeader>
           <CardContent className="space-y-4">
             <FormField control={form.control} name="offerTitle" render={({ field }) => (<FormItem><FormLabel>Ad Title</FormLabel><FormControl><Input placeholder="e.g., Get 20% off all coffee" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="discount" render={({ field }) => (<FormItem><FormLabel>Discount / Price</FormLabel><FormControl><Input placeholder="e.g., 50% OFF, 2-for-1, ₹500" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField control={form.control} name="price" render={({ field }) => (<FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 450" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="discount" render={({ field }) => (<FormItem><FormLabel>Discount Badge</FormLabel><FormControl><Input placeholder="e.g., 50% OFF, Sale" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            </div>
             <FormField control={form.control} name="offerCompleteDetails" render={({ field }) => (<FormItem><FormLabel>Complete Ad Details</FormLabel><FormControl><Textarea placeholder="Describe your ad in detail..." {...field} rows={6} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="tags" render={({ field }) => (<FormItem><FormLabel>Tags</FormLabel><FormControl><Input placeholder="e.g., Today's Offer, Sale, New" {...field} /></FormControl><FormDescription>Separate tags with a comma.</FormDescription><FormMessage /></FormItem>)} />
           </CardContent>
@@ -287,7 +292,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
                     {imagePreviews.map((src, i) => (
                         <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}>
-                            <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-contain aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />
+                            <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />
                             {selectedMainImageIndex === i && <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>}
                         </div>
                     ))}
