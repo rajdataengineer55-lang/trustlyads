@@ -143,7 +143,7 @@ export function StoriesViewer() {
       </section>
 
       <Dialog open={!!selectedOfferId} onOpenChange={(isOpen) => !isOpen && closeStory()}>
-        <DialogContent className="p-0 bg-black border-0 max-w-md w-full h-full sm:h-[90vh] sm:max-h-[640px] flex flex-col gap-0 rounded-none sm:rounded-lg">
+        <DialogContent className="p-0 bg-black border-0 max-w-lg w-full h-full sm:h-[90vh] sm:max-h-[800px] flex flex-col gap-0 rounded-none sm:rounded-lg">
            <DialogTitle className="sr-only">Story Viewer: {currentStory?.businessName}</DialogTitle>
            <DialogDescription className="sr-only">
               A story from {currentStory?.businessName}. Use the sides of the screen to navigate between story slides.
