@@ -13,6 +13,7 @@ import { AdminLoginForm } from "@/components/admin-login-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AnalyticsDashboard } from "@/components/analytics-dashboard";
 
 export default function AdminPage() {
     const { isAdmin, loading, user } = useAuth();
@@ -62,12 +63,18 @@ export default function AdminPage() {
             <main className="flex-1 bg-background/50">
                  <div className="container mx-auto px-4 md:px-6 py-12">
                      <Tabs defaultValue="post-ad" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl mx-auto text-xs sm:text-sm">
+                        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 max-w-3xl mx-auto text-xs sm:text-sm">
+                            <TabsTrigger value="analytics">Analytics</TabsTrigger>
                             <TabsTrigger value="post-ad">Post Ad</TabsTrigger>
                             <TabsTrigger value="manage-ads">Manage Ads</TabsTrigger>
                             <TabsTrigger value="post-story">Post Story</TabsTrigger>
                             <TabsTrigger value="manage-stories">Manage Stories</TabsTrigger>
                         </TabsList>
+                        <TabsContent value="analytics">
+                            <section className="py-12 sm:py-16">
+                                <AnalyticsDashboard />
+                            </section>
+                        </TabsContent>
                         <TabsContent value="post-ad">
                             <section className="py-12 sm:py-16">
                                 <AdGenerator />
