@@ -38,6 +38,12 @@ export interface OfferData {
   views?: number;
   clicks?: number;
   postedBy?: string;
+  allowCall?: boolean;
+  phoneNumber?: string;
+  allowChat?: boolean;
+  chatLink?: string;
+  allowSchedule?: boolean;
+  scheduleLink?: string;
 }
 
 const offersCollection = collection(db, 'offers');

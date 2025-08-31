@@ -150,15 +150,30 @@ export default function OfferDetailsPage() {
     }
   };
 
-  const handleContactClick = () => {
+  const handleContactClick = (action: 'call' | 'chat' | 'schedule' | 'request' | 'directions') => {
     if (!offer || !id) return;
     incrementOfferClick(id);
-    // Redirect or open a modal for contacting
-    // For now, we just track the click. A WhatsApp link would be a good addition here.
-    toast({
-        title: "Contact Info Clicked!",
-        description: "Your interest has been noted.",
-    });
+
+    switch(action) {
+        case 'call':
+            if(offer.phoneNumber) window.location.href = `tel:${offer.phoneNumber}`;
+            break;
+        case 'chat':
+            if(offer.chatLink) window.open(offer.chatLink, '_blank');
+            break;
+        case 'schedule':
+             if(offer.scheduleLink) window.open(offer.scheduleLink, '_blank');
+            break;
+        case 'directions':
+            if(offer.locationLink) window.open(offer.locationLink, '_blank');
+            break;
+        case 'request':
+            toast({
+                title: "Contact Info Clicked!",
+                description: "Your interest has been noted.",
+            });
+            break;
+    }
   };
 
   const onReviewSubmit = async (data: z.infer<typeof reviewSchema>) => {
@@ -242,14 +257,28 @@ export default function OfferDetailsPage() {
   const ContactActions = () => {
     return (
         <div className="space-y-3">
-            <Button className="w-full justify-start text-base py-6" onClick={handleContactClick}>
-                <MessageSquare className="mr-4" /> Post a Request
-            </Button>
+             {offer.allowCall && offer.phoneNumber && (
+                <Button className="w-full justify-start text-base py-6" onClick={() => handleContactClick('call')}>
+                    <Phone className="mr-4" /> Call Now
+                </Button>
+            )}
+             {offer.allowChat && offer.chatLink && (
+                <Button className="w-full justify-start text-base py-6" onClick={() => handleContactClick('chat')}>
+                    <MessageSquare className="mr-4" /> Chat on WhatsApp
+                </Button>
+            )}
+             {offer.allowSchedule && offer.scheduleLink && (
+                <Button className="w-full justify-start text-base py-6" onClick={() => handleContactClick('schedule')}>
+                    <CalendarIcon className="mr-4" /> Schedule an Appointment
+                </Button>
+            )}
+
             <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
                 <Share2 className="mr-4" /> Share This Ad
             </Button>
+            
             {offer.locationLink && (
-                <Button variant="outline" className="w-full justify-start text-base py-6" onClick={() => window.open(offer.locationLink, '_blank')}>
+                <Button variant="outline" className="w-full justify-start text-base py-6" onClick={() => handleContactClick('directions')}>
                     <Navigation className="mr-4 h-4 w-4" />
                     Get Directions
                 </Button>

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Megaphone, Star, Edit, UploadCloud } from "lucide-react";
+import { Loader2, Megaphone, Star, Edit, UploadCloud, Phone, MessageCircle, Calendar } from "lucide-react";
 import Image from "next/image";
 import { locations } from "@/lib/locations";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import type { OfferData } from "@/lib/offers";
 import { uploadMultipleFiles } from "@/lib/storage";
 import { useAuth } from "@/contexts/AuthContext";
+import { Switch } from "./ui/switch";
 
 const formSchema = z.object({
   business: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -33,6 +34,21 @@ const formSchema = z.object({
   price: z.coerce.number().positive().optional(),
   tags: z.string().optional(),
   images: z.custom<FileList>().optional(),
+  allowCall: z.boolean().default(false),
+  phoneNumber: z.string().optional(),
+  allowChat: z.boolean().default(false),
+  chatLink: z.string().optional(),
+  allowSchedule: z.boolean().default(false),
+  scheduleLink: z.string().optional(),
+}).refine(data => !data.allowCall || (data.allowCall && data.phoneNumber), {
+  message: "Phone number is required if calling is enabled.",
+  path: ["phoneNumber"],
+}).refine(data => !data.allowChat || (data.allowChat && data.chatLink), {
+  message: "Chat link is required if chat is enabled.",
+  path: ["chatLink"],
+}).refine(data => !data.allowSchedule || (data.allowSchedule && data.scheduleLink), {
+    message: "Schedule link is required if scheduling is enabled.",
+    path: ["scheduleLink"],
 });
 
 const businessTypes = {
@@ -70,8 +86,12 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { business: "", offerTitle: "", offerCompleteDetails: "", discount: "", tags: "", nearbyLocation: "", locationLink: "" },
+    defaultValues: { business: "", offerTitle: "", offerCompleteDetails: "", discount: "", tags: "", nearbyLocation: "", locationLink: "", allowCall: false, phoneNumber: "", allowChat: false, chatLink: "", allowSchedule: false, scheduleLink: "" },
   });
+
+  const watchAllowCall = form.watch("allowCall");
+  const watchAllowChat = form.watch("allowChat");
+  const watchAllowSchedule = form.watch("allowSchedule");
 
   useEffect(() => {
     if (isEditMode && offerToEdit) {
@@ -86,6 +106,12 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         discount: offerToEdit.discount,
         price: offerToEdit.price,
         tags: offerToEdit.tags.join(", "),
+        allowCall: offerToEdit.allowCall,
+        phoneNumber: offerToEdit.phoneNumber,
+        allowChat: offerToEdit.allowChat,
+        chatLink: offerToEdit.chatLink,
+        allowSchedule: offerToEdit.allowSchedule,
+        scheduleLink: offerToEdit.scheduleLink,
       });
       
       const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean) as string[];
@@ -186,6 +212,12 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         discount: values.discount, price: values.price, tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
         isHidden: isEditMode && offerToEdit ? offerToEdit.isHidden : false,
         postedBy: user.uid,
+        allowCall: values.allowCall,
+        phoneNumber: values.phoneNumber,
+        allowChat: values.allowChat,
+        chatLink: values.chatLink,
+        allowSchedule: values.allowSchedule,
+        scheduleLink: values.scheduleLink,
     };
 
     try {
@@ -242,6 +274,64 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             <FormField control={form.control} name="tags" render={({ field }) => (<FormItem><FormLabel>Tags</FormLabel><FormControl><Input placeholder="e.g., Today's Offer, Sale, New" {...field} /></FormControl><FormDescription>Separate tags with a comma.</FormDescription><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
+        
+        <Card>
+          <CardHeader><CardTitle>Contact Actions</CardTitle><CardDescription>Enable contact methods for customers.</CardDescription></CardHeader>
+          <CardContent className="space-y-6">
+              <FormField
+                control={form.control}
+                name="allowCall"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base flex items-center gap-2"><Phone /> Allow Call</FormLabel>
+                      <FormDescription>Let customers call you directly.</FormDescription>
+                    </div>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )}
+              />
+              {watchAllowCall && (
+                <FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="+91 98765 43210" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              )}
+              
+              <FormField
+                control={form.control}
+                name="allowChat"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base flex items-center gap-2"><MessageCircle /> Allow Chat</FormLabel>
+                      <FormDescription>Provide a WhatsApp or other chat link.</FormDescription>
+                    </div>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )}
+              />
+              {watchAllowChat && (
+                <FormField control={form.control} name="chatLink" render={({ field }) => (<FormItem><FormLabel>Chat Link</FormLabel><FormControl><Input type="url" placeholder="https://wa.me/91..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+              )}
+              
+              <FormField
+                control={form.control}
+                name="allowSchedule"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base flex items-center gap-2"><Calendar /> Allow Schedule</FormLabel>
+                      <FormDescription>Link to a booking or calendar page.</FormDescription>
+                    </div>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )}
+              />
+              {watchAllowSchedule && (
+                 <FormField control={form.control} name="scheduleLink" render={({ field }) => (<FormItem><FormLabel>Schedule Link</FormLabel><FormControl><Input type="url" placeholder="https://calendly.com/..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+              )}
+
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader><CardTitle>Ad Media</CardTitle><CardDescription>Upload up to 10 images for your ad. The first image will be the cover photo.</CardDescription></CardHeader>
           <CardContent>
