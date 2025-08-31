@@ -48,7 +48,8 @@ const mapDocToOffer = (doc: any): Offer => {
     id: doc.id,
     ...data,
     createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
-    reviews: data.reviews || [], // Initialize with empty array
+    // Reviews are now loaded on-demand, so initialize as empty or undefined.
+    reviews: [], 
     views: data.views || 0,
     clicks: data.clicks || 0,
     storyViews: data.storyViews || 0,
@@ -56,29 +57,11 @@ const mapDocToOffer = (doc: any): Offer => {
 };
 
 // Generic fetch function that processes reviews
-const fetchOffersWithReviews = async (q: Query<DocumentData>): Promise<Offer[]> => {
+const fetchOffersWithoutReviews = async (q: Query<DocumentData>): Promise<Offer[]> => {
   try {
     const querySnapshot = await getDocs(q);
-
-    const offers = await Promise.all(querySnapshot.docs.map(async (offerDoc) => {
-        const offer = mapDocToOffer(offerDoc);
-        
-        const reviewsCollection = collection(db, 'offers', offer.id, 'reviews');
-        const reviewsQuery = query(reviewsCollection, orderBy('createdAt', 'desc'));
-        const reviewsSnapshot = await getDocs(reviewsQuery);
-        
-        const reviews = reviewsSnapshot.docs.map(reviewDoc => {
-            const reviewData = reviewDoc.data();
-            return {
-              id: reviewDoc.id,
-              ...reviewData,
-              createdAt: reviewData.createdAt ? (reviewData.createdAt as Timestamp).toDate() : new Date()
-            } as Review;
-        });
-        offer.reviews = reviews;
-        
-        return offer;
-    }));
+    // Now we just map over the documents without fetching subcollections here.
+    const offers = querySnapshot.docs.map(mapDocToOffer);
     return offers;
   } catch (error) {
     console.error("Error fetching offers: ", error);
@@ -86,6 +69,31 @@ const fetchOffersWithReviews = async (q: Query<DocumentData>): Promise<Offer[]> 
     return [];
   }
 };
+
+/**
+ * Fetches the reviews for a single offer.
+ * This is called on the offer detail page.
+ * @param offerId The ID of the offer to fetch reviews for.
+ */
+export const getReviewsForOffer = async (offerId: string): Promise<Review[]> => {
+  try {
+    const reviewsCollection = collection(db, 'offers', offerId, 'reviews');
+    const reviewsQuery = query(reviewsCollection, orderBy('createdAt', 'desc'));
+    const reviewsSnapshot = await getDocs(reviewsQuery);
+    
+    return reviewsSnapshot.docs.map(reviewDoc => {
+        const reviewData = reviewDoc.data();
+        return {
+          id: reviewDoc.id,
+          ...reviewData,
+          createdAt: reviewData.createdAt ? (reviewData.createdAt as Timestamp).toDate() : new Date()
+        } as Review;
+    });
+  } catch (error) {
+    console.error(`Error fetching reviews for offer ${offerId}:`, error);
+    return [];
+  }
+}
 
 
 // Fetches ONLY public offers. Safe for server-side and non-admin clients.
@@ -95,13 +103,13 @@ export const getPublicOffers = async (): Promise<Offer[]> => {
       where("isHidden", "==", false),
       orderBy("createdAt", "desc")
     );
-    return fetchOffersWithReviews(publicOffersQuery);
+    return fetchOffersWithoutReviews(publicOffersQuery);
 };
 
 // Fetches ALL offers. Should ONLY be called for authenticated admins.
 export const getAllOffers = async (): Promise<Offer[]> => {
     const allOffersQuery = query(offersCollection, orderBy("createdAt", "desc"));
-    return fetchOffersWithReviews(allOffersQuery);
+    return fetchOffersWithoutReviews(allOffersQuery);
 };
 
 

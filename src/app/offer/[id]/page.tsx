@@ -34,11 +34,12 @@ const reviewSchema = z.object({
 export default function OfferDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick } = useOffers();
+  const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick, loadReviewsForOffer } = useOffers();
   const { user, isAdmin } = useAuth();
   
   const [offer, setOffer] = useState<Offer | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
   const { toast } = useToast();
   
   const id = typeof params.id === 'string' ? params.id : '';
@@ -57,45 +58,47 @@ export default function OfferDetailsPage() {
   const [hoverRating, setHoverRating] = useState(0);
   const currentRating = form.watch("rating");
 
-  const loadOffer = useCallback(() => {
-    if (!id) return;
-    
-    let foundOffer = getOfferById(id);
+  const loadOfferData = useCallback(async () => {
+    if (!id || offersLoading) return;
+
+    const foundOffer = getOfferById(id);
 
     if (foundOffer) {
       if (isAdmin || !foundOffer.isHidden) {
-          setOffer(foundOffer);
-          if (foundOffer.image) {
-            setMainImage(foundOffer.image);
-          }
+        setOffer(foundOffer);
+        if (foundOffer.image) {
+          setMainImage(foundOffer.image);
+        }
+        
+        // Only increment view once
+        const viewedKey = `viewed-${id}`;
+        if (!sessionStorage.getItem(viewedKey)) {
+          incrementOfferView(id);
+          sessionStorage.setItem(viewedKey, 'true');
+        }
+
+        // Fetch reviews for this specific offer
+        if (!foundOffer.reviews || foundOffer.reviews.length === 0) {
+            setReviewsLoading(true);
+            await loadReviewsForOffer(id);
+            setReviewsLoading(false);
+        } else {
+            setReviewsLoading(false);
+        }
+
       } else {
-          setOffer(null); 
+        setOffer(null);
       }
-
-      const viewedKey = `viewed-${id}`;
-      if (!sessionStorage.getItem(viewedKey)) {
-        incrementOfferView(id);
-        sessionStorage.setItem(viewedKey, 'true');
-      }
+    } else if (!offersLoading) {
+      // If offers are loaded but this one wasn't found, it's a 404
+      notFound();
     }
-  }, [id, getOfferById, incrementOfferView, isAdmin]);
+  }, [id, offersLoading, getOfferById, isAdmin, incrementOfferView, loadReviewsForOffer]);
 
   useEffect(() => {
-    if (offersLoading) return;
-    loadOffer();
-  }, [id, offersLoading, loadOffer]);
+    loadOfferData();
+  }, [id, offers, loadOfferData]);
 
-  useEffect(() => {
-      if (!offersLoading && !offer) {
-          const timer = setTimeout(() => {
-              const checkOffer = getOfferById(id);
-              if (!checkOffer || (checkOffer.isHidden && !isAdmin)) {
-                  notFound();
-              }
-          }, 100);
-          return () => clearTimeout(timer);
-      }
-  }, [offersLoading, offer, id, getOfferById, isAdmin]);
 
   const handleShare = async () => {
     if (!offer || !id) return;
@@ -148,7 +151,9 @@ export default function OfferDetailsPage() {
         rating: data.rating,
         comment: data.comment,
     };
+    setReviewsLoading(true);
     await addReview(offer.id, newReview);
+    setReviewsLoading(false);
     toast({
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
@@ -403,13 +408,18 @@ export default function OfferDetailsPage() {
                   </CardContent>
                 </Card>
                 
-                {offer.reviews && offer.reviews.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Customer Reviews ({offer.reviews.length})</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      {offer.reviews.map((review) => (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Customer Reviews ({reviewsLoading ? 0 : offer.reviews?.length || 0})</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {reviewsLoading ? (
+                        <div className="space-y-4">
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                        </div>
+                    ) : offer.reviews && offer.reviews.length > 0 ? (
+                        offer.reviews.map((review) => (
                         <div key={review.id} className="flex gap-4">
                           <Avatar>
                             <AvatarFallback>{review.author.charAt(0).toUpperCase()}</AvatarFallback>
@@ -426,10 +436,13 @@ export default function OfferDetailsPage() {
                             <p className="text-muted-foreground mt-1 text-sm">{review.comment}</p>
                           </div>
                         </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
+                      ))
+                    ) : (
+                        <p className="text-muted-foreground text-sm">Be the first to review this business!</p>
+                    )}
+                  </CardContent>
+                </Card>
+
               </div>
 
               <div className="lg:col-span-2">
