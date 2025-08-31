@@ -136,6 +136,17 @@ export default function OfferDetailsPage() {
     }
   };
 
+  const handleContactClick = () => {
+    if (!offer || !id) return;
+    incrementOfferClick(id);
+    // Redirect or open a modal for contacting
+    // For now, we just track the click. A WhatsApp link would be a good addition here.
+    toast({
+        title: "Contact Info Clicked!",
+        description: "Your interest has been noted.",
+    });
+  };
+
   const onReviewSubmit = async (data: z.infer<typeof reviewSchema>) => {
     if (!offer) return;
     if (!user) {
@@ -218,6 +229,9 @@ export default function OfferDetailsPage() {
   const ContactActions = () => {
     return (
         <div className="space-y-3">
+            <Button className="w-full justify-start text-base py-6" onClick={handleContactClick}>
+                <MessageSquare className="mr-4" /> Post a Request
+            </Button>
             <Button className="w-full justify-start text-base py-6" variant="outline" onClick={handleShare}>
                 <Share2 className="mr-4" /> Share This Ad
             </Button>
@@ -509,3 +523,5 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    
