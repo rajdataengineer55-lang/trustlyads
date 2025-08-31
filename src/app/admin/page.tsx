@@ -1,19 +1,38 @@
 
 "use client";
 
-import { AdGenerator } from "@/components/ad-generator";
+import dynamic from 'next/dynamic';
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
-import { ManageOffers } from "@/components/manage-offers";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { StoryCreator } from "@/components/story-creator";
-import { ManageStories } from "@/components/manage-stories";
 import { useAuth } from "@/contexts/AuthContext";
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { AnalyticsDashboard } from "@/components/analytics-dashboard";
+
+// Dynamically import heavy components
+const AdGenerator = dynamic(() => import('@/components/ad-generator').then(mod => mod.AdGenerator), { 
+    loading: () => <Skeleton className="w-full h-96" />,
+    ssr: false 
+});
+const ManageOffers = dynamic(() => import('@/components/manage-offers').then(mod => mod.ManageOffers), { 
+    loading: () => <Skeleton className="w-full h-96" />,
+    ssr: false 
+});
+const StoryCreator = dynamic(() => import('@/components/story-creator').then(mod => mod.StoryCreator), { 
+    loading: () => <Skeleton className="w-full h-96" />,
+    ssr: false 
+});
+const ManageStories = dynamic(() => import('@/components/manage-stories').then(mod => mod.ManageStories), { 
+    loading: () => <Skeleton className="w-full h-96" />,
+    ssr: false 
+});
+const AnalyticsDashboard = dynamic(() => import('@/components/analytics-dashboard').then(mod => mod.AnalyticsDashboard), { 
+    loading: () => <Skeleton className="w-full h-96" />,
+    ssr: false 
+});
+
 
 export default function AdminPage() {
     const { isAdmin, loading, user } = useAuth();
