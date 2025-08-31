@@ -383,10 +383,10 @@ export default function OfferDetailsPage() {
               </Link>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16">
+            <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 xl:gap-16">
                 
                 {/* Image Gallery Column */}
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-2">
                     <div className="overflow-hidden relative rounded-lg" ref={emblaRef}>
                         <div className="flex">
                             {allImages.map((img, i) => (
@@ -453,7 +453,7 @@ export default function OfferDetailsPage() {
                 </div>
 
                 {/* Details Column */}
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-3 space-y-6">
                     <div>
                         <div className="flex flex-wrap gap-2 mb-4">
                             {offer.tags?.map((tag) => (
