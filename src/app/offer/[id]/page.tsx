@@ -10,7 +10,7 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, EyeOff, BarChart2, Eye, User, Send } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, EyeOff, BarChart2, Eye, User, Send, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -23,6 +23,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
+import useEmblaCarousel from 'embla-carousel-react';
 
 
 const reviewSchema = z.object({
@@ -38,11 +39,27 @@ export default function OfferDetailsPage() {
   const { user, isAdmin } = useAuth();
   
   const [offer, setOffer] = useState<Offer | null>(null);
-  const [mainImage, setMainImage] = useState<string | null>(null);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const { toast } = useToast();
   
   const id = typeof params.id === 'string' ? params.id : '';
+
+  const [emblaRef, emblaApi] = useEmblaCarousel();
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
+
+  useEffect(() => {
+      if (!emblaApi) return;
+      const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+      emblaApi.on('select', onSelect);
+      onSelect(); // Set initial index
+      return () => {
+          emblaApi.off('select', onSelect);
+      };
+  }, [emblaApi]);
 
   const form = useForm<z.infer<typeof reviewSchema>>({
     resolver: zodResolver(reviewSchema),
@@ -66,9 +83,6 @@ export default function OfferDetailsPage() {
     if (foundOffer) {
       if (isAdmin || !foundOffer.isHidden) {
         setOffer(foundOffer);
-        if (foundOffer.image) {
-          setMainImage(foundOffer.image);
-        }
         
         // Only increment view once
         const viewedKey = `viewed-${id}`;
@@ -214,7 +228,6 @@ export default function OfferDetailsPage() {
 
   const similarOffers = offers.filter(o => o.category === offer?.category && o.id !== offer?.id && !o.isHidden).slice(0, 3);
   const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean) as string[];
-  const mainImageUrl = mainImage || 'https://placehold.co/600x400.png';
 
   const LocationInfo = () => (
     <div className="flex items-start text-muted-foreground mb-4">
@@ -335,16 +348,21 @@ export default function OfferDetailsPage() {
             </Link>
             <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
                 <div className="lg:col-span-3">
-                    <div className="relative mb-4 w-full overflow-hidden rounded-lg shadow-lg bg-muted">
-                        <Image
-                            src={mainImageUrl}
-                            alt={offer.title}
-                            width={800}
-                            height={600}
-                            className="object-contain w-full h-auto aspect-[4/3] transition-all duration-300 ease-in-out hover:scale-105"
-                            priority
-                        />
-                         <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-black text-white font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base animate-blink">
+                    <div className="overflow-hidden relative" ref={emblaRef}>
+                        <div className="flex">
+                            {allImages.map((img, i) => (
+                                <div key={i} className="relative flex-[0_0_100%] aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+                                    <Image
+                                        src={img}
+                                        alt={`${offer.title} image ${i + 1}`}
+                                        fill
+                                        className="object-contain w-full h-auto"
+                                        priority={i === 0}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-black text-white font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base animate-blink">
                           {offer.discount}
                         </Badge>
                         {offer.isHidden && (
@@ -352,10 +370,40 @@ export default function OfferDetailsPage() {
                                 <EyeOff className="mr-2 h-4 w-4" /> Hidden
                             </Badge>
                         )}
+                        {allImages.length > 1 && (
+                            <>
+                                <Button onClick={scrollPrev} variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 text-white hover:bg-black/75 hover:text-white">
+                                    <ChevronLeft />
+                                </Button>
+                                <Button onClick={scrollNext} variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 text-white hover:bg-black/75 hover:text-white">
+                                    <ChevronRight />
+                                </Button>
+                            </>
+                        )}
                     </div>
-
+                    
+                    {allImages.length > 1 && (
+                        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 mt-4">
+                            {allImages.map((img, i) => {
+                                const imageUrl = img || 'https://placehold.co/100x100.png';
+                                return (
+                                <div key={i} className="relative aspect-square cursor-pointer" onClick={() => scrollTo(i)}>
+                                    <Image 
+                                    src={imageUrl}
+                                    alt={`thumbnail ${i + 1}`} 
+                                    width={100}
+                                    height={100}
+                                    className={cn("rounded-md object-contain w-full h-full transition-all", selectedIndex === i ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                    data-ai-hint="placeholder image"
+                                    />
+                                </div>
+                                )
+                            })}
+                        </div>
+                    )}
+                    
                     {isAdmin && (
-                         <div className="flex items-center gap-4 mb-4">
+                         <div className="flex items-center gap-4 mt-4">
                             <Badge variant="secondary" className="font-bold py-1.5 px-3 text-sm">
                                 <Eye className="mr-2 h-4 w-4" /> {offer.views || 0} Views
                             </Badge>
@@ -365,25 +413,6 @@ export default function OfferDetailsPage() {
                         </div>
                     )}
 
-                    {allImages.length > 1 && (
-                      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
-                          {allImages.map((img, i) => {
-                            const imageUrl = img || 'https://placehold.co/100x100.png';
-                            return (
-                              <div key={i} className="relative aspect-square cursor-pointer" onClick={() => setMainImage(img)}>
-                                <Image 
-                                  src={imageUrl}
-                                  alt={`thumbnail ${i + 1}`} 
-                                  width={100}
-                                  height={100}
-                                  className={cn("rounded-md object-contain w-full h-full transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
-                                  data-ai-hint="placeholder image"
-                                />
-                              </div>
-                            )
-                          })}
-                      </div>
-                    )}
                 </div>
 
                 <div className="lg:col-span-2">
@@ -523,3 +552,5 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
+
+    
