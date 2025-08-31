@@ -33,10 +33,79 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
   const { user, isAdmin, signOut, signInWithGoogle } = useAuth();
 
 
-  const UserActions = () => {
+  const UserMenu = () => {
+     if (!user) {
+      return (
+        <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Sign In
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => signInWithGoogle()}>
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  Sign In with Google
+                </DropdownMenuItem>
+                 <DialogTrigger asChild>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                     <Phone className="mr-2 h-4 w-4" />
+                     Sign In with Phone
+                  </DropdownMenuItem>
+                 </DialogTrigger>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Sign In with Phone</DialogTitle>
+                  <DialogDescription>
+                      Enter your phone number to receive a verification code.
+                  </DialogDescription>
+              </DialogHeader>
+              <PhoneLoginForm onLoginSuccess={() => setIsPhoneLoginOpen(false)} />
+          </DialogContent>
+        </Dialog>
+      )
+     }
+     
+     return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                    <Avatar className='h-9 w-9'>
+                        <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'}/>
+                        <AvatarFallback>{user.displayName?.charAt(0).toUpperCase() ?? user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{user.email ?? user.phoneNumber}</p>
+                    </div>
+                </DropdownMenuLabel>
+                 <DropdownMenuSeparator />
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">Admin Panel</Link>
+                  </DropdownMenuItem>
+                )}
+                 <DropdownMenuItem onClick={() => signOut()}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign out</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+     )
+  }
+
+  const MobileUserMenu = () => {
     if (!user) {
         return (
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col gap-2">
                  <Button onClick={() => signInWithGoogle()} className="w-full">
                     <UserIcon className="mr-2 h-4 w-4" />
                     Sign In with Google
@@ -74,6 +143,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
     )
   }
 
+
   const LocationDropdown = () => (
      <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -108,47 +178,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
       </DropdownMenu>
   );
 
-  const MainNav = () => (
-    <div className='hidden md:flex items-center gap-2'>
-        <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
-          <Button>Post Your Business</Button>
-        </a>
-        {!user && (
-           <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
-             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Sign In
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => signInWithGoogle()}>
-                      <UserIcon className="mr-2 h-4 w-4" />
-                      Sign In with Google
-                    </DropdownMenuItem>
-                     <DialogTrigger asChild>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                         <Phone className="mr-2 h-4 w-4" />
-                         Sign In with Phone
-                      </DropdownMenuItem>
-                     </DialogTrigger>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Sign In with Phone</DialogTitle>
-                    <DialogDescription>
-                        Enter your phone number to receive a verification code.
-                    </DialogDescription>
-                </DialogHeader>
-                <PhoneLoginForm onLoginSuccess={() => setIsPhoneLoginOpen(false)} />
-            </DialogContent>
-           </Dialog>
-        )}
-    </div>
-  )
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
@@ -156,13 +185,16 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
           
           <div className="flex items-center gap-4">
             <Logo />
-            <div className="hidden md:flex">
-               <LocationDropdown />
-            </div>
           </div>
 
           <div className="flex items-center gap-2">
-             <MainNav />
+             <div className='hidden md:flex items-center gap-2'>
+                <LocationDropdown />
+                <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
+                  <Button>Post Your Business</Button>
+                </a>
+                <UserMenu />
+             </div>
               
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                   <SheetTrigger asChild>
@@ -181,7 +213,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                   </SheetHeader>
                   <nav className="flex flex-col gap-4 py-6">
                       <div className='md:hidden'><LocationDropdown /></div>
-                      <UserActions />
+                      <MobileUserMenu />
                       <div className='mt-4'>
                         <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
                             <Button className="w-full mt-2" >Post Your Business</Button>
