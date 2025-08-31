@@ -143,7 +143,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
   const LocationDropdown = () => (
      <DropdownMenu>
         <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-sm">
+            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-xs sm:text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <span className="font-semibold truncate pr-1">{selectedLocation || 'All Locations'}</span>
               <ChevronDown className="h-4 w-4" />
@@ -177,9 +177,9 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
-        <div className="container flex h-16 items-center justify-between gap-4">
+        <div className="container flex h-16 items-center justify-between gap-2 sm:gap-4">
           
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-1 md:gap-2">
             <Logo />
             <LocationDropdown />
           </div>
