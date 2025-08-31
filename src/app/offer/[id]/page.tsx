@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
 import useEmblaCarousel from 'embla-carousel-react';
+import { Separator } from '@/components/ui/separator';
 
 
 const reviewSchema = z.object({
@@ -245,7 +246,7 @@ export default function OfferDetailsPage() {
   const allImages = [offer.image, ...(offer.otherImages || [])].filter(Boolean) as string[];
 
   const LocationInfo = () => (
-    <div className="flex items-start text-muted-foreground mb-4">
+    <div className="flex items-start text-muted-foreground mt-4">
       <MapPin className="h-5 w-5 mr-3 shrink-0 mt-1" />
       <div>
         <p className="font-semibold text-foreground">{offer.location}</p>
@@ -256,7 +257,8 @@ export default function OfferDetailsPage() {
 
   const ContactActions = () => {
     return (
-        <div className="space-y-3">
+        <div className="space-y-3 mt-6 pt-6 border-t">
+             <p className="font-semibold text-foreground mb-3">Contact the Business</p>
              {offer.allowCall && offer.phoneNumber && (
                 <Button className="w-full justify-start text-base py-6" onClick={() => handleContactClick('call')}>
                     <Phone className="mr-4" /> Call Now
@@ -293,7 +295,7 @@ export default function OfferDetailsPage() {
     }
 
     return (
-        <Card>
+        <Card className="mt-12">
             <CardHeader>
                 <CardTitle>Write a Review</CardTitle>
                 <CardDescription>Share your experience with this business.</CardDescription>
@@ -358,7 +360,10 @@ export default function OfferDetailsPage() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Submit Review</Button>
+                        <Button type="submit" disabled={form.formState.isSubmitting}>
+                            {form.formState.isSubmitting && <Send className="mr-2 h-4 w-4 animate-spin"/>}
+                            Submit Review
+                        </Button>
                     </form>
                 </Form>
             </CardContent>
@@ -371,13 +376,18 @@ export default function OfferDetailsPage() {
       <Header />
       <main className="flex-1 bg-background/50 py-6 sm:py-12">
         <div className="container mx-auto px-4 md:px-6">
-            <Link href="/" className="inline-flex items-center text-primary mb-6 sm:mb-8 hover:underline">
-                 <ArrowLeft className="mr-2 h-4 w-4" />
-                 Back to all ads
-            </Link>
-            <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
-                <div className="lg:col-span-3">
-                    <div className="overflow-hidden relative" ref={emblaRef}>
+            <div className="mb-6 sm:mb-8">
+              <Link href="/" className="inline-flex items-center text-primary hover:underline text-sm">
+                   <ArrowLeft className="mr-2 h-4 w-4" />
+                   Back to all ads
+              </Link>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16">
+                
+                {/* Image Gallery Column */}
+                <div className="lg:col-span-1">
+                    <div className="overflow-hidden relative rounded-lg" ref={emblaRef}>
                         <div className="flex">
                             {allImages.map((img, i) => (
                                 <div key={i} className="relative flex-[0_0_100%] aspect-[4/3] bg-black rounded-lg overflow-hidden">
@@ -385,8 +395,9 @@ export default function OfferDetailsPage() {
                                         src={img}
                                         alt={`${offer.title} image ${i + 1}`}
                                         fill
-                                        className="object-contain w-full h-auto"
+                                        className="object-cover w-full h-auto"
                                         priority={i === 0}
+                                        sizes="(max-width: 1024px) 100vw, 50vw"
                                     />
                                 </div>
                             ))}
@@ -401,11 +412,11 @@ export default function OfferDetailsPage() {
                         )}
                         {allImages.length > 1 && (
                             <>
-                                <Button onClick={scrollPrev} variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 text-white hover:bg-black/75 hover:text-white">
-                                    <ChevronLeft />
+                                <Button onClick={scrollPrev} variant="ghost" size="icon" className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 text-white hover:bg-black/75 hover:text-white h-8 w-8 sm:h-10 sm:w-10">
+                                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                                 </Button>
-                                <Button onClick={scrollNext} variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 text-white hover:bg-black/75 hover:text-white">
-                                    <ChevronRight />
+                                <Button onClick={scrollNext} variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 text-white hover:bg-black/75 hover:text-white h-8 w-8 sm:h-10 sm:w-10">
+                                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
                                 </Button>
                             </>
                         )}
@@ -413,85 +424,74 @@ export default function OfferDetailsPage() {
                     
                     {allImages.length > 1 && (
                         <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 mt-4">
-                            {allImages.map((img, i) => {
-                                const imageUrl = img || 'https://placehold.co/100x100.png';
-                                return (
-                                <div key={i} className="relative aspect-square cursor-pointer" onClick={() => scrollTo(i)}>
+                            {allImages.map((img, i) => (
+                                <div key={i} className="relative aspect-square cursor-pointer rounded-md overflow-hidden" onClick={() => scrollTo(i)}>
                                     <Image 
-                                    src={imageUrl}
-                                    alt={`thumbnail ${i + 1}`} 
-                                    width={100}
-                                    height={100}
-                                    className={cn("rounded-md object-cover w-full h-full transition-all", selectedIndex === i ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
-                                    data-ai-hint="placeholder image"
+                                        src={img}
+                                        alt={`thumbnail ${i + 1}`} 
+                                        fill
+                                        className={cn("object-cover w-full h-full transition-all", selectedIndex === i ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                        sizes="100px"
+                                        data-ai-hint="placeholder image"
                                     />
                                 </div>
-                                )
-                            })}
+                            ))}
                         </div>
                     )}
                     
                     {isAdmin && (
-                         <div className="flex items-center gap-4 mt-4">
-                            <Badge variant="secondary" className="font-bold py-1.5 px-3 text-sm">
-                                <Eye className="mr-2 h-4 w-4" /> {offer.views || 0} Views
-                            </Badge>
-                                <Badge variant="secondary" className="font-bold py-1.5 px-3 text-sm">
-                                <BarChart2 className="mr-2 h-4 w-4" /> {offer.clicks || 0} Clicks
-                            </Badge>
+                         <div className="flex items-center gap-4 mt-6 p-3 rounded-lg bg-muted border">
+                            <div className="flex items-center gap-2 text-sm font-medium">
+                                <Eye className="h-4 w-4 text-muted-foreground" /> <span>{offer.views || 0} Views</span>
+                            </div>
+                            <Separator orientation="vertical" className="h-6" />
+                            <div className="flex items-center gap-2 text-sm font-medium">
+                                <BarChart2 className="h-4 w-4 text-muted-foreground" /> <span>{offer.clicks || 0} Clicks</span>
+                            </div>
                         </div>
                     )}
-
                 </div>
 
-                <div className="lg:col-span-2">
-                    <Card>
-                        <CardContent className="p-4 sm:p-6 space-y-4">
-                            <div>
-                              <h1 className="text-2xl sm:text-4xl font-bold mb-2">{offer.title}</h1>
-                              <p className="text-xl font-semibold text-primary mb-4">{offer.business}</p>
-                              {offer.price && (
-                                <p className="text-3xl font-bold mb-4">₹ {offer.price.toLocaleString()}</p>
-                              )}
-                              <LocationInfo />
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
+                {/* Details Column */}
+                <div className="lg:col-span-1 space-y-6">
+                    <div>
+                        <div className="flex flex-wrap gap-2 mb-4">
                             {offer.tags?.map((tag) => (
-                                <Badge key={tag} variant="secondary">{tag}</Badge>
+                                <Badge key={tag} variant="secondary" className="font-normal">{tag}</Badge>
                             ))}
-                            </div>
-                            
-                            <div>
-                                <ContactActions />
-                            </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{offer.title}</h1>
+                        <p className="text-xl font-semibold text-primary mt-2">{offer.business}</p>
+                        {offer.price && (
+                            <p className="text-4xl font-bold mt-4">₹ {offer.price.toLocaleString()}</p>
+                        )}
+                        <LocationInfo />
+                    </div>
+                    
+                    <div className="prose dark:prose-invert max-w-none text-muted-foreground whitespace-pre-wrap text-base">
+                        <p>{offer.description}</p>
+                    </div>
+
+                    <div>
+                        <ContactActions />
+                    </div>
                 </div>
             </div>
 
-            <div className="mt-12 grid lg:grid-cols-5 gap-8 lg:gap-12">
-              <div className="space-y-8 lg:col-span-3">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Ad Description</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground whitespace-pre-wrap text-base sm:text-lg">
-                      {offer.description}
-                    </p>
-                  </CardContent>
-                </Card>
-                
+            <Separator className="my-12 sm:my-16" />
+
+            <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
+              <div className="space-y-8 lg:col-span-2">
                 <Card>
                   <CardHeader>
                     <CardTitle>Customer Reviews ({reviewsLoading ? 0 : offer.reviews?.length || 0})</CardTitle>
+                    <CardDescription>See what other customers are saying.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {reviewsLoading ? (
                         <div className="space-y-4">
-                            <Skeleton className="h-12 w-full" />
-                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-16 w-full" />
+                            <Skeleton className="h-16 w-full" />
                         </div>
                     ) : offer.reviews && offer.reviews.length > 0 ? (
                         offer.reviews.map((review) => (
@@ -513,71 +513,61 @@ export default function OfferDetailsPage() {
                         </div>
                       ))
                     ) : (
-                        <p className="text-muted-foreground text-sm">Be the first to review this business!</p>
+                        <p className="text-muted-foreground text-sm text-center py-4">Be the first to review this business!</p>
                     )}
                   </CardContent>
                 </Card>
-
-              </div>
-
-              <div className="lg:col-span-2">
                 <ReviewForm />
               </div>
-            </div>
-            
-            {similarOffers.length > 0 && (
-              <div className="mt-16">
-                 <h2 className="text-2xl font-bold text-center mb-8">
-                  Similar Ads
-                </h2>
-                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {similarOffers.map((similarOffer) => {
-                    const imageUrl = similarOffer.image || 'https://placehold.co/600x400.png';
-                    return (
-                      <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
-                        <CardContent className="p-0">
-                          <Link href={`/offer/${similarOffer.id}`} passHref className="block">
-                            <div className="relative aspect-[4/3] bg-black">
-                              <Image
-                                src={imageUrl}
-                                alt={similarOffer.title}
-                                width={600}
-                                height={400}
-                                className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
-                              />
-                              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                                  <h3 className="text-lg font-bold text-white truncate">{similarOffer.title}</h3>
-                              </div>
-                              <Badge variant="default" className="absolute top-4 right-4 bg-accent text-accent-foreground font-bold py-1 px-3">
-                                {similarOffer.discount}
-                              </Badge>
-                            </div>
-                          </Link>
-                          <div className="p-4 sm:p-6 bg-card">
-                            <div className="flex items-center text-sm text-muted-foreground mb-3">
-                                <MapPin className="h-4 w-4 mr-2 shrink-0" />
-                                <span className="truncate">{similarOffer.location}</span>
-                            </div>
-                            <div className="flex flex-wrap gap-2 mb-4">
-                              {similarOffer.tags?.slice(0, 3).map((tag) => (
-                                <Badge key={tag} variant="secondary">{tag}</Badge>                            
-                              ))}
-                            </div>
-                            <Link href={`/offer/${similarOffer.id}`} passHref>
-                              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                                   View Details
-                                  <ArrowRight className="ml-2 h-4 w-4" />
-                              </Button>
-                            </Link>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )
-                  })}
-                 </div>
-              </div>
-            )}
 
+              <div className="lg:col-span-1">
+                 {similarOffers.length > 0 && (
+                    <div>
+                        <h2 className="text-2xl font-bold mb-6">Similar Ads</h2>
+                        <div className="grid grid-cols-1 gap-6">
+                            {similarOffers.map((similarOffer) => {
+                                const imageUrl = similarOffer.image || 'https://placehold.co/600x400.png';
+                                return (
+                                <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1">
+                                    <CardContent className="p-0">
+                                    <Link href={`/offer/${similarOffer.id}`} passHref className="block">
+                                        <div className="relative aspect-[4/3] bg-black">
+                                        <Image
+                                            src={imageUrl}
+                                            alt={similarOffer.title}
+                                            width={600}
+                                            height={400}
+                                            className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                            <h3 className="text-base font-bold text-white truncate">{similarOffer.title}</h3>
+                                        </div>
+                                        <Badge variant="default" className="absolute top-2 right-2 bg-accent text-accent-foreground font-bold">
+                                            {similarOffer.discount}
+                                        </Badge>
+                                        </div>
+                                    </Link>
+                                    <div className="p-4 bg-card">
+                                        <div className="flex items-center text-sm text-muted-foreground mb-3">
+                                            <MapPin className="h-4 w-4 mr-2 shrink-0" />
+                                            <span className="truncate">{similarOffer.location}</span>
+                                        </div>
+                                        <Link href={`/offer/${similarOffer.id}`} passHref>
+                                        <Button className="w-full" variant="secondary">
+                                            View Details
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Button>
+                                        </Link>
+                                    </div>
+                                    </CardContent>
+                                </Card>
+                                )
+                            })}
+                        </div>
+                    </div>
+                )}
+              </div>
+            </div>
         </div>
       </main>
       <Footer />
