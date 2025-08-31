@@ -351,7 +351,7 @@ export default function OfferDetailsPage() {
                     <div className="overflow-hidden relative" ref={emblaRef}>
                         <div className="flex">
                             {allImages.map((img, i) => (
-                                <div key={i} className="relative flex-[0_0_100%] aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+                                <div key={i} className="relative flex-[0_0_100%] aspect-[4/3] bg-black rounded-lg overflow-hidden">
                                     <Image
                                         src={img}
                                         alt={`${offer.title} image ${i + 1}`}
@@ -505,7 +505,7 @@ export default function OfferDetailsPage() {
                       <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1">
                         <CardContent className="p-0">
                           <Link href={`/offer/${similarOffer.id}`} passHref className="block">
-                            <div className="relative aspect-[4/3] bg-muted">
+                            <div className="relative aspect-[4/3] bg-black">
                               <Image
                                 src={imageUrl}
                                 alt={similarOffer.title}
@@ -552,5 +552,3 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
-
-    

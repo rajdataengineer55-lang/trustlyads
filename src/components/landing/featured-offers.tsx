@@ -117,7 +117,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
               <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
                 <CardContent className="p-0 flex flex-col flex-grow">
                   <Link href={`/offer/${offer.id}`} className="cursor-pointer block">
-                    <div className="relative aspect-[4/3] w-full bg-muted">
+                    <div className="relative aspect-[4/3] w-full bg-black">
                       <Image
                         src={imageUrl}
                         alt={offer.title}
