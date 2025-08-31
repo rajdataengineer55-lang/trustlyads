@@ -147,6 +147,9 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                             {offer.title}
                         </h3>
                     </Link>
+                     {offer.price && (
+                        <p className="text-xl font-bold text-primary my-2">₹ {offer.price.toLocaleString()}</p>
+                    )}
                     <div className="flex items-center text-sm text-muted-foreground">
                         <MapPin className="h-4 w-4 mr-2 shrink-0" />
                         <span className="truncate">{offer.location}</span>
