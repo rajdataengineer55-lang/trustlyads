@@ -28,7 +28,7 @@ import { Separator } from '@/components/ui/separator';
 
 
 const reviewSchema = z.object({
-    author: z.string().min(1, { message: "Name is required." }),
+    author: z.string().min(2, { message: "Name must be at least 2 characters." }),
     rating: z.number().min(1, "Please select a rating.").max(5),
     comment: z.string().min(10, "Comment must be at least 10 characters."),
 });
@@ -93,16 +93,13 @@ export default function OfferDetailsPage() {
         }
 
         // Fetch reviews for this specific offer
-        if (!foundOffer.reviews || foundOffer.reviews.length === 0) {
-            setReviewsLoading(true);
-            await loadReviewsForOffer(id);
-            setReviewsLoading(false);
-        } else {
-            setReviewsLoading(false);
-        }
+        setReviewsLoading(true);
+        await loadReviewsForOffer(id);
+        setReviewsLoading(false);
 
       } else {
-        setOffer(null);
+        setOffer(null); // Offer is hidden
+        notFound();
       }
     } else if (!offersLoading) {
       // If offers are loaded but this one wasn't found, it's a 404
@@ -192,9 +189,9 @@ export default function OfferDetailsPage() {
         rating: data.rating,
         comment: data.comment,
     };
-    setReviewsLoading(true);
-    await addReview(offer.id, newReview);
-    setReviewsLoading(false);
+    
+    await addReview(offer.id, newReview); // This now re-fetches reviews internally
+
     toast({
         title: "Review Submitted!",
         description: "Thank you for your feedback.",
@@ -361,7 +358,7 @@ export default function OfferDetailsPage() {
                             )}
                         />
                         <Button type="submit" disabled={form.formState.isSubmitting}>
-                            {form.formState.isSubmitting && <Send className="mr-2 h-4 w-4 animate-spin"/>}
+                            {form.formState.isSubmitting ? <Send className="mr-2 h-4 w-4 animate-spin"/> : <Send className="mr-2 h-4 w-4" />}
                             Submit Review
                         </Button>
                     </form>
@@ -395,7 +392,7 @@ export default function OfferDetailsPage() {
                                         src={img}
                                         alt={`${offer.title} image ${i + 1}`}
                                         fill
-                                        className="object-contain w-full h-auto"
+                                        className="object-cover w-full h-auto"
                                         priority={i === 0}
                                         sizes="(max-width: 1024px) 100vw, 50vw"
                                     />
@@ -430,7 +427,7 @@ export default function OfferDetailsPage() {
                                         src={img}
                                         alt={`thumbnail ${i + 1}`} 
                                         fill
-                                        className={cn("object-contain w-full h-full transition-all", selectedIndex === i ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                        className={cn("object-cover w-full h-full transition-all", selectedIndex === i ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
                                         sizes="100px"
                                         data-ai-hint="placeholder image"
                                     />
@@ -489,7 +486,7 @@ export default function OfferDetailsPage() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {reviewsLoading ? (
-                        <div className="space-y-4">
+                        <div className="space-y-4 p-4">
                             <Skeleton className="h-16 w-full" />
                             <Skeleton className="h-16 w-full" />
                         </div>
@@ -537,7 +534,7 @@ export default function OfferDetailsPage() {
                                             alt={similarOffer.title}
                                             width={600}
                                             height={400}
-                                            className="object-contain w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                                            className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
                                         />
                                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
                                             <h3 className="text-base font-bold text-white truncate">{similarOffer.title}</h3>
