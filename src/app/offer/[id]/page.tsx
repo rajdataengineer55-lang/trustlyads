@@ -394,7 +394,7 @@ export default function OfferDetailsPage() {
                                         fill
                                         className="object-cover w-full h-auto"
                                         priority={i === 0}
-                                        sizes="(max-width: 1024px) 100vw, 50vw"
+                                        sizes="(max-width: 1024px) 100vw, 40vw"
                                     />
                                 </div>
                             ))}
@@ -523,7 +523,7 @@ export default function OfferDetailsPage() {
                         <h2 className="text-2xl font-bold mb-6">Similar Ads</h2>
                         <div className="grid grid-cols-1 gap-6">
                             {similarOffers.map((similarOffer) => {
-                                const imageUrl = similarOffer.image || 'https://placehold.co/600x400.png';
+                                const imageUrl = similarOffer.image || 'https://picsum.photos/600/400';
                                 return (
                                 <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1">
                                     <CardContent className="p-0">
