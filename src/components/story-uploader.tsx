@@ -82,7 +82,7 @@ export function StoryUploader({ offer, onFinished }: StoryUploaderProps) {
                 />
               </FormControl>
               <FormDescription>
-                Recommended: 9:16 vertical format (1080x1920px), MP4, under 60s & 10MB.
+                Recommended: 9:16 vertical format (1080x1920px), MP4, under 5 minutes & 10MB.
               </FormDescription>
               <FormMessage />
             </FormItem>
