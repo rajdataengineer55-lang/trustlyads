@@ -9,8 +9,8 @@ import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Navigation, ArrowRight, EyeOff, BarChart2, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Navigation, ArrowRight, EyeOff, BarChart2, Eye, ChevronLeft, ChevronRight, Tag, Building, Info } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Separator } from '@/components/ui/separator';
+import { format } from 'date-fns';
 
 export default function OfferDetailsPage() {
   const params = useParams();
@@ -146,7 +147,7 @@ export default function OfferDetailsPage() {
             <main className="flex-1 bg-background/50 py-12">
                 <div className="container mx-auto px-4 md:px-6">
                     <Skeleton className="h-8 w-1/4 mb-8" />
-                    <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+                    <div className="grid lg:grid-cols-[2fr,3fr] gap-8 lg:gap-12">
                         <div>
                             <Skeleton className="w-full aspect-[4/3] rounded-lg" />
                             <div className="grid grid-cols-4 gap-2 mt-2">
@@ -226,6 +227,37 @@ export default function OfferDetailsPage() {
     );
   };
   
+  const DetailsTable = () => (
+    <Card className="mt-8">
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Info className="h-5 w-5" /> Ad Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <table className="w-full text-sm">
+                <tbody>
+                    <tr className="border-b">
+                        <td className="py-3 font-medium text-muted-foreground flex items-center gap-2"><Building className="h-4 w-4" /> Business</td>
+                        <td className="py-3 font-semibold text-right">{offer.business}</td>
+                    </tr>
+                    <tr className="border-b">
+                        <td className="py-3 font-medium text-muted-foreground flex items-center gap-2"><Tag className="h-4 w-4" /> Category</td>
+                        <td className="py-3 text-right">{offer.category}</td>
+                    </tr>
+                    <tr className="border-b">
+                        <td className="py-3 font-medium text-muted-foreground flex items-center gap-2"><CalendarIcon className="h-4 w-4" /> Posted On</td>
+                        <td className="py-3 text-right">{format(new Date(offer.createdAt), 'PPP')}</td>
+                    </tr>
+                    <tr>
+                        <td colSpan={2} className="pt-4 font-medium text-muted-foreground">Description</td>
+                    </tr>
+                     <tr>
+                        <td colSpan={2} className="pt-2 pb-3 whitespace-pre-wrap">{offer.description}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </CardContent>
+    </Card>
+);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -239,10 +271,10 @@ export default function OfferDetailsPage() {
               </Link>
             </div>
 
-            <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 xl:gap-16">
+            <div className="grid lg:grid-cols-[2fr,3fr] gap-8 lg:gap-12 xl:gap-16">
                 
                 {/* Image Gallery Column */}
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-1">
                     <div className="overflow-hidden relative rounded-lg" ref={emblaRef}>
                         <div className="flex">
                             {allImages.map((img, i) => (
@@ -309,7 +341,7 @@ export default function OfferDetailsPage() {
                 </div>
 
                 {/* Details Column */}
-                <div className="lg:col-span-3 space-y-6">
+                <div className="lg:col-span-1 space-y-6">
                     <div>
                         <div className="flex flex-wrap gap-2 mb-4">
                             {offer.tags?.map((tag) => (
@@ -317,16 +349,14 @@ export default function OfferDetailsPage() {
                             ))}
                         </div>
                         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{offer.title}</h1>
-                        <p className="text-xl font-semibold text-primary mt-2">{offer.business}</p>
+                        
                         {offer.price && (
                             <p className="text-4xl font-bold mt-4">₹ {offer.price.toLocaleString()}</p>
                         )}
                         <LocationInfo />
                     </div>
                     
-                    <div className="prose dark:prose-invert max-w-none text-muted-foreground whitespace-pre-wrap text-base">
-                        <p>{offer.description}</p>
-                    </div>
+                    <DetailsTable />
 
                     <div>
                         <ContactActions />
@@ -336,58 +366,56 @@ export default function OfferDetailsPage() {
 
             <Separator className="my-12 sm:my-16" />
 
-            <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
-              <div className="lg:col-span-2">
-                 {similarOffers.length > 0 && (
-                    <div>
-                        <h2 className="text-2xl font-bold mb-6">Similar Ads</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            {similarOffers.map((similarOffer) => {
-                                const imageUrl = similarOffer.image || 'https://picsum.photos/600/400';
-                                return (
-                                <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1">
-                                    <CardContent className="p-0">
-                                    <Link href={`/offer/${similarOffer.id}`} passHref className="block">
-                                        <div className="relative aspect-[4/3] bg-black">
-                                        <Image
-                                            src={imageUrl}
-                                            alt={similarOffer.title}
-                                            width={600}
-                                            height={400}
-                                            className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
-                                        />
-                                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-                                            <h3 className="text-base font-bold text-white truncate">{similarOffer.title}</h3>
-                                        </div>
-                                        <Badge variant="default" className="absolute top-2 right-2 bg-accent text-accent-foreground font-bold">
-                                            {similarOffer.discount}
-                                        </Badge>
-                                        </div>
-                                    </Link>
-                                    <div className="p-4 bg-card">
-                                        <div className="flex items-center text-sm text-muted-foreground mb-3">
-                                            <MapPin className="h-4 w-4 mr-2 shrink-0" />
-                                            <span className="truncate">{similarOffer.location}</span>
-                                        </div>
-                                        <Link href={`/offer/${similarOffer.id}`} passHref>
-                                        <Button className="w-full" variant="secondary">
-                                            View Details
-                                            <ArrowRight className="ml-2 h-4 w-4" />
-                                        </Button>
-                                        </Link>
-                                    </div>
-                                    </CardContent>
-                                </Card>
-                                )
-                            })}
-                        </div>
-                    </div>
-                )}
+            {similarOffers.length > 0 && (
+              <div>
+                  <h2 className="text-2xl font-bold mb-6">Similar Ads</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {similarOffers.map((similarOffer) => {
+                          const imageUrl = similarOffer.image || 'https://picsum.photos/600/400';
+                          return (
+                          <Card key={similarOffer.id} className="overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1">
+                              <CardContent className="p-0">
+                              <Link href={`/offer/${similarOffer.id}`} passHref className="block">
+                                  <div className="relative aspect-[4/3] bg-black">
+                                  <Image
+                                      src={imageUrl}
+                                      alt={similarOffer.title}
+                                      width={600}
+                                      height={400}
+                                      className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                                  />
+                                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                                      <h3 className="text-base font-bold text-white truncate">{similarOffer.title}</h3>
+                                  </div>
+                                  <Badge variant="default" className="absolute top-2 right-2 bg-accent text-accent-foreground font-bold">
+                                      {similarOffer.discount}
+                                  </Badge>
+                                  </div>
+                              </Link>
+                              <div className="p-4 bg-card">
+                                  <div className="flex items-center text-sm text-muted-foreground mb-3">
+                                      <MapPin className="h-4 w-4 mr-2 shrink-0" />
+                                      <span className="truncate">{similarOffer.location}</span>
+                                  </div>
+                                  <Link href={`/offer/${similarOffer.id}`} passHref>
+                                  <Button className="w-full" variant="secondary">
+                                      View Details
+                                      <ArrowRight className="ml-2 h-4 w-4" />
+                                  </Button>
+                                  </Link>
+                              </div>
+                              </CardContent>
+                          </Card>
+                          )
+                      })}
+                  </div>
               </div>
-            </div>
+            )}
         </div>
       </main>
       <Footer />
     </div>
   );
 }
+
+    
