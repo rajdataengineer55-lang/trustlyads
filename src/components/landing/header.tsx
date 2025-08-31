@@ -109,10 +109,12 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                     <UserIcon className="mr-2 h-4 w-4" />
                     Sign In with Google
                 </Button>
-                 <Button variant="secondary" onClick={() => { setIsPhoneLoginOpen(true); setIsMobileMenuOpen(false); }}>
-                    <Phone className="mr-2 h-4 w-4" />
-                    Sign In with Phone
-                </Button>
+                 <DialogTrigger asChild>
+                    <Button variant="secondary" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Phone className="mr-2 h-4 w-4" />
+                        Sign In with Phone
+                    </Button>
+                 </DialogTrigger>
             </div>
         )
     }
@@ -158,10 +160,10 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
           {locations.map((location) => (
             location.subLocations ? (
               <DropdownMenuSub key={location.name}>
-                <DropdownMenuSubTrigger onSelect={(e) => { e.preventDefault(); setSelectedLocation(location.name)}}>{location.name}</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger>{location.name}</DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
-                     <DropdownMenuItem key={location.name} onSelect={() => setSelectedLocation(location.name)}>All of {location.name}</DropdownMenuItem>
+                     <DropdownMenuItem onSelect={() => setSelectedLocation(location.name)}>All of {location.name}</DropdownMenuItem>
                      <DropdownMenuSeparator />
                     {location.subLocations.map((subLocation) => (
                       <DropdownMenuItem key={subLocation} onSelect={() => setSelectedLocation(subLocation)}>{subLocation}</DropdownMenuItem>
