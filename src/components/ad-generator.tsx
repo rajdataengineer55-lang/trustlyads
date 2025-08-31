@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Megaphone, Star, Edit, UploadCloud, Phone, MessageCircle, Calendar } from "lucide-react";
+import { Loader2, Megaphone, Star, Edit, UploadCloud, Phone, MessageCircle, Calendar, Camera, CircleDotDashed, X } from "lucide-react";
 import Image from "next/image";
 import { locations } from "@/lib/locations";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
@@ -21,6 +21,9 @@ import type { OfferData } from "@/lib/offers";
 import { uploadMultipleFiles } from "@/lib/storage";
 import { useAuth } from "@/contexts/AuthContext";
 import { Switch } from "./ui/switch";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "./ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+
 
 const formSchema = z.object({
   business: z.string().min(2, { message: "Business name must be at least 2 characters." }),
@@ -77,6 +80,14 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const [selectedMainImageIndex, setSelectedMainImageIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Camera state
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
 
   const { toast } = useToast();
   const { addOffer, updateOffer } = useOffers();
@@ -171,6 +182,65 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     }
   };
   
+    useEffect(() => {
+        const getCameraPermission = async () => {
+          if (!isCameraOpen) {
+             // Stop camera stream when dialog closes
+            if (videoRef.current?.srcObject) {
+                const stream = videoRef.current.srcObject as MediaStream;
+                stream.getTracks().forEach(track => track.stop());
+                videoRef.current.srcObject = null;
+            }
+            return;
+          }
+          setCapturedImage(null); // Reset captured image on open
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            setHasCameraPermission(true);
+    
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+            }
+          } catch (error) {
+            console.error('Error accessing camera:', error);
+            setHasCameraPermission(false);
+          }
+        };
+    
+        getCameraPermission();
+    
+        // Cleanup function to stop camera stream
+        return () => {
+            if (videoRef.current?.srcObject) {
+                const stream = videoRef.current.srcObject as MediaStream;
+                stream.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, [isCameraOpen]);
+
+
+    const handleCapture = () => {
+        if (videoRef.current && canvasRef.current) {
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d')?.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            setCapturedImage(dataUrl);
+        }
+    };
+
+    const handleUsePhoto = async () => {
+        if (capturedImage) {
+            const blob = await (await fetch(capturedImage)).blob();
+            const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+            processFiles([file]);
+            setIsCameraOpen(false);
+            setCapturedImage(null);
+        }
+    };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
         toast({variant: "destructive", title: "Authentication Error", description: "You must be logged in to post an ad."});
@@ -242,6 +312,50 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
       setIsLoading(false);
     }
   }
+
+  const CameraDialogContent = (
+    <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+            <DialogTitle>Capture Photo</DialogTitle>
+            <DialogDescription>
+                Position the subject in the frame and click capture.
+            </DialogDescription>
+        </DialogHeader>
+        <div className="relative">
+            {hasCameraPermission === false && (
+                <Alert variant="destructive">
+                    <AlertTitle>Camera Access Denied</AlertTitle>
+                    <AlertDescription>
+                        Please enable camera permissions in your browser settings to use this feature.
+                    </AlertDescription>
+                </Alert>
+            )}
+             {hasCameraPermission && capturedImage ? (
+                <div className="relative">
+                    <Image src={capturedImage} alt="Captured" width={600} height={450} className="rounded-md" />
+                </div>
+            ) : (
+                <video ref={videoRef} className="w-full aspect-[4/3] rounded-md bg-black" autoPlay muted playsInline />
+            )}
+             <canvas ref={canvasRef} className="hidden" />
+        </div>
+        <DialogFooter>
+            {capturedImage ? (
+                 <div className="flex w-full justify-between">
+                    <Button variant="outline" onClick={() => setCapturedImage(null)}>Retake</Button>
+                    <DialogClose asChild>
+                        <Button onClick={handleUsePhoto}>Use this Photo</Button>
+                    </DialogClose>
+                 </div>
+            ) : (
+                 <Button onClick={handleCapture} disabled={!hasCameraPermission} className="w-full">
+                    <Camera className="mr-2 h-4 w-4" />
+                    Capture
+                </Button>
+            )}
+        </DialogFooter>
+    </DialogContent>
+  );
 
   const AdForm = (
     <Form {...form}>
@@ -333,63 +447,76 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Ad Media</CardTitle><CardDescription>Upload up to 10 images for your ad. The first image will be the cover photo.</CardDescription></CardHeader>
-          <CardContent>
-             <div 
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={cn(
-                "relative border-2 border-dashed border-muted-foreground/50 rounded-lg p-6 text-center cursor-pointer transition-colors duration-200",
-                isDragging ? "border-primary bg-primary/10" : "hover:border-primary/50 hover:bg-primary/5"
-              )}
-            >
-              {isDragging && (
-                <div className="absolute inset-0 bg-primary/20 flex items-center justify-center z-10">
-                  <p className="text-primary font-bold text-lg">Drop images here</p>
-                </div>
-              )}
+            <CardHeader><CardTitle>Ad Media</CardTitle><CardDescription>Upload up to 10 images for your ad. The first image will be the cover photo.</CardDescription></CardHeader>
+            <CardContent>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div 
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                        onClick={() => fileInputRef.current?.click()}
+                        className={cn(
+                            "relative flex-1 border-2 border-dashed border-muted-foreground/50 rounded-lg p-6 text-center cursor-pointer transition-colors duration-200",
+                            isDragging ? "border-primary bg-primary/10" : "hover:border-primary/50 hover:bg-primary/5"
+                        )}
+                        >
+                        {isDragging && (
+                            <div className="absolute inset-0 bg-primary/20 flex items-center justify-center z-10">
+                            <p className="text-primary font-bold text-lg">Drop images here</p>
+                            </div>
+                        )}
 
-              <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground" />
-              <p className="mt-4 text-muted-foreground">
-                <span className="font-semibold text-primary">Click to upload</span> or drag and drop
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">PNG, JPG, or GIF (up to 10 files)</p>
-              
-              <FormField control={form.control} name="images" render={() => (
-                  <FormItem className="sr-only">
-                    <FormLabel>Ad Images</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="file" 
-                        accept="image/*" 
-                        multiple 
-                        ref={fileInputRef}
-                        onChange={handleImageChange} 
-                        className="hidden"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-              )} />
-            </div>
+                        <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <p className="mt-4 text-muted-foreground">
+                            <span className="font-semibold text-primary">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">PNG, JPG, or GIF (up to 10 files)</p>
+                        
+                        <FormField control={form.control} name="images" render={() => (
+                            <FormItem className="sr-only">
+                                <FormLabel>Ad Images</FormLabel>
+                                <FormControl>
+                                <Input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    multiple 
+                                    ref={fileInputRef}
+                                    onChange={handleImageChange} 
+                                    className="hidden"
+                                />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    </div>
 
-            {imagePreviews.length > 0 && (
-              <div className="mt-6">
-                <FormDescription className="mb-2">Click an image to select it as the main cover photo.</FormDescription>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
-                    {imagePreviews.map((src, i) => (
-                        <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}>
-                            <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />
-                            {selectedMainImageIndex === i && <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>}
-                        </div>
-                    ))}
+                    <Dialog open={isCameraOpen} onOpenChange={setIsCameraOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" type="button" className="flex-1 sm:flex-none sm:w-auto h-auto p-6 flex flex-col sm:flex-row items-center justify-center gap-2">
+                                <Camera className="h-12 w-12 sm:h-6 sm:w-6" />
+                                <span className="text-center sm:text-left">Use Camera</span>
+                            </Button>
+                        </DialogTrigger>
+                       {CameraDialogContent}
+                    </Dialog>
+
                 </div>
-              </div>
-            )}
-          </CardContent>
+
+                {imagePreviews.length > 0 && (
+                <div className="mt-6">
+                    <FormDescription className="mb-2">Click an image to select it as the main cover photo.</FormDescription>
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
+                        {imagePreviews.map((src, i) => (
+                            <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}>
+                                <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />
+                                {selectedMainImageIndex === i && <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                )}
+            </CardContent>
         </Card>
 
         <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90 text-lg py-6">
@@ -413,3 +540,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
