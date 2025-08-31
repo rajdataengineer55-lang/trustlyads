@@ -143,7 +143,7 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
                       <span className="truncate">{offer.category}</span>
                     </div>
                     <Link href={`/offer/${offer.id}`} passHref>
-                        <h3 className="text-lg font-bold text-foreground hover:text-primary transition-colors truncate h-14">
+                        <h3 className="text-lg font-bold text-foreground hover:text-primary transition-colors h-14 overflow-hidden">
                             {offer.title}
                         </h3>
                     </Link>
