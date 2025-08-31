@@ -287,7 +287,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
                     {imagePreviews.map((src, i) => (
                         <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}>
-                            <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />
+                            <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-contain aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />
                             {selectedMainImageIndex === i && <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>}
                         </div>
                     ))}
@@ -318,5 +318,3 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
-
-    

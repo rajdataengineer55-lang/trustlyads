@@ -341,7 +341,7 @@ export default function OfferDetailsPage() {
                             alt={offer.title}
                             width={800}
                             height={600}
-                            className="object-cover w-full h-auto aspect-[4/3] transition-all duration-300 ease-in-out hover:scale-105"
+                            className="object-contain w-full h-auto aspect-[4/3] transition-all duration-300 ease-in-out hover:scale-105"
                             priority
                         />
                          <Badge variant="default" className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-black text-white font-bold py-1 px-2 sm:py-2 sm:px-3 text-sm sm:text-base animate-blink">
@@ -376,7 +376,7 @@ export default function OfferDetailsPage() {
                                   alt={`thumbnail ${i + 1}`} 
                                   width={100}
                                   height={100}
-                                  className={cn("rounded-md object-cover w-full h-full transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                  className={cn("rounded-md object-contain w-full h-full transition-all", mainImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
                                   data-ai-hint="placeholder image"
                                 />
                               </div>
@@ -482,7 +482,7 @@ export default function OfferDetailsPage() {
                                 alt={similarOffer.title}
                                 width={600}
                                 height={400}
-                                className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                                className="object-contain w-full h-auto transition-transform duration-300 group-hover:scale-105"
                               />
                               <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                                   <h3 className="text-lg font-bold text-white truncate">{similarOffer.title}</h3>
@@ -523,5 +523,3 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
-
-    
