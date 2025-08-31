@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Megaphone, Star, Edit, UploadCloud, Phone, MessageCircle, Calendar, Camera, CircleDotDashed, X } from "lucide-react";
+import { Loader2, Megaphone, Star, Edit, UploadCloud, Phone, MessageCircle, Calendar, Camera, CircleDotDashed, X, Building2 } from "lucide-react";
 import Image from "next/image";
 import { locations } from "@/lib/locations";
 import { useOffers, type Offer } from "@/contexts/OffersContext";
@@ -44,6 +44,20 @@ const formSchema = z.object({
   chatLink: z.string().optional(),
   allowSchedule: z.boolean().default(false),
   scheduleLink: z.string().optional(),
+  // Real Estate Fields
+  propertyType: z.string().optional(),
+  bedrooms: z.coerce.number().optional(),
+  bathrooms: z.coerce.number().optional(),
+  furnishing: z.enum(['Furnished', 'Semi-Furnished', 'Unfurnished']).optional(),
+  listedBy: z.enum(['Owner', 'Agent', 'Builder']).optional(),
+  superBuiltupArea: z.coerce.number().optional(),
+  carpetArea: z.coerce.number().optional(),
+  maintenance: z.coerce.number().optional(),
+  floorNo: z.coerce.number().optional(),
+  totalFloors: z.coerce.number().optional(),
+  facing: z.enum(['North', 'South', 'East', 'West', 'North-East', 'North-West', 'South-East', 'South-West']).optional(),
+  carParking: z.coerce.number().optional(),
+  projectName: z.string().optional(),
 }).refine(data => !data.allowCall || (data.allowCall && data.phoneNumber), {
   message: "Phone number is required if calling is enabled.",
   path: ["phoneNumber"],
@@ -132,6 +146,20 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         chatLink: offerToEdit.chatLink,
         allowSchedule: offerToEdit.allowSchedule,
         scheduleLink: offerToEdit.scheduleLink,
+        // Real Estate Fields
+        propertyType: offerToEdit.propertyType,
+        bedrooms: offerToEdit.bedrooms,
+        bathrooms: offerToEdit.bathrooms,
+        furnishing: offerToEdit.furnishing,
+        listedBy: offerToEdit.listedBy,
+        superBuiltupArea: offerToEdit.superBuiltupArea,
+        carpetArea: offerToEdit.carpetArea,
+        maintenance: offerToEdit.maintenance,
+        floorNo: offerToEdit.floorNo,
+        totalFloors: offerToEdit.totalFloors,
+        facing: offerToEdit.facing,
+        carParking: offerToEdit.carParking,
+        projectName: offerToEdit.projectName,
       });
       
       const allImages = [offerToEdit.image, ...(offerToEdit.otherImages || [])].filter(Boolean) as string[];
@@ -299,6 +327,20 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         chatLink: values.chatLink,
         allowSchedule: values.allowSchedule,
         scheduleLink: values.scheduleLink,
+        // Real Estate Fields
+        propertyType: values.propertyType,
+        bedrooms: values.bedrooms,
+        bathrooms: values.bathrooms,
+        furnishing: values.furnishing,
+        listedBy: values.listedBy,
+        superBuiltupArea: values.superBuiltupArea,
+        carpetArea: values.carpetArea,
+        maintenance: values.maintenance,
+        floorNo: values.floorNo,
+        totalFloors: values.totalFloors,
+        facing: values.facing,
+        carParking: values.carParking,
+        projectName: values.projectName,
     };
 
     try {
@@ -368,6 +410,39 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </DialogContent>
   );
 
+  const RealEstateFields = () => (
+    <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Building2 /> Property Details</CardTitle>
+            <CardDescription>Provide specific details for this real estate listing.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <FormField control={form.control} name="propertyType" render={({ field }) => (<FormItem><FormLabel>Property Type</FormLabel><FormControl><Input placeholder="e.g., Independent / Builder Floors, Apartment" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField control={form.control} name="bedrooms" render={({ field }) => (<FormItem><FormLabel>Bedrooms</FormLabel><FormControl><Input type="number" placeholder="e.g., 2" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="bathrooms" render={({ field }) => (<FormItem><FormLabel>Bathrooms</FormLabel><FormControl><Input type="number" placeholder="e.g., 1" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField control={form.control} name="furnishing" render={({ field }) => (<FormItem><FormLabel>Furnishing</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select furnishing status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Furnished">Furnished</SelectItem><SelectItem value="Semi-Furnished">Semi-Furnished</SelectItem><SelectItem value="Unfurnished">Unfurnished</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="listedBy" render={({ field }) => (<FormItem><FormLabel>Listed By</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select lister type" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Owner">Owner</SelectItem><SelectItem value="Agent">Agent</SelectItem><SelectItem value="Builder">Builder</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField control={form.control} name="superBuiltupArea" render={({ field }) => (<FormItem><FormLabel>Super Built-up Area (sqft)</FormLabel><FormControl><Input type="number" placeholder="e.g., 1200" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="carpetArea" render={({ field }) => (<FormItem><FormLabel>Carpet Area (sqft)</FormLabel><FormControl><Input type="number" placeholder="e.g., 900" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            </div>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField control={form.control} name="floorNo" render={({ field }) => (<FormItem><FormLabel>Floor Number</FormLabel><FormControl><Input type="number" placeholder="e.g., 2" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="totalFloors" render={({ field }) => (<FormItem><FormLabel>Total Floors</FormLabel><FormControl><Input type="number" placeholder="e.g., 4" {...field} /></FormControl><FormMessage /></FormMessage /></FormItem>)} />
+            </div>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormField control={form.control} name="facing" render={({ field }) => (<FormItem><FormLabel>Facing</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select direction" /></SelectTrigger></FormControl><SelectContent><SelectItem value="North">North</SelectItem><SelectItem value="South">South</SelectItem><SelectItem value="East">East</SelectItem><SelectItem value="West">West</SelectItem><SelectItem value="North-East">North-East</SelectItem><SelectItem value="North-West">North-West</SelectItem><SelectItem value="South-East">South-East</SelectItem><SelectItem value="South-West">South-West</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="carParking" render={({ field }) => (<FormItem><FormLabel>Car Parking Spaces</FormLabel><FormControl><Input type="number" placeholder="e.g., 1" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            </div>
+            <FormField control={form.control} name="projectName" render={({ field }) => (<FormItem><FormLabel>Project Name</FormLabel><FormControl><Input placeholder="e.g., Green Valley Apartments" {...field} /></FormControl><FormMessage /></FormItem>)} />
+        </CardContent>
+    </Card>
+  )
+
   const AdForm = (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -402,6 +477,8 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             <FormField control={form.control} name="tags" render={({ field }) => (<FormItem><FormLabel>Tags</FormLabel><FormControl><Input placeholder="e.g., Today's Offer, Sale, New" {...field} /></FormControl><FormDescription>Separate tags with a comma.</FormDescription><FormMessage /></FormItem>)} />
           </CardContent>
         </Card>
+
+        {watchBusinessType === 'Real Estate & Property' && <RealEstateFields />}
         
         <Card>
           <CardHeader><CardTitle>Contact Actions</CardTitle><CardDescription>Enable contact methods for customers.</CardDescription></CardHeader>
@@ -554,7 +631,3 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
-
-    
-
-    

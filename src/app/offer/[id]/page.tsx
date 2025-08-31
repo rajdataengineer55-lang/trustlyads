@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { notFound, useParams, useRouter } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { useOffers, type Offer } from '@/contexts/OffersContext';
 import { Header } from '@/components/landing/header';
@@ -10,7 +10,7 @@ import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Navigation, ArrowRight, EyeOff, BarChart2, Eye, ChevronLeft, ChevronRight, Tag, Building, Info } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Navigation, ArrowRight, EyeOff, BarChart2, Eye, ChevronLeft, ChevronRight, Tag, Building, Info, BedDouble, Bath, Ruler, Building2, UserCircle, Car, Compass, Rows, Hash } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -227,37 +227,64 @@ export default function OfferDetailsPage() {
     );
   };
   
-  const DetailsTable = () => (
-    <Card className="mt-8">
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Info className="h-5 w-5" /> Ad Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <table className="w-full text-sm">
-                <tbody>
-                    <tr className="border-b">
-                        <td className="py-3 font-medium text-muted-foreground flex items-center gap-2"><Building className="h-4 w-4" /> Business</td>
-                        <td className="py-3 font-semibold text-right">{offer.business}</td>
-                    </tr>
-                    <tr className="border-b">
-                        <td className="py-3 font-medium text-muted-foreground flex items-center gap-2"><Tag className="h-4 w-4" /> Category</td>
-                        <td className="py-3 text-right">{offer.category}</td>
-                    </tr>
-                    <tr className="border-b">
-                        <td className="py-3 font-medium text-muted-foreground flex items-center gap-2"><CalendarIcon className="h-4 w-4" /> Posted On</td>
-                        <td className="py-3 text-right">{format(new Date(offer.createdAt), 'PPP')}</td>
-                    </tr>
-                    <tr>
-                        <td colSpan={2} className="pt-4 font-medium text-muted-foreground">Description</td>
-                    </tr>
-                     <tr>
-                        <td colSpan={2} className="pt-2 pb-3 whitespace-pre-wrap">{offer.description}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </CardContent>
-    </Card>
-);
+  const DetailsTable = () => {
+    const details = [
+        { icon: Building, label: "Business", value: offer.business },
+        { icon: Tag, label: "Category", value: offer.category },
+        { icon: Building2, label: "Project Name", value: offer.projectName },
+        { icon: Info, label: "Property Type", value: offer.propertyType },
+        { icon: BedDouble, label: "Bedrooms", value: offer.bedrooms },
+        { icon: Bath, label: "Bathrooms", value: offer.bathrooms },
+        { icon: Ruler, label: "Super Built-up Area", value: offer.superBuiltupArea ? `${offer.superBuiltupArea} sqft` : undefined },
+        { icon: Ruler, label: "Carpet Area", value: offer.carpetArea ? `${offer.carpetArea} sqft` : undefined },
+        { icon: Info, label: "Furnishing", value: offer.furnishing },
+        { icon: Compass, label: "Facing", value: offer.facing },
+        { icon: Rows, label: "Floor No.", value: offer.floorNo },
+        { icon: Rows, label: "Total Floors", value: offer.totalFloors },
+        { icon: Car, label: "Car Parking", value: offer.carParking !== undefined ? `${offer.carParking} spaces` : undefined },
+        { icon: UserCircle, label: "Listed By", value: offer.listedBy },
+        { icon: CalendarIcon, label: "Posted On", value: format(new Date(offer.createdAt), 'PPP') },
+    ];
+
+    const leftColumnDetails = details.slice(0, Math.ceil(details.length / 2));
+    const rightColumnDetails = details.slice(Math.ceil(details.length / 2));
+
+    return (
+        <Card className="mt-8">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Info className="h-5 w-5" /> Ad Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                    <div>
+                        {leftColumnDetails.map(item => item.value ? (
+                            <div key={item.label} className="flex justify-between py-2 border-b">
+                                <span className="font-medium text-muted-foreground flex items-center gap-2"><item.icon className="h-4 w-4" /> {item.label}</span>
+                                <span className="font-semibold text-right">{item.value}</span>
+                            </div>
+                        ) : null)}
+                    </div>
+                    <div>
+                        {rightColumnDetails.map(item => item.value ? (
+                            <div key={item.label} className="flex justify-between py-2 border-b">
+                                <span className="font-medium text-muted-foreground flex items-center gap-2"><item.icon className="h-4 w-4" /> {item.label}</span>
+                                <span className="font-semibold text-right">{item.value}</span>
+                            </div>
+                        ) : null)}
+                    </div>
+                </div>
+
+                {offer.description && (
+                    <div className="mt-6 pt-4 border-t">
+                        <h4 className="font-semibold mb-2">Description</h4>
+                        <p className="whitespace-pre-wrap text-muted-foreground">{offer.description}</p>
+                    </div>
+                )}
+
+            </CardContent>
+        </Card>
+    );
+};
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -417,5 +444,3 @@ export default function OfferDetailsPage() {
     </div>
   );
 }
-
-    

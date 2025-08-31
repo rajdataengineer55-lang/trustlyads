@@ -16,14 +16,6 @@ import {
 import { getActiveStories } from '@/lib/stories';
 import { useAuth } from './AuthContext';
 
-export interface Review {
-  id: string;
-  author: string;
-  rating: number;
-  comment: string;
-  createdAt: Date;
-}
-
 export interface Offer {
   id:string;
   title: string;
@@ -49,7 +41,21 @@ export interface Offer {
   views?: number;
   clicks?: number;
   storyViews?: number;
-  postedBy?: string; // New field for business ID
+  postedBy?: string; 
+  // Real Estate Fields
+  propertyType?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  furnishing?: 'Furnished' | 'Semi-Furnished' | 'Unfurnished';
+  listedBy?: 'Owner' | 'Agent' | 'Builder';
+  superBuiltupArea?: number;
+  carpetArea?: number;
+  maintenance?: number;
+  floorNo?: number;
+  totalFloors?: number;
+  facing?: 'North' | 'South' | 'East' | 'West' | 'North-East' | 'North-West' | 'South-East' | 'South-West';
+  carParking?: number;
+  projectName?: string;
 }
 
 interface OffersContextType {

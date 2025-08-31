@@ -44,6 +44,20 @@ export interface OfferData {
   chatLink?: string;
   allowSchedule?: boolean;
   scheduleLink?: string;
+  // Real Estate Fields
+  propertyType?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  furnishing?: 'Furnished' | 'Semi-Furnished' | 'Unfurnished';
+  listedBy?: 'Owner' | 'Agent' | 'Builder';
+  superBuiltupArea?: number;
+  carpetArea?: number;
+  maintenance?: number;
+  floorNo?: number;
+  totalFloors?: number;
+  facing?: 'North' | 'South' | 'East' | 'West' | 'North-East' | 'North-West' | 'South-East' | 'South-West';
+  carParking?: number;
+  projectName?: string;
 }
 
 const offersCollection = collection(db, 'offers');
@@ -96,10 +110,8 @@ const cleanDataForFirestore = (data: any) => {
     const cleanedData: { [key: string]: any } = {};
     Object.keys(data).forEach(key => {
         const value = (data as any)[key];
-        if (value !== undefined) {
+        if (value !== undefined && value !== '' && value !== null) {
             cleanedData[key] = value;
-        } else {
-            cleanedData[key] = null; // Convert undefined to null for Firestore
         }
     });
     return cleanedData;
