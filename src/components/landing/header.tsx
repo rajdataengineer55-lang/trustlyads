@@ -4,14 +4,13 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { MapPin, ChevronDown, Menu, LogOut, Send, MessageCircle, Bell, Megaphone, Search } from "lucide-react"
+import { MapPin, ChevronDown, Menu, LogOut, Send, MessageCircle, Bell, Megaphone, User as UserIcon } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '../theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Input } from '../ui/input';
 
 interface HeaderProps {
   selectedLocation?: string | null;
@@ -28,12 +27,19 @@ const Logo = () => (
 
 export function Header({ selectedLocation, setSelectedLocation = () => {} }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAdmin, signInWithGoogle, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
 
 
   const UserActions = () => {
     if (!user) {
-        return <Button onClick={() => {signInWithGoogle(); setIsMobileMenuOpen(false);}} className="w-full">Sign In with Google</Button>
+        return (
+            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button className="w-full">
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Sign In
+                </Button>
+            </Link>
+        )
     }
 
     return (
@@ -41,11 +47,11 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
              <div className="flex items-center gap-3 p-2 rounded-md bg-muted">
                 <Avatar className='h-9 w-9'>
                     <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'}/>
-                    <AvatarFallback>{user.displayName?.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{user.displayName?.charAt(0).toUpperCase() ?? user.email?.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col">
-                    <span className="font-semibold text-sm">{user.displayName}</span>
-                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                <div className="flex flex-col truncate">
+                    <span className="font-semibold text-sm truncate">{user.displayName ?? "User"}</span>
+                    <span className="text-xs text-muted-foreground truncate">{user.email ?? user.phoneNumber}</span>
                 </div>
             </div>
             {isAdmin && (

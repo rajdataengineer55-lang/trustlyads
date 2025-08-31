@@ -11,9 +11,11 @@ import { ManageStories } from "@/components/manage-stories";
 import { useAuth } from "@/contexts/AuthContext";
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function AdminPage() {
-    const { isAdmin, loading } = useAuth();
+    const { isAdmin, loading, user } = useAuth();
 
     if (loading) {
         return (
@@ -34,8 +36,20 @@ export default function AdminPage() {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
-                <main className="flex-1 bg-background/50 flex items-center justify-center">
-                    <AdminLoginForm />
+                <main className="flex-1 bg-background/50 flex items-center justify-center p-4">
+                   <div className="text-center max-w-md">
+                     <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+                     <p className="text-muted-foreground mb-6">You do not have permission to view this page. This area is for administrators only.</p>
+                     {user ? (
+                        <Link href="/">
+                            <Button>Go to Homepage</Button>
+                        </Link>
+                     ) : (
+                        <Link href="/login">
+                           <Button>Sign In</Button>
+                        </Link>
+                     )}
+                   </div>
                 </main>
                 <Footer />
             </div>

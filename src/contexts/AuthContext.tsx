@@ -11,7 +11,10 @@ import {
   signInWithRedirect,
   getRedirectResult,
   setPersistence,
-  browserLocalPersistence
+  browserLocalPersistence,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  ConfirmationResult
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -23,10 +26,16 @@ interface AuthContextType {
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  sendVerificationCode: (phoneNumber: string) => Promise<void>;
+  confirmVerificationCode: (code: string) => Promise<void>;
   signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Store the confirmation result in a global variable.
+// This is not ideal for server-side rendering, but works for this client-side context.
+let confirmationResult: ConfirmationResult | null = null;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -87,6 +96,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithRedirect(auth, provider);
   }, []);
 
+  const sendVerificationCode = useCallback(async (phoneNumber: string) => {
+    try {
+        const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response: any) => {
+                // reCAPTCHA solved, allow signInWithPhoneNumber.
+            }
+        });
+        confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+    } catch (error: any) {
+        console.error("Error sending verification code", error);
+        // This makes sure we show a user-friendly error.
+        if (error.code === 'auth/invalid-phone-number') {
+            throw new Error('The phone number is not valid.');
+        }
+        throw new Error('Could not send verification code. Please try again later.');
+    }
+  }, []);
+
+  const confirmVerificationCode = useCallback(async (code: string) => {
+    if (!confirmationResult) {
+        throw new Error("No verification process in progress. Please send a code first.");
+    }
+    await confirmationResult.confirm(code);
+    // User is now signed in. The onIdTokenChanged listener will update the user state.
+    confirmationResult = null; // Clear result after use
+  }, []);
+
 
   const signOut = useCallback(async () => {
     try {
@@ -99,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [toast]);
 
-  const value = { user, isAdmin, loading, signInWithEmail, signInWithGoogle, signOut };
+  const value = { user, isAdmin, loading, signInWithEmail, signInWithGoogle, sendVerificationCode, confirmVerificationCode, signOut };
 
   return (
     <AuthContext.Provider value={value}>
