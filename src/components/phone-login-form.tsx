@@ -21,12 +21,14 @@ const codeSchema = z.object({
 });
 
 interface PhoneLoginFormProps {
-  onLoginSuccess?: () => void;
+  isCodeSent: boolean;
+  onCodeSent: () => void;
+  onLoginSuccess: () => void;
+  onChangeNumber: () => void;
 }
 
-export function PhoneLoginForm({ onLoginSuccess }: PhoneLoginFormProps) {
+export function PhoneLoginForm({ isCodeSent, onCodeSent, onLoginSuccess, onChangeNumber }: PhoneLoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isCodeSent, setIsCodeSent] = useState(false);
   const { sendVerificationCode, confirmVerificationCode } = useAuth();
   const { toast } = useToast();
 
@@ -45,8 +47,8 @@ export function PhoneLoginForm({ onLoginSuccess }: PhoneLoginFormProps) {
     setIsLoading(true);
     try {
       await sendVerificationCode(values.phone);
-      setIsCodeSent(true);
       toast({ title: "Code Sent", description: `A verification code has been sent to ${values.phone}.` });
+      onCodeSent();
     } catch (error: any) {
       console.error("Phone sign-in error:", error);
       toast({
@@ -64,9 +66,7 @@ export function PhoneLoginForm({ onLoginSuccess }: PhoneLoginFormProps) {
     try {
       await confirmVerificationCode(values.code);
       toast({ title: "Signed In Successfully!", description: "Welcome to the platform." });
-      if (onLoginSuccess) {
-        onLoginSuccess();
-      }
+      onLoginSuccess();
     } catch (error: any) {
         console.error("Code confirmation error:", error);
         toast({
@@ -132,7 +132,7 @@ export function PhoneLoginForm({ onLoginSuccess }: PhoneLoginFormProps) {
               )}
               Verify & Sign In
             </Button>
-            <Button variant="link" size="sm" className="w-full" onClick={() => setIsCodeSent(false)}>
+            <Button variant="link" size="sm" className="w-full" onClick={onChangeNumber}>
                 Use a different phone number
             </Button>
           </form>

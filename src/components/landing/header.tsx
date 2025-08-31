@@ -29,13 +29,14 @@ const Logo = () => (
 export function Header({ selectedLocation, setSelectedLocation = () => {} }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPhoneLoginOpen, setIsPhoneLoginOpen] = useState(false);
+  const [isVerificationCodeSent, setIsVerificationCodeSent] = useState(false);
   const { user, isAdmin, signOut, signInWithGoogle } = useAuth();
 
 
   const UserMenu = () => {
      if (!user) {
       return (
-        <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
+        <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
@@ -48,24 +49,16 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                   <UserIcon className="mr-2 h-4 w-4" />
                   Sign In with Google
                 </DropdownMenuItem>
-                 <DialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                 <DropdownMenuItem onSelect={() => {
+                    setIsVerificationCodeSent(false);
+                    setIsPhoneLoginOpen(true);
+                  }}>
                      <Phone className="mr-2 h-4 w-4" />
                      Sign In with Phone
                   </DropdownMenuItem>
-                 </DialogTrigger>
             </DropdownMenuContent>
           </DropdownMenu>
-          <DialogContent>
-              <DialogHeader>
-                  <DialogTitle>Sign In with Phone</DialogTitle>
-                  <DialogDescription>
-                      Enter your phone number to receive a verification code.
-                  </DialogDescription>
-              </DialogHeader>
-              <PhoneLoginForm onLoginSuccess={() => setIsPhoneLoginOpen(false)} />
-          </DialogContent>
-        </Dialog>
+        </>
       )
      }
      
@@ -109,12 +102,14 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                     <UserIcon className="mr-2 h-4 w-4" />
                     Sign In with Google
                 </Button>
-                 <DialogTrigger asChild>
-                    <Button variant="secondary" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Phone className="mr-2 h-4 w-4" />
-                        Sign In with Phone
-                    </Button>
-                 </DialogTrigger>
+                 <Button variant="secondary" className="w-full" onClick={() => {
+                    setIsVerificationCodeSent(false);
+                    setIsPhoneLoginOpen(true);
+                    setIsMobileMenuOpen(false);
+                 }}>
+                    <Phone className="mr-2 h-4 w-4" />
+                    Sign In with Phone
+                </Button>
             </div>
         )
     }
@@ -234,10 +229,23 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
             <DialogHeader>
                 <DialogTitle>Sign In with Phone</DialogTitle>
                 <DialogDescription>
-                    Enter your phone number to receive a verification code.
+                    {isVerificationCodeSent 
+                        ? 'Enter the 6-digit code sent to your phone.'
+                        : 'Enter your phone number to receive a verification code.'
+                    }
                 </DialogDescription>
             </DialogHeader>
-            <PhoneLoginForm onLoginSuccess={() => setIsPhoneLoginOpen(false)} />
+            <div key={isVerificationCodeSent ? 'code-form' : 'phone-form'}>
+              <PhoneLoginForm
+                isCodeSent={isVerificationCodeSent}
+                onCodeSent={() => setIsVerificationCodeSent(true)}
+                onLoginSuccess={() => {
+                  setIsPhoneLoginOpen(false);
+                  setIsVerificationCodeSent(false);
+                }}
+                onChangeNumber={() => setIsVerificationCodeSent(false)}
+              />
+            </div>
         </DialogContent>
       </Dialog>
     </header>
