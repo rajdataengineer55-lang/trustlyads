@@ -282,61 +282,61 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
         </div>
 
         <div className="flex flex-1 justify-end items-center gap-2">
-            <div className="flex-1 hidden md:flex justify-end">
-                {isMobile === false ? <DesktopLocationDropdown /> : <MobileLocationSelector />}
-            </div>
-            
-            <div className='hidden md:flex items-center gap-2'>
-              {user && !isAdmin && (
-                  <Button size="sm" variant={following ? "secondary" : "outline"} onClick={handleFollowToggle}>
-                      <Heart className={`mr-2 h-4 w-4 ${following ? 'fill-red-500 text-red-500' : ''}`} />
-                      {following ? "Following" : "Follow Us"}
-                  </Button>
-              )}
-              <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
-                <Button size="sm">Post Your Business</Button>
-              </a>
-              <UserMenu />
-            </div>
+          {isMobile ? <MobileLocationSelector /> : <DesktopLocationDropdown />}
+          
+          <div className='hidden md:flex items-center gap-2'>
+            {user && !isAdmin && (
+                <Button size="sm" variant={following ? "secondary" : "outline"} onClick={handleFollowToggle}>
+                    <Heart className={`mr-2 h-4 w-4 ${following ? 'fill-red-500 text-red-500' : ''}`} />
+                    {following ? "Following" : "Follow Us"}
+                </Button>
+            )}
+            <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
+              <Button size="sm">Post Your Business</Button>
+            </a>
+            <UserMenu />
+          </div>
 
-            <div className='flex md:hidden items-center gap-2'>
-                <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                    <SheetTrigger asChild>
-                    <Button variant="outline" size="icon" className='md:hidden'>
-                        <Menu className="h-6 w-6" />
-                        <span className="sr-only">Open menu</span>
-                    </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className='w-full max-w-[300px]'>
-                    <SheetHeader>
-                        <SheetTitle>
-                        <div onClick={() => setIsMobileMenuOpen(false)}>
-                            <Logo />
-                        </div>
-                        </SheetTitle>
-                    </SheetHeader>
-                    <nav className="flex flex-col gap-4 py-6">
-                        <MobileUserMenu />
-                        <div className='mt-4'>
-                          {user && !isAdmin && (
-                            <Button className="w-full" variant={following ? "secondary" : "outline"} onClick={handleFollowToggle}>
-                                <Heart className={`mr-2 h-4 w-4 ${following ? 'fill-red-500 text-red-500' : ''}`} />
-                                {following ? "Following" : "Follow Us"}
-                            </Button>
-                          )}
-                          <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
-                              <Button className="w-full mt-2" >Post Your Business</Button>
-                          </a>
-                        </div>
-                        <div className="absolute bottom-4 right-4">
-                            <ThemeToggle />
-                        </div>
-                    </nav>
-                    </SheetContent>
-                </Sheet>
-            </div>
+          <div className='flex md:hidden items-center gap-2'>
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className='md:hidden'>
+                      <Menu className="h-6 w-6" />
+                      <span className="sr-only">Open menu</span>
+                  </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className='w-full max-w-[300px]'>
+                  <SheetHeader>
+                      <SheetTitle>
+                      <div onClick={() => setIsMobileMenuOpen(false)}>
+                          <Logo />
+                      </div>
+                      </SheetTitle>
+                  </SheetHeader>
+                  <nav className="flex flex-col gap-4 py-6">
+                      <MobileUserMenu />
+                      <div className='mt-4'>
+                        {user && !isAdmin && (
+                          <Button className="w-full" variant={following ? "secondary" : "outline"} onClick={handleFollowToggle}>
+                              <Heart className={`mr-2 h-4 w-4 ${following ? 'fill-red-500 text-red-500' : ''}`} />
+                              {following ? "Following" : "Follow Us"}
+                          </Button>
+                        )}
+                        <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Button className="w-full mt-2" >Post Your Business</Button>
+                        </a>
+                      </div>
+                      <div className="absolute bottom-4 right-4">
+                          <ThemeToggle />
+                      </div>
+                  </nav>
+                  </SheetContent>
+              </Sheet>
+          </div>
         </div>
       </div>
     </header>
   )
 }
+
+    
