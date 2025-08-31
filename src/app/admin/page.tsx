@@ -45,9 +45,7 @@ export default function AdminPage() {
                             <Button>Go to Homepage</Button>
                         </Link>
                      ) : (
-                        <Link href="/login">
-                           <Button>Sign In</Button>
-                        </Link>
+                        <p className="text-muted-foreground">Please sign in via the header to continue.</p>
                      )}
                    </div>
                 </main>

@@ -20,8 +20,11 @@ const codeSchema = z.object({
     code: z.string().min(6, { message: "Verification code must be 6 digits." }),
 });
 
+interface PhoneLoginFormProps {
+  onLoginSuccess?: () => void;
+}
 
-export function PhoneLoginForm() {
+export function PhoneLoginForm({ onLoginSuccess }: PhoneLoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isCodeSent, setIsCodeSent] = useState(false);
   const { sendVerificationCode, confirmVerificationCode } = useAuth();
@@ -61,7 +64,9 @@ export function PhoneLoginForm() {
     try {
       await confirmVerificationCode(values.code);
       toast({ title: "Signed In Successfully!", description: "Welcome to the platform." });
-      // The AuthContext will handle redirecting the user upon successful login.
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
     } catch (error: any) {
         console.error("Code confirmation error:", error);
         toast({

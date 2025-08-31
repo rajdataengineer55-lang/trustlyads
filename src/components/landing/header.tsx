@@ -4,13 +4,15 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { MapPin, ChevronDown, Menu, LogOut, Send, MessageCircle, Bell, Megaphone, User as UserIcon } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { MapPin, ChevronDown, Menu, LogOut, Send, MessageCircle, Bell, Megaphone, User as UserIcon, Phone, UserPlus } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '../theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { PhoneLoginForm } from '../phone-login-form';
 
 interface HeaderProps {
   selectedLocation?: string | null;
@@ -27,18 +29,23 @@ const Logo = () => (
 
 export function Header({ selectedLocation, setSelectedLocation = () => {} }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAdmin, signOut } = useAuth();
+  const [isPhoneLoginOpen, setIsPhoneLoginOpen] = useState(false);
+  const { user, isAdmin, signOut, signInWithGoogle } = useAuth();
 
 
   const UserActions = () => {
     if (!user) {
         return (
-            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button className="w-full">
+            <div className="flex flex-col sm:flex-row gap-2">
+                 <Button onClick={() => signInWithGoogle()} className="w-full">
                     <UserIcon className="mr-2 h-4 w-4" />
-                    Sign In
+                    Sign In with Google
                 </Button>
-            </Link>
+                 <Button variant="secondary" onClick={() => { setIsPhoneLoginOpen(true); setIsMobileMenuOpen(false); }}>
+                    <Phone className="mr-2 h-4 w-4" />
+                    Sign In with Phone
+                </Button>
+            </div>
         )
     }
 
@@ -106,54 +113,98 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
         <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
           <Button>Post Your Business</Button>
         </a>
+        {!user && (
+           <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Sign In
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => signInWithGoogle()}>
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      Sign In with Google
+                    </DropdownMenuItem>
+                     <DialogTrigger asChild>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                         <Phone className="mr-2 h-4 w-4" />
+                         Sign In with Phone
+                      </DropdownMenuItem>
+                     </DialogTrigger>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Sign In with Phone</DialogTitle>
+                    <DialogDescription>
+                        Enter your phone number to receive a verification code.
+                    </DialogDescription>
+                </DialogHeader>
+                <PhoneLoginForm onLoginSuccess={() => setIsPhoneLoginOpen(false)} />
+            </DialogContent>
+           </Dialog>
+        )}
     </div>
   )
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between gap-4">
-        
-        <div className="flex items-center gap-4">
-          <Logo />
-          <div className="hidden md:flex">
-             <LocationDropdown />
+      <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
+        <div className="container flex h-16 items-center justify-between gap-4">
+          
+          <div className="flex items-center gap-4">
+            <Logo />
+            <div className="hidden md:flex">
+               <LocationDropdown />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+             <MainNav />
+              
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className='md:hidden'>
+                      <Menu className="h-6 w-6" />
+                      <span className="sr-only">Open menu</span>
+                  </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className='w-full max-w-[300px]'>
+                  <SheetHeader>
+                      <SheetTitle>
+                      <div onClick={() => setIsMobileMenuOpen(false)}>
+                          <Logo />
+                      </div>
+                      </SheetTitle>
+                  </SheetHeader>
+                  <nav className="flex flex-col gap-4 py-6">
+                      <div className='md:hidden'><LocationDropdown /></div>
+                      <UserActions />
+                      <div className='mt-4'>
+                        <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Button className="w-full mt-2" >Post Your Business</Button>
+                        </a>
+                      </div>
+                      <div className="absolute bottom-4 right-4">
+                          <ThemeToggle />
+                      </div>
+                  </nav>
+                  </SheetContent>
+              </Sheet>
           </div>
         </div>
-
-        <div className="flex items-center gap-2">
-           <MainNav />
-            
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className='md:hidden'>
-                    <Menu className="h-6 w-6" />
-                    <span className="sr-only">Open menu</span>
-                </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className='w-full max-w-[300px]'>
-                <SheetHeader>
-                    <SheetTitle>
-                    <div onClick={() => setIsMobileMenuOpen(false)}>
-                        <Logo />
-                    </div>
-                    </SheetTitle>
-                </SheetHeader>
-                <nav className="flex flex-col gap-4 py-6">
-                    <div className='md:hidden'><LocationDropdown /></div>
-                    <UserActions />
-                    <div className='mt-4'>
-                      <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
-                          <Button className="w-full mt-2" >Post Your Business</Button>
-                      </a>
-                    </div>
-                    <div className="absolute bottom-4 right-4">
-                        <ThemeToggle />
-                    </div>
-                </nav>
-                </SheetContent>
-            </Sheet>
-        </div>
-      </div>
+         <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Sign In with Phone</DialogTitle>
+                <DialogDescription>
+                    Enter your phone number to receive a verification code.
+                </DialogDescription>
+            </DialogHeader>
+            <PhoneLoginForm onLoginSuccess={() => setIsPhoneLoginOpen(false)} />
+        </DialogContent>
+      </Dialog>
     </header>
   )
 }
