@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { locations } from "@/lib/locations";
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { categories } from "@/lib/categories";
 
 interface FeaturedOffersProps {
@@ -106,60 +106,70 @@ export function FeaturedOffers({ selectedCategory, selectedLocation, searchTerm,
   }
 
   return (
-    <>
     <section id="featured-offers" className="w-full py-10 sm:py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Featured Offers
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {filteredAndSortedOffers.map((offer) => {
             const imageUrl = offer.image || 'https://placehold.co/600x400.png';
-            const offerDate = new Date(offer.createdAt);
-            const isRecent = (new Date().getTime() - offerDate.getTime()) < (7 * 24 * 60 * 60 * 1000); // 7 days
-            const formattedDate = isRecent 
-              ? formatDistanceToNow(offerDate, { addSuffix: true })
-              : format(offerDate, 'MMM d');
-
-
             return (
-              <Link key={offer.id} href={`/offer/${offer.id}`} passHref>
-                <Card className={cn(
-                    "overflow-hidden group transition-all duration-200 ease-in-out hover:shadow-md w-full flex flex-col h-full border", 
-                    offer.isHidden && "opacity-60"
-                  )}>
-                  <CardContent className="p-0 flex flex-col flex-grow">
-                      <div className="relative aspect-[4/3] w-full bg-muted/30">
-                        <Image
-                          src={imageUrl}
-                          alt={offer.title}
-                          fill
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                        />
-                        {offer.isHidden && (
-                            <Badge variant="destructive" className="absolute top-2 right-2 font-bold">
-                              <EyeOff className="mr-2 h-4 w-4" /> Hidden
-                            </Badge>
-                        )}
-                         <Badge variant="default" className="absolute top-2 left-2 bg-black/60 text-white backdrop-blur-sm">
-                            {offer.discount}
+            <Card key={offer.id} className={cn("overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 w-full flex flex-col", offer.isHidden && "opacity-60")}>
+              <CardContent className="p-0 flex flex-col flex-grow">
+                <Link href={`/offer/${offer.id}`} passHref className="block">
+                  <div className="relative aspect-[4/3] bg-black">
+                    <Image
+                      src={imageUrl}
+                      alt={offer.title}
+                      fill
+                      className="object-contain transition-transform duration-300 group-hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                    />
+                    {offer.isHidden && (
+                        <Badge variant="destructive" className="absolute top-2 right-2 font-bold">
+                          <EyeOff className="mr-2 h-4 w-4" /> Hidden
                         </Badge>
-                      </div>
-                    <div className="p-3 bg-card flex flex-col flex-grow">
-                      <div className="space-y-1 flex-grow">
-                        <p className="font-bold text-lg text-foreground">₹ {offer.price}</p>
-                        <p className="text-base text-muted-foreground">{offer.title}</p>
-                      </div>
-                      <div className="mt-4 flex justify-between items-center text-xs text-muted-foreground">
-                        <p className="uppercase truncate pr-2">{offer.location}</p>
-                        <p className="uppercase flex-shrink-0">{formattedDate}</p>
-                      </div>
+                    )}
+                     <Badge variant="default" className="absolute top-2 left-2 animate-blink">
+                        {offer.discount}
+                    </Badge>
+                  </div>
+                </Link>
+                <div className="p-4 bg-card flex flex-col flex-grow">
+                  <div className="space-y-2 flex-grow">
+                    <div className="flex items-start text-sm text-muted-foreground">
+                      {getCategoryIcon(offer.category)}
+                      <span className="truncate">{offer.category}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                    <Link href={`/offer/${offer.id}`} passHref>
+                        <h3 className="text-lg font-bold text-foreground hover:text-primary transition-colors truncate h-14">
+                            {offer.title}
+                        </h3>
+                    </Link>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4 mr-2 shrink-0" />
+                        <span className="truncate">{offer.location}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                        <Calendar className="h-4 w-4 mr-2 shrink-0" />
+                        <span className="truncate">{formatDistanceToNow(new Date(offer.createdAt), { addSuffix: true })}</span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <Link href={`/offer/${offer.id}`} passHref>
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                          View Details
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           )})}
         </div>
       </div>
     </section>
-    </>
   );
 }
