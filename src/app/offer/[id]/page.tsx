@@ -190,7 +190,7 @@ export default function OfferDetailsPage() {
         comment: data.comment,
     };
     
-    await addReview(offer.id, newReview); // This now re-fetches reviews internally
+    await addReview(offer.id, newReview); // This now re-fetches reviews internally in the context
 
     toast({
         title: "Review Submitted!",
