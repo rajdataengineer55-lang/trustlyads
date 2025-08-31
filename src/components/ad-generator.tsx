@@ -28,6 +28,7 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 const formSchema = z.object({
   business: z.string().min(2, { message: "Business name must be at least 2 characters." }),
   businessType: z.string({ required_error: "Please select a business type." }),
+  otherBusinessType: z.string().optional(),
   location: z.string({ required_error: "Please select a location." }),
   nearbyLocation: z.string().optional(),
   locationLink: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
@@ -52,6 +53,9 @@ const formSchema = z.object({
 }).refine(data => !data.allowSchedule || (data.allowSchedule && data.scheduleLink), {
     message: "Schedule link is required if scheduling is enabled.",
     path: ["scheduleLink"],
+}).refine(data => data.businessType !== 'Other' || (data.businessType === 'Other' && data.otherBusinessType && data.otherBusinessType.length > 2), {
+    message: "Please specify the business type (must be more than 2 characters).",
+    path: ["otherBusinessType"],
 });
 
 const businessTypes = {
@@ -65,6 +69,7 @@ const businessTypes = {
   "Gold & Jewellery": ["Gold & Jewellery"],
   "Agriculture & Farming": ["Agriculture & Farming"],
   "Textile & Garments": ["Textile & Garments"],
+  "Other": ["Other"],
 };
 
 interface AdGeneratorProps {
@@ -100,15 +105,19 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     defaultValues: { business: "", offerTitle: "", offerCompleteDetails: "", discount: "", tags: "", nearbyLocation: "", locationLink: "", allowCall: false, phoneNumber: "", allowChat: false, chatLink: "", allowSchedule: false, scheduleLink: "" },
   });
 
+  const watchBusinessType = form.watch("businessType");
   const watchAllowCall = form.watch("allowCall");
   const watchAllowChat = form.watch("allowChat");
   const watchAllowSchedule = form.watch("allowSchedule");
 
   useEffect(() => {
     if (isEditMode && offerToEdit) {
+      const isOtherCategory = !Object.values(businessTypes).flat().includes(offerToEdit.category);
+
       form.reset({
         business: offerToEdit.business,
-        businessType: offerToEdit.category,
+        businessType: isOtherCategory ? 'Other' : offerToEdit.category,
+        otherBusinessType: isOtherCategory ? offerToEdit.category : '',
         location: offerToEdit.location,
         nearbyLocation: offerToEdit.nearbyLocation,
         locationLink: offerToEdit.locationLink,
@@ -276,8 +285,10 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     const mainImage = finalImageUrls[selectedMainImageIndex] || finalImageUrls[0];
     const otherImages = finalImageUrls.filter((_, index) => index !== selectedMainImageIndex);
 
+    const category = values.businessType === 'Other' ? values.otherBusinessType! : values.businessType;
+
     const offerData: OfferData = {
-        title: values.offerTitle, description: values.offerCompleteDetails, business: values.business, category: values.businessType, location: values.location,
+        title: values.offerTitle, description: values.offerCompleteDetails, business: values.business, category: category, location: values.location,
         nearbyLocation: values.nearbyLocation, locationLink: values.locationLink, image: mainImage, otherImages: otherImages || [],
         discount: values.discount, price: values.price, tags: values.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
         isHidden: isEditMode && offerToEdit ? offerToEdit.isHidden : false,
@@ -365,6 +376,9 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
           <CardContent className="space-y-4">
             <FormField control={form.control} name="business" render={({ field }) => (<FormItem><FormLabel>Business Name</FormLabel><FormControl><Input placeholder="e.g., The Cozy Cafe" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="businessType" render={({ field }) => (<FormItem><FormLabel>Business Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a business type" /></SelectTrigger></FormControl><SelectContent>{Object.entries(businessTypes).map(([group, types]) => (<SelectGroup key={group}><SelectLabel>{group}</SelectLabel>{types.map(type => (<SelectItem key={type} value={type}>{type}</SelectItem>))}</SelectGroup>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+            {watchBusinessType === 'Other' && (
+                <FormField control={form.control} name="otherBusinessType" render={({ field }) => (<FormItem><FormLabel>Please Specify Business Type</FormLabel><FormControl><Input placeholder="e.g., Pet Grooming" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -540,5 +554,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
 
     
