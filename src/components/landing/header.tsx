@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { MapPin, ChevronDown, Menu, LogOut, Send, MessageCircle, Bell, Megaphone, User as UserIcon, Phone, UserPlus } from "lucide-react"
 import Link from "next/link"
@@ -21,11 +21,10 @@ interface HeaderProps {
 
 const Logo = () => (
     <Link href="/" className="flex items-center space-x-2">
-        <Megaphone className="h-7 w-7 text-primary" />
-        <span className="text-xl font-bold">trustlyads.in</span>
+        <Megaphone className="h-6 w-6 text-primary" />
+        <span className="text-lg font-bold">trustlyads.in</span>
     </Link>
 );
-
 
 export function Header({ selectedLocation, setSelectedLocation = () => {} }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -39,7 +38,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
         <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" size="sm">
                   <UserPlus className="mr-2 h-4 w-4" />
                   Sign In
               </Button>
@@ -106,7 +105,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
     if (!user) {
         return (
             <div className="flex flex-col gap-2">
-                 <Button onClick={() => signInWithGoogle()} className="w-full">
+                 <Button onClick={() => { signInWithGoogle(); setIsMobileMenuOpen(false); }} className="w-full">
                     <UserIcon className="mr-2 h-4 w-4" />
                     Sign In with Google
                 </Button>
@@ -147,7 +146,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
   const LocationDropdown = () => (
      <DropdownMenu>
         <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-1 text-sm">
+            <Button variant="ghost" size="sm" className="flex items-center gap-1 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <span className="font-semibold truncate pr-1">{selectedLocation || 'All Locations'}</span>
               <ChevronDown className="h-4 w-4" />
@@ -159,7 +158,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
           {locations.map((location) => (
             location.subLocations ? (
               <DropdownMenuSub key={location.name}>
-                <DropdownMenuSubTrigger onSelect={() => setSelectedLocation(location.name)}>{location.name}</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger onSelect={(e) => { e.preventDefault(); setSelectedLocation(location.name)}}>{location.name}</DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
                      <DropdownMenuItem key={location.name} onSelect={() => setSelectedLocation(location.name)}>All of {location.name}</DropdownMenuItem>
@@ -183,15 +182,17 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
       <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
         <div className="container flex h-16 items-center justify-between gap-4">
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Logo />
+             <div className='hidden md:flex'>
+                <LocationDropdown />
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
              <div className='hidden md:flex items-center gap-2'>
-                <LocationDropdown />
                 <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
-                  <Button>Post Your Business</Button>
+                  <Button size="sm">Post Your Business</Button>
                 </a>
                 <UserMenu />
              </div>
