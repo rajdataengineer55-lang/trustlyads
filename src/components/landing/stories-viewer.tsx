@@ -174,11 +174,11 @@ export function StoriesViewer() {
                 <X className="h-6 w-6" />
               </Button>
 
-              <div className="flex-1 relative w-full h-full bg-black flex items-center justify-center overflow-hidden">
+              <div className="flex-1 relative w-full h-full bg-black flex items-center justify-center overflow-hidden sm:rounded-lg">
                 {currentStory.mediaType === 'video' ? (
                   <video
                     src={currentStory.mediaUrl}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover"
                     autoPlay
                     onEnded={goToNextStory}
                     playsInline
@@ -188,7 +188,7 @@ export function StoriesViewer() {
                     src={currentStory.mediaUrl || 'https://placehold.co/1080x1920.png'}
                     alt="Story Content"
                     fill
-                    className="object-contain"
+                    className="object-cover"
                     priority
                   />
                 )}
