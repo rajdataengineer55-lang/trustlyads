@@ -37,15 +37,17 @@ export default function AdminPage() {
             <div className="flex flex-col min-h-screen">
                 <Header />
                 <main className="flex-1 bg-background/50 flex items-center justify-center p-4">
-                   <div className="text-center max-w-md">
-                     <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-                     <p className="text-muted-foreground mb-6">You do not have permission to view this page. This area is for administrators only.</p>
-                     {user ? (
+                   <div className="text-center max-w-md w-full">
+                     <h1 className="text-2xl font-bold mb-2">Admin Access</h1>
+                     <p className="text-muted-foreground mb-6">This area is for administrators only. Please sign in to continue.</p>
+                     
+                     {/* Show Admin Login Form if no user is signed in, or if the signed-in user is not an admin */}
+                     {!user || !isAdmin ? (
+                        <AdminLoginForm />
+                     ) : (
                         <Link href="/">
                             <Button>Go to Homepage</Button>
                         </Link>
-                     ) : (
-                        <p className="text-muted-foreground">Please sign in via the header to continue.</p>
                      )}
                    </div>
                 </main>
