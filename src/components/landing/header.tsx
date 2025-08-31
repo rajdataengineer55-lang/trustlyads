@@ -41,27 +41,13 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
       return (
         <>
           <Dialog open={isPhoneLoginOpen} onOpenChange={setIsPhoneLoginOpen}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Sign In
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => signInWithGoogle()}>
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    Sign In with Google
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => {
-                      setIsVerificationCodeSent(false);
-                      setIsPhoneLoginOpen(true);
-                    }}>
-                      <Phone className="mr-2 h-4 w-4" />
-                      Sign In with Phone
-                    </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button variant="outline" size="sm" onClick={() => {
+                setIsVerificationCodeSent(false);
+                setIsPhoneLoginOpen(true);
+            }}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Sign In
+            </Button>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Sign In with Phone</DialogTitle>
@@ -125,11 +111,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
     if (!user) {
         return (
             <div className="flex flex-col gap-2">
-                 <Button onClick={() => { signInWithGoogle(); setIsMobileMenuOpen(false); }} className="w-full">
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    Sign In with Google
-                </Button>
-                 <Button variant="secondary" className="w-full" onClick={() => {
+                 <Button variant="default" className="w-full" onClick={() => {
                     setIsVerificationCodeSent(false);
                     setIsPhoneLoginOpen(true);
                     setIsMobileMenuOpen(false);
@@ -272,7 +254,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
 
         <div className="flex flex-1 justify-end items-center gap-2">
             <div className="flex-1 hidden md:flex justify-end">
-                {isMobile === false && <DesktopLocationDropdown />}
+                {isMobile === false ? <DesktopLocationDropdown /> : <MobileLocationSelector />}
             </div>
             
             <div className='hidden md:flex items-center gap-2'>
@@ -283,7 +265,6 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
             </div>
 
             <div className='flex md:hidden items-center gap-2'>
-                {isMobile === true && <MobileLocationSelector />}
                 <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                     <SheetTrigger asChild>
                     <Button variant="outline" size="icon" className='md:hidden'>
@@ -318,5 +299,3 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
     </header>
   )
 }
-
-    
