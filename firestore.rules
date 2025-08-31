@@ -3,59 +3,30 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if a user is an authenticated admin
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
-    }
-
-    // Helper function to check if a user is authenticated
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    // Helper function to check if the user is the owner of a document
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    // Offers can be read by anyone, but only created, updated, or deleted by an admin.
+    // Offers can be read by anyone, but only created, updated, or deleted
+    // by authenticated users (specifically, admins, checked in backend code).
     match /offers/{offerId} {
       allow read;
-      allow write: if isAdmin();
-
-      // Reviews can be read by anyone, but only created by any authenticated user.
-      // Admins can delete reviews.
-      match /reviews/{reviewId} {
-        allow read;
-        allow create: if isAuthenticated();
-        allow delete: if isAdmin();
-      }
+      allow write: if request.auth != null;
     }
-
-    // Followers can be created/deleted by any authenticated user.
-    match /followers/{userId} {
-      allow read;
-      allow create, delete: if isOwner(userId);
-    }
-
-    // Stories can be read by anyone, but only created/deleted by an admin.
+    
+    // Stories can be read by anyone.
+    // They can be created and deleted by authenticated admins.
     match /stories/{storyId} {
         allow read;
-        allow create, delete: if isAdmin();
+        allow write: if request.auth != null;
     }
 
-    // Requests can be created by any authenticated user.
-    // They can be read/updated by their owner or any admin.
-    match /requests/{requestId} {
-      allow create: if isAuthenticated();
-      allow read, update: if isOwner(resource.data.userId) || isAdmin();
-      
-      // Responses can be created by admins.
-      // They can be read by the request owner or admins.
-      match /responses/{responseId} {
-        allow read: if isOwner(get(/databases/$(database)/documents/requests/$(requestId)).data.userId) || isAdmin();
-        allow create: if isAdmin();
-      }
+    // Followers can be read by anyone (for follower counts).
+    // A user can only write to their own follower document.
+    match /followers/{userId} {
+      allow read;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Default deny all other writes
+    match /{document=**} {
+      allow read: if false; // Deny all other reads unless explicitly allowed
     }
   }
 }

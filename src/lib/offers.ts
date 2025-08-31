@@ -17,7 +17,7 @@ import {
     Query,
     DocumentData,
 } from 'firebase/firestore';
-import type { Offer, Review } from '@/contexts/OffersContext';
+import type { Offer } from '@/contexts/OffersContext';
 
 // This is the data structure for creating/updating offers.
 // It excludes fields that are auto-generated or managed separately (like id, reviews, createdAt).
@@ -55,52 +55,23 @@ const mapDocToOffer = (doc: any): Offer => {
     id: doc.id,
     ...data,
     createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
-    // Reviews are now loaded on-demand, so initialize as empty or undefined.
-    reviews: [], 
     views: data.views || 0,
     clicks: data.clicks || 0,
     storyViews: data.storyViews || 0,
   } as Offer;
 };
 
-// Generic fetch function that processes reviews
+// Generic fetch function
 const fetchOffersWithoutReviews = async (q: Query<DocumentData>): Promise<Offer[]> => {
   try {
     const querySnapshot = await getDocs(q);
-    // Now we just map over the documents without fetching subcollections here.
     const offers = querySnapshot.docs.map(mapDocToOffer);
     return offers;
   } catch (error) {
     console.error("Error fetching offers: ", error);
-    // Return empty array on error to prevent site crash
     return [];
   }
 };
-
-/**
- * Fetches the reviews for a single offer.
- * This is called on the offer detail page.
- * @param offerId The ID of the offer to fetch reviews for.
- */
-export const getReviewsForOffer = async (offerId: string): Promise<Review[]> => {
-  try {
-    const reviewsCollection = collection(db, 'offers', offerId, 'reviews');
-    const reviewsQuery = query(reviewsCollection, orderBy('createdAt', 'desc'));
-    const reviewsSnapshot = await getDocs(reviewsQuery);
-    
-    return reviewsSnapshot.docs.map(reviewDoc => {
-        const reviewData = reviewDoc.data();
-        return {
-          id: reviewDoc.id,
-          ...reviewData,
-          createdAt: reviewData.createdAt ? (reviewData.createdAt as Timestamp).toDate() : new Date()
-        } as Review;
-    });
-  } catch (error) {
-    console.error(`Error fetching reviews for offer ${offerId}:`, error);
-    return [];
-  }
-}
 
 
 // Fetches ONLY public offers. Safe for server-side and non-admin clients.
@@ -158,16 +129,6 @@ export const updateOffer = async (id: string, offerData: Partial<OfferData>) => 
 export const deleteOffer = async (id: string) => {
   const offerDoc = doc(db, 'offers', id);
   await deleteDoc(offerDoc);
-};
-
-// Add a review to an offer's subcollection
-export const addReview = async (offerId: string, reviewData: Omit<Review, 'id' | 'createdAt'>) => {
-    const reviewWithTimestamp = {
-        ...reviewData,
-        createdAt: serverTimestamp()
-    };
-    const reviewsCollection = collection(db, 'offers', offerId, 'reviews');
-    await addDoc(reviewsCollection, reviewWithTimestamp);
 };
 
 // Toggle offer visibility

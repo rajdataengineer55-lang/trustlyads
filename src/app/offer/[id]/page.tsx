@@ -4,43 +4,27 @@
 import { useEffect, useState, useCallback } from 'react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useOffers, type Offer, type Review } from '@/contexts/OffersContext';
+import { useOffers, type Offer } from '@/contexts/OffersContext';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Star, Navigation, ArrowRight, EyeOff, BarChart2, Eye, User, Send, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { MapPin, Phone, MessageSquare, Calendar as CalendarIcon, ArrowLeft, Share2, Navigation, ArrowRight, EyeOff, BarChart2, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Separator } from '@/components/ui/separator';
 
-
-const reviewSchema = z.object({
-    author: z.string().min(2, { message: "Name must be at least 2 characters." }),
-    rating: z.number().min(1, "Please select a rating.").max(5),
-    comment: z.string().min(10, "Comment must be at least 10 characters."),
-});
-
 export default function OfferDetailsPage() {
   const params = useParams();
-  const router = useRouter();
-  const { offers, getOfferById, addReview, loading: offersLoading, incrementOfferView, incrementOfferClick, loadReviewsForOffer } = useOffers();
-  const { user, isAdmin } = useAuth();
+  const { offers, getOfferById, loading: offersLoading, incrementOfferView, incrementOfferClick } = useOffers();
+  const { isAdmin } = useAuth();
   
   const [offer, setOffer] = useState<Offer | null>(null);
-  const [reviewsLoading, setReviewsLoading] = useState(true);
   const { toast } = useToast();
   
   const id = typeof params.id === 'string' ? params.id : '';
@@ -62,20 +46,6 @@ export default function OfferDetailsPage() {
       };
   }, [emblaApi]);
 
-  const form = useForm<z.infer<typeof reviewSchema>>({
-    resolver: zodResolver(reviewSchema),
-    defaultValues: { author: "", rating: 0, comment: "" },
-  });
-
-  useEffect(() => {
-    if (user) {
-        form.setValue('author', user.displayName || "");
-    }
-  }, [user, form]);
-  
-  const [hoverRating, setHoverRating] = useState(0);
-  const currentRating = form.watch("rating");
-
   const loadOfferData = useCallback(async () => {
     if (!id || offersLoading) return;
 
@@ -92,11 +62,6 @@ export default function OfferDetailsPage() {
           sessionStorage.setItem(viewedKey, 'true');
         }
 
-        // Fetch reviews for this specific offer
-        setReviewsLoading(true);
-        await loadReviewsForOffer(id);
-        setReviewsLoading(false);
-
       } else {
         setOffer(null); // Offer is hidden
         notFound();
@@ -105,7 +70,7 @@ export default function OfferDetailsPage() {
       // If offers are loaded but this one wasn't found, it's a 404
       notFound();
     }
-  }, [id, offersLoading, getOfferById, isAdmin, incrementOfferView, loadReviewsForOffer]);
+  }, [id, offersLoading, getOfferById, isAdmin, incrementOfferView]);
 
   useEffect(() => {
     loadOfferData();
@@ -172,31 +137,6 @@ export default function OfferDetailsPage() {
             });
             break;
     }
-  };
-
-  const onReviewSubmit = async (data: z.infer<typeof reviewSchema>) => {
-    if (!offer) return;
-    if (!user) {
-        toast({
-            variant: "destructive",
-            title: "Not Signed In",
-            description: "You must be signed in to leave a review.",
-        });
-        return;
-    }
-    const newReview: Omit<Review, 'id' | 'createdAt'> = {
-        author: data.author,
-        rating: data.rating,
-        comment: data.comment,
-    };
-    
-    await addReview(offer.id, newReview); // This now re-fetches reviews internally in the context
-
-    toast({
-        title: "Review Submitted!",
-        description: "Thank you for your feedback.",
-    });
-    form.reset({ author: user.displayName || "", rating: 0, comment: '' });
   };
   
   if (offersLoading || !offer) {
@@ -286,87 +226,6 @@ export default function OfferDetailsPage() {
     );
   };
   
-  const ReviewForm = () => {
-    if (!user) {
-        return null;
-    }
-
-    return (
-        <Card className="mt-12">
-            <CardHeader>
-                <CardTitle>Write a Review</CardTitle>
-                <CardDescription>Share your experience with this business.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onReviewSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="author"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Your Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Your name" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="rating"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Your Rating</FormLabel>
-                                    <FormControl>
-                                        <div className="flex items-center gap-1">
-                                            {[...Array(5)].map((_, i) => {
-                                                const ratingValue = i + 1;
-                                                return (
-                                                    <Star
-                                                        key={ratingValue}
-                                                        className={cn(
-                                                            "h-6 w-6 cursor-pointer transition-colors",
-                                                            (hoverRating || currentRating) >= ratingValue
-                                                                ? 'text-yellow-400 fill-yellow-400'
-                                                                : 'text-gray-300'
-                                                        )}
-                                                        onClick={() => field.onChange(ratingValue)}
-                                                        onMouseEnter={() => setHoverRating(ratingValue)}
-                                                        onMouseLeave={() => setHoverRating(0)}
-                                                    />
-                                                );
-                                            })}
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="comment"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Your Review</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Share your experience..." {...field} rows={4}/>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" disabled={form.formState.isSubmitting}>
-                            {form.formState.isSubmitting ? <Send className="mr-2 h-4 w-4 animate-spin"/> : <Send className="mr-2 h-4 w-4" />}
-                            Submit Review
-                        </Button>
-                    </form>
-                </Form>
-            </CardContent>
-        </Card>
-    );
-  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -478,50 +337,11 @@ export default function OfferDetailsPage() {
             <Separator className="my-12 sm:my-16" />
 
             <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
-              <div className="space-y-8 lg:col-span-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Customer Reviews ({reviewsLoading ? 0 : offer.reviews?.length || 0})</CardTitle>
-                    <CardDescription>See what other customers are saying.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {reviewsLoading ? (
-                        <div className="space-y-4 p-4">
-                            <Skeleton className="h-16 w-full" />
-                            <Skeleton className="h-16 w-full" />
-                        </div>
-                    ) : offer.reviews && offer.reviews.length > 0 ? (
-                        offer.reviews.map((review) => (
-                        <div key={review.id} className="flex gap-4">
-                          <Avatar>
-                            <AvatarFallback>{review.author.charAt(0).toUpperCase()}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <p className="font-semibold">{review.author}</p>
-                              <div className="flex items-center gap-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star key={i} className={cn("h-4 w-4", i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300')} />
-                                ))}
-                              </div>
-                            </div>
-                            <p className="text-muted-foreground mt-1 text-sm">{review.comment}</p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                        <p className="text-muted-foreground text-sm text-center py-4">Be the first to review this business!</p>
-                    )}
-                  </CardContent>
-                </Card>
-                <ReviewForm />
-              </div>
-
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-2">
                  {similarOffers.length > 0 && (
                     <div>
                         <h2 className="text-2xl font-bold mb-6">Similar Ads</h2>
-                        <div className="grid grid-cols-1 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             {similarOffers.map((similarOffer) => {
                                 const imageUrl = similarOffer.image || 'https://picsum.photos/600/400';
                                 return (

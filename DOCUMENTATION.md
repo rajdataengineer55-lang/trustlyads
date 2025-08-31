@@ -31,7 +31,7 @@ This document provides a comprehensive overview of the features, architecture, a
 
 The entire backend is powered by Firebase services, configured in `src/lib/firebase.ts`.
 
-- **Firestore (`db`):** A NoSQL database used to store all application data, including offers, reviews, and followers. Secured with `firestore.rules`.
+- **Firestore (`db`):** A NoSQL database used to store all application data, including offers and followers. Secured with `firestore.rules`.
 - **Authentication (`auth`):** Manages user sign-in and sessions.
 - **Storage (`storage`):** Stores all user-uploaded media (offer and story images). Secured with `storage.rules`.
 
@@ -46,7 +46,6 @@ The entire backend is powered by Firebase services, configured in `src/lib/fireb
   - `createdAt`: Timestamp for sorting by newest.
   - `views`: Number counter for offer detail page views.
   - `clicks`: Number counter for clicks on contact actions.
-  - `reviews` (subcollection): Each document is a user review for that offer.
 - `followers` (collection): Each document represents a user who has followed the site.
 - `stories` (collection): Each document represents a temporary story linked to a business offer.
 
@@ -61,9 +60,9 @@ The entire backend is powered by Firebase services, configured in `src/lib/fireb
 
 This is the central hub for all offer-related data.
 
-- **Data Fetching:** The context uses a `fetchOffers()` function to get the complete list of offers and their review subcollections from Firestore. This function is called when the provider mounts and can be called again to refresh data.
+- **Data Fetching:** The context uses a `fetchOffers()` function to get the complete list of offers from Firestore. This function is called when the provider mounts and can be called again to refresh data.
 - **CRUD Operations:** The context provides functions to interact with the database:
-  - `addOffer`, `updateOffer`, `deleteOffer`, `addReview`, `toggleOfferVisibility`. Each of these functions performs its operation and then calls `fetchOffers()` to ensure the UI is updated with the latest data.
+  - `addOffer`, `updateOffer`, `deleteOffer`, `toggleOfferVisibility`. Each of these functions performs its operation and then calls `fetchOffers()` to ensure the UI is updated with the latest data.
 - **Analytics Tracking:**
   - `incrementOfferView`: Called from the offer detail page to increment the `views` count in Firestore.
   - `incrementOfferClick`: Called when a user clicks a contact button, incrementing the `clicks` count.
@@ -102,7 +101,6 @@ This is a protected route, only fully visible to an authenticated admin user.
 - **Data Fetching:** Uses the `useParams()` hook to get the offer `id` from the URL and `getOfferById()` from `OffersContext` to find the correct offer data. The component now includes robust loading and not-found states to prevent rendering errors.
 - **View Tracking:** On first load, it calls `incrementOfferView(id)` to log a view for the ad. This is tracked in `sessionStorage` to prevent re-counting on page refresh.
 - **Conditional Contact Actions:** It checks if a user is signed in to show contact buttons or a "Sign in" prompt.
-- **Review System:** Signed-in users can submit a review, which calls the `addReview()` function.
 
 ### 3.6. Follower System (`src/lib/followers.ts`)
 

@@ -8,11 +8,9 @@ import {
     addOffer as addOfferToDb, 
     updateOffer as updateOfferInDb, 
     deleteOffer as deleteOfferFromDb,
-    addReview as addReviewToDb,
     toggleOfferVisibility as toggleVisibilityInDb,
     incrementOfferView as incrementViewInDb,
     incrementOfferClick as incrementClickInDb,
-    getReviewsForOffer,
     type OfferData,
 } from '@/lib/offers';
 import { getActiveStories } from '@/lib/stories';
@@ -46,7 +44,6 @@ export interface Offer {
   phoneNumber?: string;
   chatLink?: string;
   scheduleLink?: string;
-  reviews?: Review[];
   isHidden?: boolean;
   createdAt: Date;
   views?: number;
@@ -64,8 +61,6 @@ interface OffersContextType {
   deleteOffer: (id: string) => Promise<void>;
   boostOffer: (id: string) => void; 
   getOfferById: (id: string) => Offer | undefined;
-  loadReviewsForOffer: (offerId: string) => Promise<Review[]>;
-  addReview: (offerId: string, review: Omit<Review, 'id' | 'createdAt'>) => Promise<void>;
   toggleOfferVisibility: (id: string) => Promise<void>;
   incrementOfferView: (id: string) => Promise<void>;
   incrementOfferClick: (id: string) => Promise<void>;
@@ -139,18 +134,6 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   const getOfferById = useCallback((id: string) => {
     return offers.find(offer => offer.id === id);
   }, [offers]);
-  
-  const loadReviewsForOffer = useCallback(async (offerId: string) => {
-    const reviews = await getReviewsForOffer(offerId);
-    setOffers(prev => prev.map(o => o.id === offerId ? {...o, reviews} : o));
-    return reviews;
-  }, []);
-
-  const addReview = async (offerId: string, review: Omit<Review, 'id' | 'createdAt'>) => {
-    await addReviewToDb(offerId, review);
-    // After adding a new review, we should reload them for the specific offer.
-    await loadReviewsForOffer(offerId);
-  };
 
   const toggleOfferVisibility = async (id: string) => {
     const offer = getOfferById(id);
@@ -171,7 +154,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <OffersContext.Provider value={{ offers, loading, fetchOffers, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, loadReviewsForOffer, addReview, toggleOfferVisibility, incrementOfferView, incrementOfferClick }}>
+    <OffersContext.Provider value={{ offers, loading, fetchOffers, addOffer, getOfferById, updateOffer, deleteOffer, boostOffer, toggleOfferVisibility, incrementOfferView, incrementOfferClick }}>
       {children}
     </OffersContext.Provider>
   );
