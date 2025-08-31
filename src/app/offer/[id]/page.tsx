@@ -69,7 +69,7 @@ export default function OfferDetailsPage() {
 
   useEffect(() => {
     if (user) {
-        form.setValue('author', user.displayName || 'Anonymous');
+        form.setValue('author', user.displayName || "");
     }
   }, [user, form]);
   
@@ -310,7 +310,7 @@ export default function OfferDetailsPage() {
                                 <FormItem>
                                     <FormLabel>Your Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Your name" {...field} readOnly className="bg-muted"/>
+                                        <Input placeholder="Your name" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -395,7 +395,7 @@ export default function OfferDetailsPage() {
                                         src={img}
                                         alt={`${offer.title} image ${i + 1}`}
                                         fill
-                                        className="object-cover w-full h-auto"
+                                        className="object-contain w-full h-auto"
                                         priority={i === 0}
                                         sizes="(max-width: 1024px) 100vw, 50vw"
                                     />
@@ -425,12 +425,12 @@ export default function OfferDetailsPage() {
                     {allImages.length > 1 && (
                         <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 mt-4">
                             {allImages.map((img, i) => (
-                                <div key={i} className="relative aspect-square cursor-pointer rounded-md overflow-hidden" onClick={() => scrollTo(i)}>
+                                <div key={i} className="relative aspect-square cursor-pointer rounded-md overflow-hidden bg-black" onClick={() => scrollTo(i)}>
                                     <Image 
                                         src={img}
                                         alt={`thumbnail ${i + 1}`} 
                                         fill
-                                        className={cn("object-cover w-full h-full transition-all", selectedIndex === i ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
+                                        className={cn("object-contain w-full h-full transition-all", selectedIndex === i ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80')}
                                         sizes="100px"
                                         data-ai-hint="placeholder image"
                                     />
@@ -537,7 +537,7 @@ export default function OfferDetailsPage() {
                                             alt={similarOffer.title}
                                             width={600}
                                             height={400}
-                                            className="object-cover w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                                            className="object-contain w-full h-auto transition-transform duration-300 group-hover:scale-105"
                                         />
                                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
                                             <h3 className="text-base font-bold text-white truncate">{similarOffer.title}</h3>
