@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MapPin, ChevronDown, Menu, LogOut, Send, MessageCircle, Bell, Megaphone, User as UserIcon, Phone, UserPlus } from "lucide-react"
+import { MapPin, ChevronDown, Menu, LogOut, Send, MessageCircle, Bell, Megaphone, User as UserIcon, Phone, UserPlus, Heart } from "lucide-react"
 import Link from "next/link"
 import { locations } from "@/lib/locations";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -15,6 +15,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PhoneLoginForm } from '../phone-login-form';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { addFollower, removeFollower, isFollowing } from '@/lib/followers';
+import { useToast } from '@/hooks/use-toast';
 
 interface HeaderProps {
   selectedLocation?: string | null;
@@ -32,8 +34,35 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPhoneLoginOpen, setIsPhoneLoginOpen] = useState(false);
   const [isVerificationCodeSent, setIsVerificationCodeSent] = useState(false);
-  const { user, isAdmin, signOut, signInWithGoogle } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+  const [following, setFollowing] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      isFollowing(user.uid).then(setFollowing);
+    } else {
+      setFollowing(false);
+    }
+  }, [user]);
+
+  const handleFollowToggle = async () => {
+    if (!user) return;
+    try {
+      if (following) {
+        await removeFollower(user.uid);
+        setFollowing(false);
+        toast({ title: "Unfollowed", description: "You will no longer receive updates." });
+      } else {
+        await addFollower(user.uid);
+        setFollowing(true);
+        toast({ title: "Followed!", description: "Thank you for following us!" });
+      }
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "Something went wrong." });
+    }
+  };
 
 
   const UserMenu = () => {
@@ -165,7 +194,7 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
               <DropdownMenuSub key={location.name}>
                 <DropdownMenuSubTrigger>{location.name}</DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent sideOffset={8}>
                      <DropdownMenuItem onSelect={() => setSelectedLocation(location.name)}>All of {location.name}</DropdownMenuItem>
                      <DropdownMenuSeparator />
                     {location.subLocations.map((subLocation) => (
@@ -258,6 +287,12 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
             </div>
             
             <div className='hidden md:flex items-center gap-2'>
+              {user && !isAdmin && (
+                  <Button size="sm" variant={following ? "secondary" : "outline"} onClick={handleFollowToggle}>
+                      <Heart className={`mr-2 h-4 w-4 ${following ? 'fill-red-500 text-red-500' : ''}`} />
+                      {following ? "Following" : "Follow Us"}
+                  </Button>
+              )}
               <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer">
                 <Button size="sm">Post Your Business</Button>
               </a>
@@ -283,6 +318,12 @@ export function Header({ selectedLocation, setSelectedLocation = () => {} }: Hea
                     <nav className="flex flex-col gap-4 py-6">
                         <MobileUserMenu />
                         <div className='mt-4'>
+                          {user && !isAdmin && (
+                            <Button className="w-full" variant={following ? "secondary" : "outline"} onClick={handleFollowToggle}>
+                                <Heart className={`mr-2 h-4 w-4 ${following ? 'fill-red-500 text-red-500' : ''}`} />
+                                {following ? "Following" : "Follow Us"}
+                            </Button>
+                          )}
                           <a href="https://wa.me/919380002829" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)}>
                               <Button className="w-full mt-2" >Post Your Business</Button>
                           </a>
