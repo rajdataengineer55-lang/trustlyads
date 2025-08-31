@@ -2,7 +2,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Your production Firebase project configuration is now loaded from environment variables.
@@ -26,6 +26,18 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+// Explicitly connect to Firestore emulator in development
+if (typeof window !== 'undefined' && window.location.hostname === "localhost") {
+  try {
+      console.log("Connecting to Firestore emulator...");
+      connectFirestoreEmulator(db, "localhost", 8080);
+      console.log("Firestore emulator connected.");
+  } catch (error) {
+      console.error("Error connecting to Firestore emulator:", error);
+  }
+}
+
 
 export { db, storage, auth };
 export default app;
