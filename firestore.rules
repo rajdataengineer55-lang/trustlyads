@@ -1,4 +1,5 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -7,12 +8,12 @@ service cloud.firestore {
       return request.auth.token.admin == true;
     }
 
-    // Rules for offers collection
+    // Rules for the 'offers' collection
     match /offers/{offerId} {
       // Anyone can read non-hidden offers
       allow read: if resource.data.isHidden == false;
-      // Admins can read any offer (covers get and list)
-      allow read: if isAdmin();
+      // Admins can read any offer
+      allow get: if isAdmin();
 
       // Only admins can create or delete offers
       allow create, delete: if isAdmin();
@@ -20,32 +21,31 @@ service cloud.firestore {
       // Admins can update any field
       // Any user can update ONLY the views and clicks fields
       allow update: if isAdmin() ||
-                      (request.auth != null &&
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'clicks']));
+                     (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'clicks']));
     }
-    
-    // Rules for stories collection
+
+    // Rules for the 'stories' collection
     match /stories/{storyId} {
       // Anyone can read stories
       allow read: if true;
-      // Only admins can write/delete stories
+      // Only admins can create, update, or delete stories
       allow write: if isAdmin();
     }
-    
-    // Rules for followers collection
+
+    // Rules for the 'followers' collection
     match /followers/{userId} {
-        // Anyone can see the total count, but not who is following
-        allow list: if false; 
-        allow get: if request.auth != null; // A user can check their own follow status
-        
-        // Only an authenticated user can follow/unfollow for themselves
-        allow create, delete: if request.auth != null && request.auth.uid == userId;
+      // Anyone can read the followers count (implicitly allowed by public query)
+      allow read: if true;
+      // Only the authenticated user can follow/unfollow themselves
+      allow write: if request.auth.uid == userId;
     }
     
-    // Rules for onboardedUsers collection
+    // Rules for the 'onboardedUsers' collection
     match /onboardedUsers/{userId} {
-      // ONLY admins can perform any action on this collection
-      allow read, write: if isAdmin();
+        // Only admins can perform any action on these records.
+        // Explicitly granting all permissions for clarity.
+        allow get, list: if isAdmin();
+        allow create, update, delete: if isAdmin();
     }
   }
 }
