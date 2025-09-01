@@ -24,14 +24,12 @@ export interface OnboardedUserData {
   paymentAmount?: number;
   paymentStatus: PaymentStatus;
   notes?: string;
-  onboardedDate?: Date;
-  paymentDueDate?: Date;
+  onboardedDate: Date;
+  paymentDueDate: Date;
 }
 
 export interface OnboardedUser extends OnboardedUserData {
   id: string;
-  onboardedDate: Date;
-  paymentDueDate: Date;
 }
 
 const onboardedUsersCollection = collection(db, 'onboardedUsers');
@@ -54,15 +52,15 @@ const mapDocToUser = (docSnapshot: any): OnboardedUser => {
  * @param userData The data for the new user.
  */
 export const addOnboardedUser = async (userData: OnboardedUserData) => {
-  const onboardedDate = userData.onboardedDate || new Date();
-  const paymentDueDate = userData.paymentDueDate || new Date(new Date().setDate(onboardedDate.getDate() + 30));
+  const { onboardedDate, paymentDueDate, ...rest } = userData;
 
   const userWithTimestamp = {
-    ...userData,
+    ...rest,
     onboardedDate: Timestamp.fromDate(onboardedDate),
     paymentDueDate: Timestamp.fromDate(paymentDueDate),
-    paymentStatus: 'Due', // New users always start as 'Due'
+    paymentStatus: 'Due',
   };
+
   await addDoc(onboardedUsersCollection, userWithTimestamp);
 };
 
