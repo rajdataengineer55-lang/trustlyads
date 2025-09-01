@@ -172,15 +172,40 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
   const processFiles = (files: File[]) => {
     const currentFiles = Array.from(files);
     const newFilePreviews = currentFiles.map(file => URL.createObjectURL(file));
+    
+    // Always append new files, both in create and edit mode
+    setImagePreviews(prev => [...prev, ...newFilePreviews]);
+    setNewImageFiles(prev => [...prev, ...currentFiles]);
+  };
 
-    if (isEditMode) {
-      setImagePreviews(newFilePreviews);
-      setNewImageFiles(currentFiles);
-    } else {
-      setImagePreviews(prev => [...prev, ...newFilePreviews]);
-      setNewImageFiles(prev => [...prev, ...currentFiles]);
+  const removeImage = (index: number) => {
+    const previewToRemove = imagePreviews[index];
+    
+    // Revoke object URL to prevent memory leaks if it's a new file preview
+    if (previewToRemove.startsWith('blob:')) {
+      URL.revokeObjectURL(previewToRemove);
     }
-  }
+
+    const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
+    
+    // Calculate how many files to remove from the start of the `newImageFiles` array
+    const oldUrlCount = imagePreviews.filter(p => p.startsWith('https://')).length;
+    const newFileIndexToRemove = index - oldUrlCount;
+
+    if (newFileIndexToRemove >= 0) {
+      const updatedNewFiles = newImageFiles.filter((_, i) => i !== newFileIndexToRemove);
+      setNewImageFiles(updatedNewFiles);
+    }
+    
+    setImagePreviews(updatedPreviews);
+
+    // Adjust selected main image index if needed
+    if (selectedMainImageIndex === index) {
+      setSelectedMainImageIndex(0); // Reset to first image
+    } else if (selectedMainImageIndex > index) {
+      setSelectedMainImageIndex(selectedMainImageIndex - 1);
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -286,13 +311,13 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     setIsLoading(true);
     setLoadingMessage(isEditMode ? "Updating..." : "Posting...");
 
-    let finalImageUrls: string[] = imagePreviews.filter(p => p.startsWith('https://'));
+    let existingImageUrls = imagePreviews.filter(p => p.startsWith('https://'));
+    let uploadedUrls: string[] = [];
 
     if (newImageFiles.length > 0) {
-        setLoadingMessage("Uploading images...");
+        setLoadingMessage("Uploading new images...");
         try {
-            const uploadedUrls = await uploadMultipleFiles(newImageFiles, 'offers');
-            finalImageUrls.push(...uploadedUrls);
+            uploadedUrls = await uploadMultipleFiles(newImageFiles, 'offers');
         } catch (error: any) {
             console.error("Image upload failed:", error);
             const isCorsError = error.message.includes('network') || (error.code && error.code.includes('storage/unauthorized'));
@@ -301,6 +326,8 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             return;
         }
     }
+    
+    const finalImageUrls = [...existingImageUrls, ...uploadedUrls];
     
     if (finalImageUrls.length === 0) {
         toast({ variant: "destructive", title: "No Images", description: "An offer must have at least one image."});
@@ -538,7 +565,7 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
         </Card>
 
         <Card>
-            <CardHeader><CardTitle>Ad Media</CardTitle><CardDescription>Upload up to 10 images for your ad. The first image will be the cover photo.</CardDescription></CardHeader>
+            <CardHeader><CardTitle>Ad Media</CardTitle><CardDescription>Upload up to 10 images for your ad. Click an image to select it as the main cover photo.</CardDescription></CardHeader>
             <CardContent>
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div 
@@ -596,12 +623,36 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
                 {imagePreviews.length > 0 && (
                 <div className="mt-6">
-                    <FormDescription className="mb-2">Click an image to select it as the main cover photo.</FormDescription>
+                    <FormDescription className="mb-4">
+                        {isEditMode ? "Add more images or remove existing ones. " : ""}
+                        Click an image to select it as the main cover photo.
+                    </FormDescription>
                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
                         {imagePreviews.map((src, i) => (
-                            <div key={i} className="relative cursor-pointer" onClick={() => setSelectedMainImageIndex(i)}>
-                                <Image src={src} alt={`Preview ${i+1}`} width={100} height={100} className={cn("rounded-md object-cover aspect-square transition-all", selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300")} data-ai-hint="placeholder image" />
+                            <div key={i} className="relative group">
+                                <Image 
+                                    src={src} 
+                                    alt={`Preview ${i+1}`} 
+                                    width={100} 
+                                    height={100} 
+                                    className={cn(
+                                        "rounded-md object-cover aspect-square transition-all w-full h-full", 
+                                        selectedMainImageIndex === i ? "ring-4 ring-offset-2 ring-primary" : "ring-1 ring-gray-300",
+                                        "cursor-pointer"
+                                    )} 
+                                    onClick={() => setSelectedMainImageIndex(i)}
+                                    data-ai-hint="placeholder image" 
+                                />
                                 {selectedMainImageIndex === i && <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1"><Star className="h-3 w-3" /></div>}
+                                <Button 
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => removeImage(i)}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
                             </div>
                         ))}
                     </div>
@@ -631,3 +682,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
