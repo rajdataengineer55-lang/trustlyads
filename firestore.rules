@@ -1,32 +1,34 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Offers can be read by anyone, but only created, updated, or deleted
-    // by authenticated users (specifically, admins, checked in backend code).
+    // Offers can be read by anyone if they are not hidden.
+    // Writes are restricted to admins, with a special exception for incrementing counters.
     match /offers/{offerId} {
-      allow read;
-      allow write: if request.auth != null;
+      allow read: if resource.data.isHidden == false || request.auth.token.admin == true;
+
+      // Allow admins to create, update, delete
+      allow write: if request.auth.token.admin == true;
+
+      // Allow anyone to update ONLY the view or click counts
+      allow update: if request.auth != null
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'clicks']);
     }
-    
+
     // Stories can be read by anyone.
-    // They can be created and deleted by authenticated admins.
+    // Only admins can create or delete stories.
     match /stories/{storyId} {
-        allow read;
-        allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth.token.admin == true;
     }
 
-    // Followers can be read by anyone (for follower counts).
-    // A user can only write to their own follower document.
+    // Followers can be read by anyone (for total count).
+    // Authenticated users can follow/unfollow (write to their own document).
     match /followers/{userId} {
-      allow read;
+      allow read: if true;
       allow write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Default deny all other writes
-    match /{document=**} {
-      allow read: if false; // Deny all other reads unless explicitly allowed
     }
   }
 }
