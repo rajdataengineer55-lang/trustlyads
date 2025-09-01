@@ -48,11 +48,14 @@ The entire backend is powered by Firebase services, configured in `src/lib/fireb
   - `clicks`: Number counter for clicks on contact actions.
 - `followers` (collection): Each document represents a user who has followed the site.
 - `stories` (collection): Each document represents a temporary story linked to a business offer.
+- `onboardedUsers` (collection): Each document represents a business client whose subscription is tracked by the admin.
+  - `name`, `businessName`, `phoneNumber`, `paymentAmount`, `paymentStatus`
+  - `onboardedDate`, `paymentDueDate`
 
 ### 3.2. Authentication (`src/contexts/AuthContext.tsx` & `src/hooks/use-admin.ts`)
 
 - **Admin Login:** The admin signs in using a specific email and password. Upon successful login, the application securely checks for a custom `admin: true` claim on the user's Firebase token. This server-side check is the sole source of truth for admin privileges.
-- **User Login:** Regular users sign in via their Google account (`signInWithGoogle()`).
+- **User Login:** Regular users sign in via their phone number (`signInWithPhoneNumber()`).
 - **Global State:** The `AuthProvider` wraps the entire application, providing global access to the current user's state (`user`), a loading status (`loading`), and the secure admin status (`isAdmin`).
 - **Access Control:** The admin page (`src/app/admin/page.tsx`) and all content management features rely on the `useAuth()` hook to check the `isAdmin` status and conditionally render content.
 
@@ -88,6 +91,17 @@ This is a protected route, only fully visible to an authenticated admin user.
 - **Analytics:** Shows the `views` and `clicks` for each offer.
 - **Status Badge:** A visual indicator shows if an offer is `Visible` or `Hidden`.
 - **Actions Menu:** A dropdown menu provides all management functions: Boost, Hide/Make Visible, Edit, and Delete.
+
+#### Client Onboarding Lobby (`src/components/onboarding-lobby.tsx` & `src/lib/onboarding.ts`)
+
+- A dedicated admin tool for tracking business clients and their payment cycles.
+- **Client Data:** Stores client name, business name, phone number, payment amount, and notes in the `onboardedUsers` collection in Firestore. This collection is secured so only admins can access it.
+- **Onboarding Form:** Allows the admin to add new clients, specifying a start date and an end date for their service period. Includes a helper to auto-fill business details from existing ads.
+- **Tracking Table:** Displays all onboarded clients, showing their onboarding and due dates, payment amount, and current payment status (`Paid` or `Due`).
+- **Lifecycle Management:** Provides actions to:
+  - **Renew:** Resets a client's 30-day service period.
+  - **Update Payment Status:** Toggles a client's status between "Paid" and "Due".
+  - **Delete:** Removes a client record.
 
 ### 3.5. Public User Experience
 
