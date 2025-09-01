@@ -12,8 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { addOnboardedUser, getOnboardedUsers, renewOnboardedUser, deleteOnboardedUser, type OnboardedUser, type OnboardedUserData } from '@/lib/onboarding';
-import { Loader2, UserPlus, Trash2, RefreshCcw, Bell, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { addOnboardedUser, getOnboardedUsers, renewOnboardedUser, deleteOnboardedUser, updatePaymentStatus, type OnboardedUser, type OnboardedUserData, PaymentStatus } from '@/lib/onboarding';
+import { Loader2, UserPlus, Trash2, RefreshCcw, Bell, CheckCircle2, AlertTriangle, XCircle, BadgeDollarSign, CircleDollarSign } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
 import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
@@ -24,6 +24,10 @@ const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   businessName: z.string().min(2, 'Business name must be at least 2 characters.'),
   phoneNumber: z.string().min(10, 'Please enter a valid phone number.'),
+  paymentAmount: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number({ invalid_type_error: "Amount must be a number" }).positive('Amount must be positive.')
+  ),
   notes: z.string().optional(),
 });
 
@@ -40,6 +44,7 @@ export function OnboardingLobby() {
       name: '',
       businessName: '',
       phoneNumber: '',
+      paymentAmount: undefined,
       notes: '',
     },
   });
@@ -58,7 +63,7 @@ export function OnboardingLobby() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      await addOnboardedUser(values);
+      await addOnboardedUser(values as OnboardedUserData);
       toast({ title: 'User Onboarded', description: `${values.name} has been added to the lobby.` });
       form.reset();
       await fetchUsers(); // Refresh the list
@@ -94,6 +99,18 @@ export function OnboardingLobby() {
         setUserToDelete(null);
     }
   }
+
+  const handleTogglePaymentStatus = async (user: OnboardedUser) => {
+    const newStatus: PaymentStatus = user.paymentStatus === 'Paid' ? 'Due' : 'Paid';
+    try {
+      await updatePaymentStatus(user.id, newStatus);
+      toast({ title: 'Payment Status Updated', description: `${user.name}'s status is now ${newStatus}.`});
+      await fetchUsers();
+    } catch (error) {
+      console.error('Failed to update payment status:', error);
+      toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update payment status.' });
+    }
+  };
 
   const sortedUsers = useMemo(() => {
     return [...users].sort((a, b) => new Date(a.paymentDueDate).getTime() - new Date(b.paymentDueDate).getTime());
@@ -131,7 +148,10 @@ export function OnboardingLobby() {
                     <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Client Name</FormLabel><FormControl><Input placeholder="e.g., John Doe" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="businessName" render={({ field }) => (<FormItem><FormLabel>Business Name</FormLabel><FormControl><Input placeholder="e.g., John's Hardware" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
-                <FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" placeholder="+91 98765 43210" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" placeholder="+91 98765 43210" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="paymentAmount" render={({ field }) => (<FormItem><FormLabel>Payment Amount (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 500" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
+                </div>
                 <FormField control={form.control} name="notes" render={({ field }) => (<FormItem><FormLabel>Notes (Optional)</FormLabel><FormControl><Textarea placeholder="Any relevant notes about the client..." {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                   {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
@@ -155,9 +175,9 @@ export function OnboardingLobby() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Client</TableHead>
-                            <TableHead>Onboarded</TableHead>
-                            <TableHead>Payment Due</TableHead>
-                            <TableHead>Status</TableHead>
+                            <TableHead>Cycle</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Payment Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -167,7 +187,7 @@ export function OnboardingLobby() {
                                 <TableRow key={i}>
                                     <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                                     <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                                     <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                                     <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
                                 </TableRow>
@@ -181,26 +201,32 @@ export function OnboardingLobby() {
                         ) : (
                             sortedUsers.map(user => {
                                 const status = getStatus(user.paymentDueDate);
+                                const isPaid = user.paymentStatus === 'Paid';
                                 return (
                                 <TableRow key={user.id}>
                                     <TableCell>
                                         <div className="font-medium">{user.name}</div>
                                         <div className="text-sm text-muted-foreground">{user.businessName}</div>
                                     </TableCell>
-                                    <TableCell>{format(user.onboardedDate, 'PPP')}</TableCell>
                                     <TableCell>
-                                        <div>{format(user.paymentDueDate, 'PPP')}</div>
-                                        <div className="text-sm text-muted-foreground">
-                                            {status.daysLeft >= 0 ? `${status.daysLeft} days left` : `${Math.abs(status.daysLeft)} days ago`}
-                                        </div>
+                                         <div>{format(user.paymentDueDate, 'PPP')}</div>
+                                         <div className="text-sm text-muted-foreground">
+                                             {status.daysLeft >= 0 ? `${status.daysLeft} days left` : `${Math.abs(status.daysLeft)} days ago`}
+                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant={status.variant} className="flex items-center w-fit">
-                                          {status.icon}
-                                          {status.text}
+                                        {user.paymentAmount ? `₹${user.paymentAmount.toLocaleString()}` : 'N/A'}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant={isPaid ? "default" : "destructive"} className="flex items-center w-fit">
+                                          {isPaid ? <CheckCircle2 className="mr-2 h-4 w-4" /> : <AlertTriangle className="mr-2 h-4 w-4" />}
+                                          {user.paymentStatus}
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
+                                         <Button size="sm" variant="outline" onClick={() => handleTogglePaymentStatus(user)}>
+                                            <CircleDollarSign className="mr-2 h-4 w-4" /> Mark as {isPaid ? 'Due' : 'Paid'}
+                                         </Button>
                                          <Button size="sm" variant="outline" onClick={() => handleRenew(user.id)}>
                                             <RefreshCcw className="mr-2 h-4 w-4" /> Renew
                                          </Button>

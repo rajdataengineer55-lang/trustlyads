@@ -15,10 +15,14 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 
+export type PaymentStatus = 'Paid' | 'Due';
+
 export interface OnboardedUserData {
   name: string;
   businessName: string;
   phoneNumber: string;
+  paymentAmount?: number;
+  paymentStatus: PaymentStatus;
   notes?: string;
 }
 
@@ -38,6 +42,7 @@ const mapDocToUser = (docSnapshot: any): OnboardedUser => {
     ...data,
     onboardedDate: (data.onboardedDate as Timestamp).toDate(),
     paymentDueDate: (data.paymentDueDate as Timestamp).toDate(),
+    paymentStatus: data.paymentStatus || 'Due', // Default to 'Due' if not set
   } as OnboardedUser;
 };
 
@@ -55,6 +60,7 @@ export const addOnboardedUser = async (userData: OnboardedUserData) => {
     ...userData,
     onboardedDate: Timestamp.fromDate(onboardedDate),
     paymentDueDate: Timestamp.fromDate(paymentDueDate),
+    paymentStatus: 'Due', // New users always start as 'Due'
   };
   await addDoc(onboardedUsersCollection, userWithTimestamp);
 };
@@ -75,7 +81,7 @@ export const getOnboardedUsers = async (): Promise<OnboardedUser[]> => {
 };
 
 /**
- * Renews a user's 30-day payment cycle.
+ * Renews a user's 30-day payment cycle and resets their payment status to 'Due'.
  * Updates the onboardedDate to now and recalculates the paymentDueDate.
  * @param userId The ID of the user to renew.
  */
@@ -88,8 +94,22 @@ export const renewOnboardedUser = async (userId: string) => {
   await updateDoc(userDoc, {
     onboardedDate: Timestamp.fromDate(newOnboardedDate),
     paymentDueDate: Timestamp.fromDate(newPaymentDueDate),
+    paymentStatus: 'Due', // Reset status on renewal
   });
 };
+
+/**
+ * Updates the payment status of a user.
+ * @param userId The ID of the user to update.
+ * @param status The new payment status ('Paid' or 'Due').
+ */
+export const updatePaymentStatus = async (userId: string, status: PaymentStatus) => {
+    const userDoc = doc(db, 'onboardedUsers', userId);
+    await updateDoc(userDoc, {
+        paymentStatus: status,
+    });
+};
+
 
 /**
  * Deletes an onboarded user record from Firestore.
