@@ -32,6 +32,10 @@ const AnalyticsDashboard = dynamic(() => import('@/components/analytics-dashboar
     loading: () => <Skeleton className="w-full h-96" />,
     ssr: false 
 });
+const OnboardingLobby = dynamic(() => import('@/components/onboarding-lobby').then(mod => mod.OnboardingLobby), { 
+    loading: () => <Skeleton className="w-full h-96" />,
+    ssr: false 
+});
 
 
 export default function AdminPage() {
@@ -82,12 +86,13 @@ export default function AdminPage() {
             <main className="flex-1 bg-background/50">
                  <div className="container mx-auto px-4 md:px-6 py-12">
                      <Tabs defaultValue="post-ad" className="w-full">
-                        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 max-w-3xl mx-auto text-xs sm:text-sm">
+                        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 max-w-4xl mx-auto text-xs sm:text-sm">
                             <TabsTrigger value="analytics">Analytics</TabsTrigger>
                             <TabsTrigger value="post-ad">Post Ad</TabsTrigger>
                             <TabsTrigger value="manage-ads">Manage Ads</TabsTrigger>
                             <TabsTrigger value="post-story">Post Story</TabsTrigger>
                             <TabsTrigger value="manage-stories">Manage Stories</TabsTrigger>
+                            <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
                         </TabsList>
                         <TabsContent value="analytics">
                             <section className="py-12 sm:py-16">
@@ -112,6 +117,11 @@ export default function AdminPage() {
                          <TabsContent value="manage-stories">
                             <section className="py-12 sm:py-16">
                                 <ManageStories />
+                            </section>
+                        </TabsContent>
+                        <TabsContent value="onboarding">
+                            <section className="py-12 sm:py-16">
+                                <OnboardingLobby />
                             </section>
                         </TabsContent>
                     </Tabs>
