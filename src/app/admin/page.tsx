@@ -36,6 +36,10 @@ const OnboardingLobby = dynamic(() => import('@/components/onboarding-lobby').th
     loading: () => <Skeleton className="w-full h-96" />,
     ssr: false 
 });
+const SetAdminForm = dynamic(() => import('@/components/set-admin-form').then(mod => mod.SetAdminForm), {
+    loading: () => <Skeleton className="w-full h-48" />,
+    ssr: false
+});
 
 
 export default function AdminPage() {
@@ -95,8 +99,9 @@ export default function AdminPage() {
                             <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
                         </TabsList>
                         <TabsContent value="analytics">
-                            <section className="py-12 sm:py-16">
+                            <section className="py-12 sm:py-16 space-y-12">
                                 <AnalyticsDashboard />
+                                <SetAdminForm />
                             </section>
                         </TabsContent>
                         <TabsContent value="post-ad">
