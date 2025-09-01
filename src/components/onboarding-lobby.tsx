@@ -13,11 +13,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { addOnboardedUser, getOnboardedUsers, renewOnboardedUser, deleteOnboardedUser, updatePaymentStatus, type OnboardedUser, type OnboardedUserData, PaymentStatus } from '@/lib/onboarding';
-import { Loader2, UserPlus, Trash2, RefreshCcw, Bell, CheckCircle2, AlertTriangle, XCircle, BadgeDollarSign, CircleDollarSign } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, RefreshCcw, Bell, CheckCircle2, AlertTriangle, XCircle, CircleDollarSign, CalendarIcon } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
 import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from './ui/calendar';
+import { cn } from '@/lib/utils';
 
 
 const formSchema = z.object({
@@ -29,6 +32,8 @@ const formSchema = z.object({
     z.coerce.number({ invalid_type_error: "Amount must be a number" }).positive('Amount must be positive.')
   ),
   notes: z.string().optional(),
+  startDate: z.date({ required_error: "A start date is required." }),
+  endDate: z.date({ required_error: "An end date is required." }),
 });
 
 export function OnboardingLobby() {
@@ -46,6 +51,8 @@ export function OnboardingLobby() {
       phoneNumber: '',
       paymentAmount: undefined,
       notes: '',
+      startDate: new Date(),
+      endDate: new Date(new Date().setDate(new Date().getDate() + 30)),
     },
   });
 
@@ -63,7 +70,18 @@ export function OnboardingLobby() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      await addOnboardedUser(values as OnboardedUserData);
+      const userData: OnboardedUserData = {
+          name: values.name,
+          businessName: values.businessName,
+          phoneNumber: values.phoneNumber,
+          paymentAmount: values.paymentAmount,
+          notes: values.notes,
+          onboardedDate: values.startDate,
+          paymentDueDate: values.endDate,
+          paymentStatus: 'Due'
+      }
+
+      await addOnboardedUser(userData);
       toast({ title: 'User Onboarded', description: `${values.name} has been added to the lobby.` });
       form.reset();
       await fetchUsers(); // Refresh the list
@@ -151,6 +169,42 @@ export function OnboardingLobby() {
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" placeholder="+91 98765 43210" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="paymentAmount" render={({ field }) => (<FormItem><FormLabel>Payment Amount (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 500" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl><FormMessage /></FormItem>)} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField control={form.control} name="startDate" render={({ field }) => (
+                        <FormItem className="flex flex-col"><FormLabel>Start Date</FormLabel>
+                            <Popover><PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name="endDate" render={({ field }) => (
+                        <FormItem className="flex flex-col"><FormLabel>End Date</FormLabel>
+                            <Popover><PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button variant={"outline"} className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
                 </div>
                 <FormField control={form.control} name="notes" render={({ field }) => (<FormItem><FormLabel>Notes (Optional)</FormLabel><FormControl><Textarea placeholder="Any relevant notes about the client..." {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <Button type="submit" disabled={isSubmitting} className="w-full">
