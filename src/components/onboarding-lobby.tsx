@@ -13,11 +13,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { addOnboardedUser, getOnboardedUsers, renewOnboardedUser, deleteOnboardedUser, updatePaymentStatus, type OnboardedUser, type OnboardedUserData, PaymentStatus } from '@/lib/onboarding';
-import { Loader2, UserPlus, Trash2, RefreshCcw, Bell, CheckCircle2, AlertTriangle, XCircle, BadgeDollarSign, CircleDollarSign } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, RefreshCcw, Bell, CheckCircle2, AlertTriangle, XCircle, BadgeDollarSign, CircleDollarSign, CalendarDays } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
-import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
+import { format, formatDistanceToNow, differenceInDays, isSameDay } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { Calendar } from './ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { cn } from '@/lib/utils';
 
 
 const formSchema = z.object({
@@ -36,6 +39,7 @@ export function OnboardingLobby() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userToDelete, setUserToDelete] = useState<OnboardedUser | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -115,6 +119,8 @@ export function OnboardingLobby() {
   const sortedUsers = useMemo(() => {
     return [...users].sort((a, b) => new Date(a.paymentDueDate).getTime() - new Date(b.paymentDueDate).getTime());
   }, [users]);
+
+  const dueDates = useMemo(() => users.map(u => u.paymentDueDate), [users]);
   
   const getStatus = (dueDate: Date): { text: string; variant: "default" | "secondary" | "destructive"; icon: React.ReactNode; daysLeft: number } => {
     const now = new Date();
@@ -127,6 +133,34 @@ export function OnboardingLobby() {
       return { text: "Expires Soon", variant: "secondary", icon: <Bell className="mr-2 h-4 w-4" />, daysLeft };
     }
     return { text: "Active", variant: "default", icon: <CheckCircle2 className="mr-2 h-4 w-4" />, daysLeft };
+  };
+
+  const DayWithPopover = ({ date, displayMonth }: { date: Date; displayMonth: Date }) => {
+    const usersDueOnThisDay = users.filter(user => isSameDay(user.paymentDueDate, date));
+    if (usersDueOnThisDay.length === 0) {
+      return <div className="p-0 font-normal">{date.getDate()}</div>;
+    }
+
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <div className="relative w-full h-full flex items-center justify-center p-0 font-normal">
+            {date.getDate()}
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-primary" />
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-2">
+          <div className="space-y-1">
+            <p className="font-bold text-sm">{format(date, 'PPP')}</p>
+            <ul className="text-xs list-disc pl-4">
+              {usersDueOnThisDay.map(user => (
+                <li key={user.id}>{user.businessName}</li>
+              ))}
+            </ul>
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
   };
 
   return (
@@ -168,6 +202,28 @@ export function OnboardingLobby() {
             <h2 className="text-3xl font-bold">Onboarding Lobby</h2>
             <p className="mt-4 text-muted-foreground">View all onboarded clients and their payment status.</p>
         </div>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CalendarDays />
+              Due Date Calendar
+            </CardTitle>
+            <CardDescription>A monthly overview of client payment due dates.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Calendar
+                mode="single"
+                month={currentMonth}
+                onMonthChange={setCurrentMonth}
+                modifiers={{ due: dueDates }}
+                modifiersClassNames={{ due: 'bg-primary/20 rounded-full' }}
+                components={{ Day: DayWithPopover }}
+                className="p-0"
+              />
+          </CardContent>
+        </Card>
+
         <Card>
             <CardContent className="p-0">
                <div className="overflow-x-auto">
