@@ -16,11 +16,14 @@ import { addOnboardedUser, getOnboardedUsers, renewOnboardedUser, deleteOnboarde
 import { Loader2, UserPlus, Trash2, RefreshCcw, Bell, CheckCircle2, AlertTriangle, XCircle, CircleDollarSign, CalendarIcon } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { Badge } from './ui/badge';
-import { format, formatDistanceToNow, differenceInDays } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from './ui/select';
+import { locations } from '@/lib/locations';
+import { useOffers } from '@/contexts/OffersContext';
 
 
 const formSchema = z.object({
@@ -42,6 +45,12 @@ export function OnboardingLobby() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userToDelete, setUserToDelete] = useState<OnboardedUser | null>(null);
   const { toast } = useToast();
+  const { offers } = useOffers();
+
+  // State for the form autofill feature
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [filteredBusinesses, setFilteredBusinesses] = useState<string[]>([]);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,6 +76,32 @@ export function OnboardingLobby() {
     fetchUsers();
   }, []);
 
+  // Effect to update the list of businesses when a location is selected
+  useEffect(() => {
+    if (selectedLocation) {
+        const businessesInLocation = offers
+            .filter(offer => offer.location === selectedLocation)
+            .map(offer => offer.business);
+        
+        const uniqueBusinesses = [...new Set(businessesInLocation)];
+        setFilteredBusinesses(uniqueBusinesses);
+    } else {
+        setFilteredBusinesses([]);
+    }
+  }, [selectedLocation, offers]);
+
+  const handleBusinessSelect = (businessName: string) => {
+    if (businessName) {
+        // Find the first offer for this business to pull data from
+        const offer = offers.find(o => o.business === businessName);
+        form.setValue('businessName', businessName);
+        form.setValue('name', businessName); // Autofill client name with business name
+        if (offer?.phoneNumber) {
+            form.setValue('phoneNumber', offer.phoneNumber);
+        }
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
@@ -83,7 +118,16 @@ export function OnboardingLobby() {
 
       await addOnboardedUser(userData);
       toast({ title: 'User Onboarded', description: `${values.name} has been added to the lobby.` });
-      form.reset();
+      form.reset({
+        name: '',
+        businessName: '',
+        phoneNumber: '',
+        paymentAmount: undefined,
+        notes: '',
+        startDate: new Date(),
+        endDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+      });
+      setSelectedLocation(null);
       await fetchUsers(); // Refresh the list
     } catch (error) {
       console.error('Failed to onboard user:', error);
@@ -157,11 +201,31 @@ export function OnboardingLobby() {
         <Card>
           <CardHeader>
             <CardTitle>Onboard New Client</CardTitle>
-            <CardDescription>Fill in the details to add a new client to the lobby.</CardDescription>
+            <CardDescription>Fill in the details to add a new client to the lobby. You can pre-fill data by selecting a location and business.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="space-y-4 rounded-md border p-4">
+                  <FormLabel>Autofill from Existing Business (Optional)</FormLabel>
+                   <Select onValueChange={(value) => setSelectedLocation(value)}>
+                      <SelectTrigger><SelectValue placeholder="Select a location to find businesses" /></SelectTrigger>
+                      <SelectContent>{locations.map((location) => location.subLocations ? (<SelectGroup key={location.name}><SelectLabel>{location.name}</SelectLabel>{location.subLocations.map((sub) => (<SelectItem key={`${location.name}-${sub}`} value={sub}>{sub}</SelectItem>))}</SelectGroup>) : (<SelectItem key={location.name} value={location.name}>{location.name}</SelectItem>))}</SelectContent>
+                   </Select>
+                   {selectedLocation && (
+                    <Select onValueChange={handleBusinessSelect} disabled={filteredBusinesses.length === 0}>
+                       <SelectTrigger>
+                          <SelectValue placeholder={filteredBusinesses.length > 0 ? "Select a business to autofill" : "No businesses found in this location"} />
+                       </SelectTrigger>
+                       <SelectContent>
+                          {filteredBusinesses.map(name => (
+                              <SelectItem key={name} value={name}>{name}</SelectItem>
+                          ))}
+                       </SelectContent>
+                    </Select>
+                   )}
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Client Name</FormLabel><FormControl><Input placeholder="e.g., John Doe" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     <FormField control={form.control} name="businessName" render={({ field }) => (<FormItem><FormLabel>Business Name</FormLabel><FormControl><Input placeholder="e.g., John's Hardware" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -278,21 +342,18 @@ export function OnboardingLobby() {
                                         {user.paymentAmount ? `₹${user.paymentAmount.toLocaleString()}` : 'N/A'}
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant={isPaid ? "default" : "destructive"} className="flex items-center w-fit">
+                                        <Badge variant={isPaid ? "default" : "destructive"} className="flex items-center w-fit cursor-pointer" onClick={() => handleTogglePaymentStatus(user)}>
                                           {isPaid ? <CheckCircle2 className="mr-2 h-4 w-4" /> : <AlertTriangle className="mr-2 h-4 w-4" />}
                                           {user.paymentStatus}
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
-                                         <Button size="sm" variant="outline" onClick={() => handleTogglePaymentStatus(user)}>
-                                            <CircleDollarSign className="mr-2 h-4 w-4" /> Mark as {isPaid ? 'Due' : 'Paid'}
-                                         </Button>
                                          <Button size="sm" variant="outline" onClick={() => handleRenew(user.id)}>
                                             <RefreshCcw className="mr-2 h-4 w-4" /> Renew
                                          </Button>
                                          <AlertDialog>
                                             <AlertDialogTrigger asChild>
-                                                <Button size="sm" variant="destructive" onClick={() => setUserToDelete(user)}>
+                                                <Button size="sm" variant="destructive">
                                                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                                                 </Button>
                                             </AlertDialogTrigger>
@@ -300,12 +361,12 @@ export function OnboardingLobby() {
                                                 <AlertDialogHeader>
                                                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        This action cannot be undone. This will permanently delete the record for {userToDelete?.name}.
+                                                        This action cannot be undone. This will permanently delete the record for {user.name}.
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel onClick={() => setUserToDelete(null)}>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                                    <AlertDialogAction onClick={() => {setUserToDelete(user); handleDelete()}} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
                                          </AlertDialog>
@@ -323,3 +384,5 @@ export function OnboardingLobby() {
     </div>
   );
 }
+
+    
