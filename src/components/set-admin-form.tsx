@@ -19,10 +19,6 @@ const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
 });
 
-// Initialize Cloud Functions
-const functions = getFunctions(app);
-const setAdminClaim = httpsCallable(functions, 'setAdminClaim');
-
 export function SetAdminForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
@@ -42,6 +38,10 @@ export function SetAdminForm() {
     setErrorMessage(null);
 
     try {
+      // Initialize Cloud Functions inside the handler to ensure Firebase app is ready
+      const functions = getFunctions(app);
+      const setAdminClaim = httpsCallable(functions, 'setAdminClaim');
+
       const result = await setAdminClaim({ email: values.email });
       const data = result.data as { result?: string; error?: string };
 
