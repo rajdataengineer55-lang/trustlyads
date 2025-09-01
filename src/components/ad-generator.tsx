@@ -35,7 +35,10 @@ const formSchema = z.object({
   offerTitle: z.string().min(5, { message: "Offer title must be at least 5 characters." }),
   offerCompleteDetails: z.string().min(10, { message: "Offer details must be at least 10 characters." }),
   discount: z.string().min(1, { message: "Discount details are required." }),
-  price: z.coerce.number().positive().optional(),
+  price: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number({ invalid_type_error: "Price must be a number" }).positive().optional()
+  ),
   tags: z.string().optional(),
   images: z.custom<FileList>().optional(),
   allowCall: z.boolean().default(false),
@@ -46,17 +49,41 @@ const formSchema = z.object({
   scheduleLink: z.string().optional(),
   // Real Estate Fields
   propertyType: z.string().optional(),
-  bedrooms: z.coerce.number().optional(),
-  bathrooms: z.coerce.number().optional(),
+  bedrooms: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number().optional()
+  ),
+  bathrooms: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number().optional()
+  ),
   furnishing: z.enum(['Furnished', 'Semi-Furnished', 'Unfurnished']).optional(),
   listedBy: z.enum(['Owner', 'Agent', 'Builder']).optional(),
-  superBuiltupArea: z.coerce.number().optional(),
-  carpetArea: z.coerce.number().optional(),
-  maintenance: z.coerce.number().optional(),
-  floorNo: z.coerce.number().optional(),
-  totalFloors: z.coerce.number().optional(),
+  superBuiltupArea: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number().optional()
+  ),
+  carpetArea: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number().optional()
+  ),
+  maintenance: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number().optional()
+  ),
+  floorNo: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number().optional()
+  ),
+  totalFloors: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number().optional()
+  ),
   facing: z.enum(['North', 'South', 'East', 'West', 'North-East', 'North-West', 'South-East', 'South-West']).optional(),
-  carParking: z.coerce.number().optional(),
+  carParking: z.preprocess(
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number().optional()
+  ),
   projectName: z.string().optional(),
 }).refine(data => !data.allowCall || (data.allowCall && data.phoneNumber), {
   message: "Phone number is required if calling is enabled.",
@@ -713,3 +740,5 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
     </>
   );
 }
+
+    
