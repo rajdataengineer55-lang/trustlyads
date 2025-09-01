@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useForm } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -116,7 +116,38 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { business: "", offerTitle: "", offerCompleteDetails: "", discount: "", tags: "", nearbyLocation: "", locationLink: "", allowCall: false, phoneNumber: "", allowChat: false, chatLink: "", allowSchedule: false, scheduleLink: "" },
+    defaultValues: { 
+        business: "", 
+        businessType: undefined,
+        otherBusinessType: "",
+        location: undefined,
+        nearbyLocation: "", 
+        locationLink: "", 
+        offerTitle: "", 
+        offerCompleteDetails: "", 
+        discount: "", 
+        tags: "", 
+        allowCall: false, 
+        phoneNumber: "", 
+        allowChat: false, 
+        chatLink: "", 
+        allowSchedule: false, 
+        scheduleLink: "",
+        price: undefined,
+        propertyType: "",
+        projectName: "",
+        furnishing: undefined,
+        listedBy: undefined,
+        facing: undefined,
+        bedrooms: undefined,
+        bathrooms: undefined,
+        superBuiltupArea: undefined,
+        carpetArea: undefined,
+        maintenance: undefined,
+        floorNo: undefined,
+        totalFloors: undefined,
+        carParking: undefined,
+    },
   });
 
   const watchBusinessType = form.watch("businessType");
@@ -444,14 +475,15 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
             <CardDescription>Provide specific details for this real estate listing.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+            <FormField control={form.control} name="projectName" render={({ field }) => (<FormItem><FormLabel>Project Name</FormLabel><FormControl><Input placeholder="e.g., Green Valley Apartments" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="propertyType" render={({ field }) => (<FormItem><FormLabel>Property Type</FormLabel><FormControl><Input placeholder="e.g., Independent / Builder Floors, Apartment" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="bedrooms" render={({ field }) => (<FormItem><FormLabel>Bedrooms</FormLabel><FormControl><Input type="number" placeholder="e.g., 2" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="bathrooms" render={({ field }) => (<FormItem><FormLabel>Bathrooms</FormLabel><FormControl><Input type="number" placeholder="e.g., 1" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField control={form.control} name="furnishing" render={({ field }) => (<FormItem><FormLabel>Furnishing</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select furnishing status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Furnished">Furnished</SelectItem><SelectItem value="Semi-Furnished">Semi-Furnished</SelectItem><SelectItem value="Unfurnished">Unfurnished</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="listedBy" render={({ field }) => (<FormItem><FormLabel>Listed By</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select lister type" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Owner">Owner</SelectItem><SelectItem value="Agent">Agent</SelectItem><SelectItem value="Builder">Builder</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="furnishing" render={({ field }) => (<FormItem><FormLabel>Furnishing</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select furnishing status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Furnished">Furnished</SelectItem><SelectItem value="Semi-Furnished">Semi-Furnished</SelectItem><SelectItem value="Unfurnished">Unfurnished</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="listedBy" render={({ field }) => (<FormItem><FormLabel>Listed By</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select lister type" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Owner">Owner</SelectItem><SelectItem value="Agent">Agent</SelectItem><SelectItem value="Builder">Builder</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="superBuiltupArea" render={({ field }) => (<FormItem><FormLabel>Super Built-up Area (sqft)</FormLabel><FormControl><Input type="number" placeholder="e.g., 1200" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -462,10 +494,9 @@ export function AdGenerator({ offerToEdit, onFinished }: AdGeneratorProps) {
                 <FormField control={form.control} name="totalFloors" render={({ field }) => (<FormItem><FormLabel>Total Floors</FormLabel><FormControl><Input type="number" placeholder="e.g., 4" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField control={form.control} name="facing" render={({ field }) => (<FormItem><FormLabel>Facing</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select direction" /></SelectTrigger></FormControl><SelectContent><SelectItem value="North">North</SelectItem><SelectItem value="South">South</SelectItem><SelectItem value="East">East</SelectItem><SelectItem value="West">West</SelectItem><SelectItem value="North-East">North-East</SelectItem><SelectItem value="North-West">North-West</SelectItem><SelectItem value="South-East">South-East</SelectItem><SelectItem value="South-West">South-West</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="facing" render={({ field }) => (<FormItem><FormLabel>Facing</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select direction" /></SelectTrigger></FormControl><SelectContent><SelectItem value="North">North</SelectItem><SelectItem value="South">South</SelectItem><SelectItem value="East">East</SelectItem><SelectItem value="West">West</SelectItem><SelectItem value="North-East">North-East</SelectItem><SelectItem value="North-West">North-West</SelectItem><SelectItem value="South-East">South-East</SelectItem><SelectItem value="South-West">South-West</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="carParking" render={({ field }) => (<FormItem><FormLabel>Car Parking Spaces</FormLabel><FormControl><Input type="number" placeholder="e.g., 1" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
-            <FormField control={form.control} name="projectName" render={({ field }) => (<FormItem><FormLabel>Project Name</FormLabel><FormControl><Input placeholder="e.g., Green Valley Apartments" {...field} /></FormControl><FormMessage /></FormItem>)} />
         </CardContent>
     </Card>
   )
