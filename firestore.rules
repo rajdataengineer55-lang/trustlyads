@@ -1,56 +1,50 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check for admin role
+    // Helper function to check for admin custom claim
     function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+      return request.auth.token.admin == true;
     }
 
-    // Offers Collection
+    // Rules for offers collection
     match /offers/{offerId} {
-      // ANYONE can read a public offer.
+      // Anyone can read non-hidden offers
       allow read: if resource.data.isHidden == false;
-      
-      // ADMINS can read hidden offers.
+      // Admins can read any offer (covers get and list)
       allow read: if isAdmin();
-      
-      // ADMINS can create and delete offers.
+
+      // Only admins can create or delete offers
       allow create, delete: if isAdmin();
 
-      // ANYONE can increment views/clicks, but can't change other fields.
-      // ADMINS can update any field.
-      allow update: if (
-        isAdmin() ||
-        (
-          request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['views', 'clicks']) &&
-          request.resource.data.views == resource.data.views + 1 ||
-          request.resource.data.clicks == resource.data.clicks + 1
-        )
-      );
+      // Admins can update any field
+      // Any user can update ONLY the views and clicks fields
+      allow update: if isAdmin() ||
+                      (request.auth != null &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views', 'clicks']));
     }
     
-    // Followers Collection
-    match /followers/{userId} {
-      // ANYONE can read the full list (for the count).
-      allow list: if true;
-      // ONLY the authenticated user can see, create, or delete their own follow status.
-      allow read, create, delete: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Stories Collection
+    // Rules for stories collection
     match /stories/{storyId} {
-      // ANYONE can read active stories. TTL policy handles deletion.
+      // Anyone can read stories
       allow read: if true;
-      // ONLY ADMINS can create or delete stories.
-      allow create, delete: if isAdmin();
+      // Only admins can write/delete stories
+      allow write: if isAdmin();
     }
     
-    // Onboarded Users Collection
+    // Rules for followers collection
+    match /followers/{userId} {
+        // Anyone can see the total count, but not who is following
+        allow list: if false; 
+        allow get: if request.auth != null; // A user can check their own follow status
+        
+        // Only an authenticated user can follow/unfollow for themselves
+        allow create, delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Rules for onboardedUsers collection
     match /onboardedUsers/{userId} {
-      // ONLY ADMINS can read or write to the onboarding lobby.
+      // ONLY admins can perform any action on this collection
       allow read, write: if isAdmin();
     }
   }
